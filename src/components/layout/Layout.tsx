@@ -10,9 +10,10 @@ interface LayoutProps {
   role: UserRole;
   userName: string;
   userImage?: string;
+  onImageUpdate?: (image: string) => void;
 }
 
-export const Layout: React.FC<LayoutProps> = ({ children, role, userName, userImage }) => {
+export const Layout: React.FC<LayoutProps> = ({ children, role, userName, userImage, onImageUpdate }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
@@ -23,11 +24,12 @@ export const Layout: React.FC<LayoutProps> = ({ children, role, userName, userIm
         <Navbar 
           userName={userName} 
           userImage={userImage}
+          onImageUpdate={onImageUpdate}
           onMenuClick={() => setSidebarOpen(true)} 
         />
         
         <main className="flex-1 overflow-y-auto">
-          <div className="p-4 lg:p-6 max-w-7xl mx-auto">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 max-w-7xl">
             {children}
           </div>
         </main>

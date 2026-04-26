@@ -29,7 +29,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, onClose }) => {
   const memberLinks = [
     { href: '/member/savings', label: 'My Savings', icon: Home },
     { href: '/member/payment', label: 'Pay Shares', icon: CreditCard },
-    { href: '/member/loan', label: 'Request Loan', icon: Wallet },
+    { href: '/member/loan', label: 'Loan', icon: Wallet },
   ];
 
   const accountantLinks = [

@@ -58,17 +58,17 @@ export const Navbar: React.FC<NavbarProps> = ({ userName, userImage, onMenuClick
   return (
     <>
       <header className="bg-white border-b border-gray-200 sticky top-0 z-30 shadow-soft">
-        <div className="flex items-center justify-between px-4 lg:px-6 py-4">
+        <div className="flex items-center justify-between px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
           <button
             onClick={onMenuClick}
-            className="lg:hidden p-2 hover:bg-background-gray rounded-2xl transition-all duration-300 active:scale-90"
+            className="lg:hidden p-2 hover:bg-background-gray rounded-xl transition-all duration-300 active:scale-90"
           >
             <Menu size={24} className="text-text-dark" />
           </button>
           
           <div className="flex-1" />
           
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             {/* Notifications */}
             <div className="relative">
               <button 
@@ -90,7 +90,7 @@ export const Navbar: React.FC<NavbarProps> = ({ userName, userImage, onMenuClick
                     className="fixed inset-0 z-40" 
                     onClick={() => setShowNotifications(false)}
                   />
-                  <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-large border border-gray-200 z-50 animate-slide-up">
+                  <div className="absolute right-0 mt-2 w-80 max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-large border border-gray-200 z-50 animate-slide-up">
                     <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-background-gray to-white">
                       <div className="flex items-center justify-between">
                         <h3 className="font-semibold text-text-dark">Notifications</h3>
@@ -137,7 +137,7 @@ export const Navbar: React.FC<NavbarProps> = ({ userName, userImage, onMenuClick
                     className="fixed inset-0 z-40" 
                     onClick={() => setShowSettings(false)}
                   />
-                  <div className="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-large border border-gray-200 z-50 animate-slide-up">
+                  <div className="absolute right-0 mt-2 w-72 max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-large border border-gray-200 z-50 animate-slide-up">
                     <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-background-gray to-white">
                       <h3 className="font-semibold text-text-dark">Settings</h3>
                       <p className="text-xs text-text-gray mt-0.5">Manage your account</p>
@@ -174,12 +174,12 @@ export const Navbar: React.FC<NavbarProps> = ({ userName, userImage, onMenuClick
             </div>
             
             {/* User Avatar */}
-            <div className="flex items-center gap-3 pl-2 border-l border-gray-200">
+            <div className="flex items-center gap-2 sm:gap-3 pl-2 border-l border-gray-200">
               <div className="transition-transform duration-300 hover:scale-110">
                 <Avatar src={currentUserImage} name={userName} size="md" />
               </div>
-              <div className="hidden md:block">
-                <p className="text-sm font-medium text-text-dark">{userName}</p>
+              <div className="hidden sm:block">
+                <p className="text-sm font-medium text-text-dark truncate max-w-[120px]">{userName}</p>
               </div>
             </div>
           </div>

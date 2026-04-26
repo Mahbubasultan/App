@@ -8,12 +8,116 @@ import { Button } from '@/components/ui/Button';
 import { Avatar } from '@/components/ui/Avatar';
 import { mockUsers } from '@/lib/mockData';
 import { formatCurrency, formatDate, getGreeting } from '@/lib/utils';
-import { Edit, Trash2, Plus, Users as UsersIcon, TrendingUp, DollarSign, Search, Download } from 'lucide-react';
+import { Edit, Trash2, Plus, Users as UsersIcon, TrendingUp, DollarSign, Search, Download, Eye } from 'lucide-react';
+import UserViewModal from '@/components/admin/UserViewModal';
+import DeleteConfirmDialog from '@/components/admin/DeleteConfirmDialog';
+import AddUserModal from '@/components/admin/AddUserModal';
+import { User } from '@/types/user';
 
 export default function AdminUsers() {
   const [adminUser] = useState(mockUsers[2]);
   const [userImage, setUserImage] = useState<string | undefined>(undefined);
+  const [users, setUsers] = useState(mockUsers);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<any>(null);
+  const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const greeting = getGreeting();
+
+  // Convert mockUser to User type for modal
+  const convertToUser = (mockUser: any): User => ({
+    id: mockUser.id,
+    firstName: mockUser.name.split(' ')[0],
+    lastName: mockUser.name.split(' ').slice(1).join(' '),
+    email: mockUser.email,
+    phone: mockUser.phone,
+    role: mockUser.role === 'admin' ? 'Admin' : mockUser.role === 'accountant' ? 'Manager' : 'User',
+    avatar: undefined,
+    bio: `Member with ${mockUser.shares} shares and ${formatCurrency(mockUser.totalValue)} total value.`,
+    address: 'Address not available',
+    createdAt: new Date().toISOString(),
+    status: mockUser.isActive ? 'Active' : 'Inactive',
+  });
+
+  // Filter users based on search
+  const filteredUsers = users.filter(user => 
+    user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    user.phone.includes(searchQuery)
+  );
+
+  const handleViewUser = (user: any) => {
+    setSelectedUser(convertToUser(user));
+    setIsViewModalOpen(true);
+  };
+
+  const handleEditUser = (user: any) => {
+    alert(`Edit functionality for ${user.name} - To be implemented`);
+  };
+
+  const handleDeleteClick = (user: any) => {
+    setUserToDelete(user);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (!userToDelete) return;
+    setUsers(users.filter((u) => u.id !== userToDelete.id));
+    setIsDeleteDialogOpen(false);
+    setUserToDelete(null);
+  };
+
+  const handleDeleteCancel = () => {
+    setIsDeleteDialogOpen(false);
+    setUserToDelete(null);
+  };
+
+  const handleAddUser = () => {
+    setIsAddUserModalOpen(true);
+  };
+
+  const handleAddUserSubmit = (newUser: any) => {
+    setUsers([...users, newUser]);
+    setIsAddUserModalOpen(false);
+  };
+
+  const handleExport = () => {
+    // Create CSV content
+    const headers = ['Name', 'Email', 'Phone', 'Role', 'Shares', 'Total Value', 'Status'];
+    const csvContent = [
+      headers.join(','),
+      ...users.map(user => [
+        user.name,
+        user.email,
+        user.phone,
+        user.role,
+        user.shares,
+        user.totalValue,
+        user.isActive ? 'Active' : 'Inactive'
+      ].join(','))
+    ].join('\n');
+
+    // Create download link
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `users-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  };
+
+  const handleSearchToggle = () => {
+    setIsSearchOpen(!isSearchOpen);
+    if (isSearchOpen) {
+      setSearchQuery('');
+    }
+  };
 
   const stats = [
     {
@@ -56,7 +160,10 @@ export default function AdminUsers() {
             </h1>
             <p className="text-text-gray mt-1">Manage all members and their roles</p>
           </div>
-          <button className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-secondary text-white rounded-2xl font-semibold shadow-green hover:shadow-large transition-all duration-300 active:scale-95">
+          <button 
+            onClick={handleAddUser}
+            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-secondary text-white rounded-2xl font-semibold shadow-green hover:shadow-large transition-all duration-300 active:scale-95"
+          >
             <Plus size={20} />
             Add New User
           </button>
@@ -96,11 +203,31 @@ export default function AdminUsers() {
               <p className="text-sm text-text-gray mt-1">View and manage user accounts</p>
             </div>
             <div className="flex gap-2">
-              <button className="flex items-center gap-2 px-4 py-2 border-2 border-gray-200 rounded-2xl hover:border-primary hover:bg-primary/5 transition-all duration-300 active:scale-95">
-                <Search size={18} className="text-text-gray" />
-                <span className="text-sm font-medium text-text-dark">Search</span>
-              </button>
-              <button className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-accent-orange to-accent-orange/80 text-white rounded-2xl shadow-orange hover:shadow-large transition-all duration-300 active:scale-95">
+              <div className="relative">
+                <button 
+                  onClick={handleSearchToggle}
+                  className="flex items-center gap-2 px-4 py-2 border-2 border-gray-200 rounded-2xl hover:border-primary hover:bg-primary/5 transition-all duration-300 active:scale-95"
+                >
+                  <Search size={18} className="text-text-gray" />
+                  <span className="text-sm font-medium text-text-dark">Search</span>
+                </button>
+                {isSearchOpen && (
+                  <div className="absolute top-full mt-2 right-0 z-10 w-64 animate-slide-up">
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search by name, email, or phone..."
+                      className="w-full px-4 py-2 border-2 border-primary rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20"
+                      autoFocus
+                    />
+                  </div>
+                )}
+              </div>
+              <button 
+                onClick={handleExport}
+                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-accent-orange to-accent-orange/80 text-white rounded-2xl shadow-orange hover:shadow-large transition-all duration-300 active:scale-95"
+              >
                 <Download size={18} />
                 <span className="text-sm font-medium">Export</span>
               </button>
@@ -121,7 +248,7 @@ export default function AdminUsers() {
                 </tr>
               </thead>
               <tbody>
-                {mockUsers.map((user, index) => (
+                {filteredUsers.map((user, index) => (
                   <tr 
                     key={user.id} 
                     className="border-b border-gray-100 hover:bg-gradient-to-r hover:from-background-gray hover:to-transparent transition-all duration-300"
@@ -162,10 +289,25 @@ export default function AdminUsers() {
                     </td>
                     <td className="py-4 px-4">
                       <div className="flex justify-center gap-2">
-                        <button className="p-2 hover:bg-accent-blue/10 text-accent-blue rounded-xl transition-all duration-300 active:scale-90">
+                        <button 
+                          onClick={() => handleViewUser(user)}
+                          className="p-2 hover:bg-primary/10 text-primary rounded-xl transition-all duration-300 active:scale-90"
+                          title="View Details"
+                        >
+                          <Eye size={18} />
+                        </button>
+                        <button 
+                          onClick={() => handleEditUser(user)}
+                          className="p-2 hover:bg-accent-blue/10 text-accent-blue rounded-xl transition-all duration-300 active:scale-90"
+                          title="Edit User"
+                        >
                           <Edit size={18} />
                         </button>
-                        <button className="p-2 hover:bg-accent-red/10 text-accent-red rounded-xl transition-all duration-300 active:scale-90">
+                        <button 
+                          onClick={() => handleDeleteClick(user)}
+                          className="p-2 hover:bg-accent-red/10 text-accent-red rounded-xl transition-all duration-300 active:scale-90"
+                          title="Delete User"
+                        >
                           <Trash2 size={18} />
                         </button>
                       </div>
@@ -175,8 +317,39 @@ export default function AdminUsers() {
               </tbody>
             </table>
           </div>
+
+          {/* No Results Message */}
+          {filteredUsers.length === 0 && (
+            <div className="text-center py-12">
+              <Search size={48} className="mx-auto text-gray-300 mb-4" />
+              <h3 className="text-lg font-semibold text-text-dark mb-2">No users found</h3>
+              <p className="text-sm text-text-gray">
+                {searchQuery ? `No results for "${searchQuery}"` : 'No users available'}
+              </p>
+            </div>
+          )}
         </Card>
       </div>
+
+      {/* Modals */}
+      <UserViewModal
+        user={selectedUser}
+        isOpen={isViewModalOpen}
+        onClose={() => setIsViewModalOpen(false)}
+      />
+
+      <DeleteConfirmDialog
+        isOpen={isDeleteDialogOpen}
+        userName={userToDelete ? userToDelete.name : ''}
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDeleteCancel}
+      />
+
+      <AddUserModal
+        isOpen={isAddUserModalOpen}
+        onClose={() => setIsAddUserModalOpen(false)}
+        onAdd={handleAddUserSubmit}
+      />
     </Layout>
   );
 }
