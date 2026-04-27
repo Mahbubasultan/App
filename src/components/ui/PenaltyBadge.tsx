@@ -27,7 +27,8 @@ export const PenaltyBadge: React.FC<PenaltyBadgeProps> = ({
 
   if (tier === 'none') {
     return (
-      <Badge variant="success" size="sm" icon={<Clock size={14} />}>
+      <Badge variant="success" size="sm">
+        <Clock size={14} className="mr-1" />
         On Time
       </Badge>
     );
@@ -41,7 +42,8 @@ export const PenaltyBadge: React.FC<PenaltyBadgeProps> = ({
       onMouseEnter={() => setShowTooltip(true)}
       onMouseLeave={() => setShowTooltip(false)}
     >
-      <Badge variant={variantColor} size="sm" icon={<AlertCircle size={14} />}>
+      <Badge variant={variantColor} size="sm">
+        <AlertCircle size={14} className="mr-1" />
         Penalty: {formatCurrency(penaltyAmount)}
       </Badge>
       

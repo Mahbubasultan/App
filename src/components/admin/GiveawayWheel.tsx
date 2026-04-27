@@ -39,7 +39,7 @@ export const GiveawayWheel: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card variant="bordered">
+        <Card>
           <CardContent className="flex items-center gap-4">
             <div className="p-3 bg-primary-100 rounded-xl">
               <DollarSign size={24} className="text-primary-600" />
@@ -51,7 +51,7 @@ export const GiveawayWheel: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card variant="bordered">
+        <Card>
           <CardContent className="flex items-center gap-4">
             <div className="p-3 bg-success-100 rounded-xl">
               <Trophy size={24} className="text-success-600" />
@@ -63,7 +63,7 @@ export const GiveawayWheel: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card variant="bordered">
+        <Card>
           <CardContent className="flex items-center gap-4">
             <div className="p-3 bg-info-100 rounded-xl">
               <Users size={24} className="text-info-600" />
@@ -76,11 +76,11 @@ export const GiveawayWheel: React.FC = () => {
         </Card>
       </div>
 
-      <Card variant="elevated">
+      <Card>
         <CardContent className="text-center space-y-8 py-8">
           <div>
             <h2 className="text-3xl font-bold text-gray-900 mb-2">Monthly Giveaway</h2>
-            <p className="text-gray-600">Spin the wheel to select this month's winner</p>
+            <p className="text-gray-600">Spin the wheel to select this month&apos;s winner</p>
           </div>
 
           <div className="relative inline-block">
@@ -165,7 +165,7 @@ export const GiveawayWheel: React.FC = () => {
                     </td>
                     <td className="py-3 px-4 text-right">
                       <span className="font-semibold text-success-600">
-                        {formatCurrency(giveaway.amount)}
+                        {formatCurrency(giveaway.winnerAmount)}
                       </span>
                     </td>
                     <td className="py-3 px-4 text-right text-gray-600">

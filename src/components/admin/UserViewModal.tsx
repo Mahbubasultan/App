@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import { UserModalProps } from '@/types/user';
 
 const UserViewModal: React.FC<UserModalProps> = ({ user, isOpen, onClose }) => {
@@ -71,9 +72,11 @@ const UserViewModal: React.FC<UserModalProps> = ({ user, isOpen, onClose }) => {
             <div className="flex items-center space-x-4 mb-6">
               <div className="relative">
                 {user.avatar ? (
-                  <img
+                  <Image
                     src={user.avatar}
                     alt={`${user.firstName} ${user.lastName}`}
+                    width={80}
+                    height={80}
                     className="w-20 h-20 rounded-full object-cover border-4 border-gray-100"
                   />
                 ) : (

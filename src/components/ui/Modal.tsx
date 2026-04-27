@@ -113,6 +113,9 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
   variant = 'primary',
   isLoading = false,
 }) => {
+  // Map warning to danger for Button component
+  const buttonVariant = variant === 'warning' ? 'danger' : variant;
+  
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="sm" showCloseButton={false}>
       <div className="text-center">
@@ -129,7 +132,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
             {cancelText}
           </Button>
           <Button
-            variant={variant}
+            variant={buttonVariant}
             onClick={onConfirm}
             isLoading={isLoading}
             className="flex-1"

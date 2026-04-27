@@ -10,6 +10,7 @@ import { useState } from 'react';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import { CheckCircle, XCircle, User, DollarSign } from 'lucide-react';
 
+
 export default function AccountantLoans() {
   const { success, error } = useToast();
   const [loans, setLoans] = useState(mockLoans);
@@ -41,14 +42,14 @@ export default function AccountantLoans() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {loans.map((loan) => (
-            <Card key={loan.id} variant="bordered" hover>
+            <Card key={loan.id} hover>
               <CardContent className="space-y-4">
                 <div className="flex justify-between items-start">
                   <div>
-                    <h3 className="font-semibold text-lg text-gray-900">{loan.memberName}</h3>
+                    <h3 className="font-semibold text-lg text-gray-900">{loan.borrowerName}</h3>
                     <p className="text-sm text-gray-600">Guarantor: {loan.guarantorName}</p>
                   </div>
-                  <Badge variant={loan.status === 'approved' ? 'success' : loan.status === 'rejected' ? 'danger' : 'warning'} dot>
+                  <Badge variant={loan.status === 'approved' ? 'success' : loan.status === 'rejected' ? 'danger' : 'warning'}>
                     {loan.status}
                   </Badge>
                 </div>
@@ -70,7 +71,7 @@ export default function AccountantLoans() {
                     <div>
                       <p className="text-xs text-gray-600">Combined Balance</p>
                       <p className="font-semibold text-gray-900">
-                        {formatCurrency(loan.memberBalance + loan.guarantorBalance)}
+                        {formatCurrency(loan.borrowerSavings + loan.guarantorSavings)}
                       </p>
                     </div>
                   </div>

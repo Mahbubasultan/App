@@ -79,7 +79,7 @@ export const LoanRequestForm: React.FC<LoanRequestFormProps> = ({
   const maxLoan = eligibility?.maxLoanAmount || 0;
 
   return (
-    <Card variant="elevated">
+    <Card>
       <CardHeader>
         <CardTitle>Request Loan</CardTitle>
         <CardDescription>

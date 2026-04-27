@@ -5,6 +5,7 @@ interface CardProps {
   className?: string;
   hover?: boolean;
   padding?: 'none' | 'sm' | 'md' | 'lg';
+  style?: React.CSSProperties;
 }
 
 export const Card: React.FC<CardProps> = ({ 
@@ -12,6 +13,7 @@ export const Card: React.FC<CardProps> = ({
   className = '',
   hover = false,
   padding = 'md',
+  style,
 }) => {
   const paddings = {
     none: '',
@@ -23,7 +25,7 @@ export const Card: React.FC<CardProps> = ({
   const hoverClass = hover ? 'card-hover cursor-pointer' : '';
 
   return (
-    <div className={`bg-white rounded-2xl shadow-soft border border-gray-100 ${paddings[padding]} ${hoverClass} ${className}`}>
+    <div className={`bg-white rounded-2xl shadow-soft border border-gray-100 ${paddings[padding]} ${hoverClass} ${className}`} style={style}>
       {children}
     </div>
   );

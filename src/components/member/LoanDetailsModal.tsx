@@ -46,7 +46,7 @@ export const LoanDetailsModal: React.FC<LoanDetailsModalProps> = ({ loan, onClos
               <p className="text-sm text-text-gray mb-1">Loan ID</p>
               <p className="text-xl font-mono font-bold text-primary">{loan.id}</p>
             </div>
-            <Badge variant={getStatusVariant(loan.status)} size="lg">
+            <Badge variant={getStatusVariant(loan.status)} size="md">
               {loan.status.replace('_', ' ')}
             </Badge>
           </div>

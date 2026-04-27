@@ -54,14 +54,14 @@ export const PaymentQueue: React.FC = () => {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {pendingPayments.map((payment) => (
-                <Card key={payment.id} variant="bordered" hover>
+                <Card key={payment.id} hover>
                   <CardContent className="space-y-4">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <h3 className="font-semibold text-gray-900">{payment.memberName}</h3>
                         <p className="text-sm text-gray-600 mt-0.5">{payment.momoName}</p>
                       </div>
-                      <Badge variant="warning" dot>pending</Badge>
+                      <Badge variant="warning">pending</Badge>
                     </div>
 
                     {/* Share Calculation */}
@@ -152,7 +152,7 @@ export const PaymentQueue: React.FC = () => {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {processedPayments.map((payment) => (
-                <Card key={payment.id} variant="default">
+                <Card key={payment.id}>
                   <CardContent className="space-y-3">
                     <div className="flex items-start justify-between">
                       <div>
@@ -160,7 +160,7 @@ export const PaymentQueue: React.FC = () => {
                         <p className="text-sm text-gray-600">{formatCurrency(payment.amount)}</p>
                         <p className="text-xs text-primary-600 mt-1">{payment.shares} shares</p>
                       </div>
-                      <Badge variant={payment.status === 'verified' ? 'success' : 'danger'} dot>
+                      <Badge variant={payment.status === 'verified' ? 'success' : 'danger'}>
                         {payment.status}
                       </Badge>
                     </div>

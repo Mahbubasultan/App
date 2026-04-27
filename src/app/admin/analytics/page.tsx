@@ -9,7 +9,7 @@ import { Users, DollarSign, TrendingUp, AlertCircle, ArrowUpRight, ArrowDownRigh
 export default function AdminAnalytics() {
   const stats = [
     { label: 'Total Members', value: mockGroupStats.totalMembers, icon: Users, color: 'bg-primary-500', change: '+3' },
-    { label: 'Total Savings', value: formatCurrency(mockGroupStats.totalSavings), icon: DollarSign, color: 'bg-success-500', change: '+8.2%' },
+    { label: 'Total Savings', value: formatCurrency(mockGroupStats.totalValue), icon: DollarSign, color: 'bg-success-500', change: '+8.2%' },
     { label: 'Active Loans', value: mockGroupStats.activeLoans, icon: TrendingUp, color: 'bg-info-500', change: '-2' },
     { label: 'Pending Verifications', value: mockGroupStats.pendingVerifications, icon: AlertCircle, color: 'bg-warning-500', change: '+4' },
   ];
@@ -27,7 +27,7 @@ export default function AdminAnalytics() {
             const Icon = stat.icon;
             const isPositive = stat.change.startsWith('+');
             return (
-              <Card key={stat.label} variant="bordered" hover>
+              <Card key={stat.label} hover>
                 <CardContent>
                   <div className="flex items-start justify-between mb-4">
                     <div className={`p-3 rounded-xl ${stat.color} text-white shadow-lg`}>
@@ -46,7 +46,7 @@ export default function AdminAnalytics() {
           })}
         </div>
 
-        <Card variant="elevated">
+        <Card>
           <CardHeader>
             <CardTitle>Monthly Overview</CardTitle>
           </CardHeader>

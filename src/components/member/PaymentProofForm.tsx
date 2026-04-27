@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
+import Image from 'next/image';
 import { useDropzone } from 'react-dropzone';
 import { Upload, X, CheckCircle } from 'lucide-react';
 import { Card } from '../ui/Card';
@@ -133,9 +134,11 @@ export const PaymentProofForm: React.FC<PaymentProofFormProps> = ({ nextPaymentD
           ) : (
             <div className="relative group">
               <div className="relative rounded-2xl overflow-hidden border-2 border-gray-200">
-                <img 
+                <Image 
                   src={preview} 
                   alt="Payment preview" 
+                  width={800}
+                  height={320}
                   className="w-full h-80 object-contain bg-background-gray" 
                 />
                 <button

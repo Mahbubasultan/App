@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import { User } from 'lucide-react';
 import { getInitials } from '@/lib/utils';
 
@@ -25,9 +26,11 @@ export const Avatar: React.FC<AvatarProps> = ({
   if (src) {
     return (
       <div className={`${sizes[size]} rounded-full overflow-hidden shadow-soft ${className}`}>
-        <img 
+        <Image 
           src={src} 
           alt={name} 
+          width={size === 'xl' ? 128 : size === 'lg' ? 64 : size === 'md' ? 40 : 32}
+          height={size === 'xl' ? 128 : size === 'lg' ? 64 : size === 'md' ? 40 : 32}
           className="w-full h-full object-cover"
         />
       </div>

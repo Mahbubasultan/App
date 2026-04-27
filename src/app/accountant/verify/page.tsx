@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { Layout } from '@/components/layout/Layout';
 import { Search, Eye, X, Check, XCircle, Calendar } from 'lucide-react';
 
@@ -304,9 +305,11 @@ export default function AccountantVerify() {
               <div>
                 <label className="text-xs font-semibold text-gray-500 uppercase block mb-2">Screenshot Proof</label>
                 <div className="bg-gray-100 rounded-lg p-4 flex items-center justify-center">
-                  <img 
+                  <Image 
                     src={selectedPayment.screenshot} 
                     alt="Payment proof" 
+                    width={400}
+                    height={600}
                     className="max-h-96 rounded-lg shadow-lg"
                   />
                 </div>

@@ -334,7 +334,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           <div className="space-y-4 animate-slide-up">
             <div className="bg-gradient-to-r from-success/10 to-success/5 border-2 border-success/20 rounded-2xl p-4">
               <p className="font-semibold text-text-dark">❓ Need Help?</p>
-              <p className="text-sm text-text-gray mt-1">We're here to assist you</p>
+              <p className="text-sm text-text-gray mt-1">We&apos;re here to assist you</p>
             </div>
 
             {[

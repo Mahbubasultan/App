@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { User } from '@/types/user';
 import UserViewModal from './UserViewModal';
 import DeleteConfirmDialog from './DeleteConfirmDialog';
@@ -168,10 +169,12 @@ const UserTable: React.FC = () => {
                     <div className="flex items-center">
                       <div className="flex-shrink-0 h-10 w-10">
                         {user.avatar ? (
-                          <img
+                          <Image
                             className="h-10 w-10 rounded-full object-cover"
                             src={user.avatar}
                             alt={`${user.firstName} ${user.lastName}`}
+                            width={40}
+                            height={40}
                           />
                         ) : (
                           <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold">
