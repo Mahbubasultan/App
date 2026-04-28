@@ -135,40 +135,40 @@ export const MemberLayout: React.FC<MemberLayoutProps> = ({
       {/* Main Content */}
       <div className="lg:ml-64">
         {/* Top Header */}
-        <header className="sticky top-0 z-20 bg-white border-b border-gray-200 px-4 lg:px-8 py-4">
+        <header className="sticky top-0 z-20 bg-gradient-to-r from-green-600 to-green-700 border-b border-green-800 px-4 lg:px-8 py-4 shadow-lg">
           <div className="flex items-center justify-between">
             <button
               onClick={() => setIsSidebarOpen(true)}
-              className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              className="lg:hidden p-2 hover:bg-green-500/30 rounded-lg transition-colors"
             >
-              <Menu size={24} />
+              <Menu size={24} className="text-white" />
             </button>
             
             <div className="flex-1 lg:flex-none">
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold text-white">
                 {menuItems.find(item => item.path === pathname)?.label || 'Member Portal'}
               </h2>
             </div>
 
             <div className="flex items-center gap-3">
-              <button className="p-2 hover:bg-gray-100 rounded-xl transition-colors relative">
-                <Bell size={20} className="text-gray-600" />
+              <button className="p-2 hover:bg-green-500/30 rounded-xl transition-colors relative">
+                <Bell size={20} className="text-white" />
                 <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
               </button>
-              <button className="p-2 hover:bg-gray-100 rounded-xl transition-colors">
-                <Settings size={20} className="text-gray-600" />
+              <button className="p-2 hover:bg-green-500/30 rounded-xl transition-colors">
+                <Settings size={20} className="text-white" />
               </button>
-              <div className="flex items-center gap-3 pl-3 border-l border-gray-200">
+              <div className="flex items-center gap-3 pl-3 border-l border-green-500">
                 {userImage ? (
-                  <img src={userImage} alt={userName} className="w-9 h-9 rounded-full object-cover" />
+                  <img src={userImage} alt={userName} className="w-9 h-9 rounded-full object-cover border-2 border-white" />
                 ) : (
-                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-green-600 to-green-800 flex items-center justify-center text-white font-semibold text-sm">
+                  <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center text-green-600 font-semibold text-sm">
                     {userName.split(' ').map(n => n[0]).join('')}
                   </div>
                 )}
                 <div className="hidden md:block">
-                  <p className="font-semibold text-gray-900 text-sm">{userName}</p>
-                  <p className="text-xs text-gray-600">Member</p>
+                  <p className="font-semibold text-white text-sm">{userName}</p>
+                  <p className="text-xs text-green-100">Member</p>
                 </div>
               </div>
             </div>
