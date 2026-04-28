@@ -36,6 +36,7 @@ export const MemberLayout: React.FC<MemberLayoutProps> = ({
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -46,14 +47,6 @@ export const MemberLayout: React.FC<MemberLayoutProps> = ({
   const handleNavigation = (path: string) => {
     router.push(path);
     setIsSidebarOpen(false);
-  };
-
-  const handleSettings = () => {
-    router.push('/member/settings');
-  };
-
-  const handleNotifications = () => {
-    setShowNotifications(!showNotifications);
   };
 
   const SidebarContent = () => (
@@ -165,7 +158,7 @@ export const MemberLayout: React.FC<MemberLayoutProps> = ({
               {/* Notifications */}
               <div className="relative">
                 <button 
-                  onClick={handleNotifications}
+                  onClick={() => setShowNotifications(!showNotifications)}
                   className="p-2.5 hover:bg-white/10 rounded-xl transition-all duration-200 active:scale-95 relative"
                 >
                   <Bell size={20} className="text-white" />
@@ -206,12 +199,49 @@ export const MemberLayout: React.FC<MemberLayoutProps> = ({
               </div>
 
               {/* Settings */}
-              <button 
-                onClick={handleSettings}
-                className="p-2.5 hover:bg-white/10 rounded-xl transition-all duration-200 active:scale-95"
-              >
-                <Settings size={20} className="text-white" />
-              </button>
+              <div className="relative">
+                <button 
+                  onClick={() => setShowSettings(!showSettings)}
+                  className="p-2.5 hover:bg-white/10 rounded-xl transition-all duration-200 active:scale-95"
+                >
+                  <Settings size={20} className="text-white" />
+                </button>
+
+                {showSettings && (
+                  <div className="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden animate-slide-up">
+                    <div className="p-4 bg-gradient-to-r from-green-50 to-green-100 border-b border-green-200">
+                      <h3 className="font-semibold text-gray-900">Settings</h3>
+                      <p className="text-xs text-gray-600 mt-0.5">Manage your account preferences</p>
+                    </div>
+                    <div className="p-2">
+                      <button className="w-full flex items-center justify-between px-4 py-3 rounded-xl hover:bg-gray-100 transition-colors text-left">
+                        <div className="flex items-center gap-3">
+                          <User size={18} className="text-gray-600" />
+                          <span className="text-sm font-medium text-gray-900">Profile Settings</span>
+                        </div>
+                      </button>
+                      <button className="w-full flex items-center justify-between px-4 py-3 rounded-xl hover:bg-gray-100 transition-colors text-left">
+                        <div className="flex items-center gap-3">
+                          <Bell size={18} className="text-gray-600" />
+                          <span className="text-sm font-medium text-gray-900">Notifications</span>
+                        </div>
+                      </button>
+                      <button className="w-full flex items-center justify-between px-4 py-3 rounded-xl hover:bg-gray-100 transition-colors text-left">
+                        <div className="flex items-center gap-3">
+                          <Layers size={18} className="text-gray-600" />
+                          <span className="text-sm font-medium text-gray-900">Privacy</span>
+                        </div>
+                      </button>
+                      <button className="w-full flex items-center justify-between px-4 py-3 rounded-xl hover:bg-gray-100 transition-colors text-left">
+                        <div className="flex items-center gap-3">
+                          <DollarSign size={18} className="text-gray-600" />
+                          <span className="text-sm font-medium text-gray-900">Payment Methods</span>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
 
               {/* User Menu */}
               <div className="relative">
@@ -251,21 +281,21 @@ export const MemberLayout: React.FC<MemberLayoutProps> = ({
                     </div>
                     <div className="p-2">
                       <button 
-                        onClick={() => router.push('/member/dashboard')}
+                        onClick={() => { setShowUserMenu(false); router.push('/member/dashboard'); }}
                         className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-100 transition-colors text-left"
                       >
                         <LayoutDashboard size={18} className="text-gray-600" />
                         <span className="text-sm font-medium text-gray-900">Dashboard</span>
                       </button>
                       <button 
-                        onClick={handleSettings}
+                        onClick={() => { setShowUserMenu(false); setShowSettings(true); }}
                         className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-100 transition-colors text-left"
                       >
                         <Settings size={18} className="text-gray-600" />
                         <span className="text-sm font-medium text-gray-900">Settings</span>
                       </button>
                       <button 
-                        onClick={handleLogout}
+                        onClick={() => { setShowUserMenu(false); handleLogout(); }}
                         className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 transition-colors text-left"
                       >
                         <LogOut size={18} className="text-red-600" />
