@@ -11,7 +11,8 @@ import {
   LogOut, 
   Menu, 
   X,
-  Settings
+  Settings,
+  User
 } from 'lucide-react';
 
 interface MemberLayoutProps {
@@ -33,6 +34,8 @@ export const MemberLayout: React.FC<MemberLayoutProps> = ({
   userImage 
 }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -43,6 +46,14 @@ export const MemberLayout: React.FC<MemberLayoutProps> = ({
   const handleNavigation = (path: string) => {
     router.push(path);
     setIsSidebarOpen(false);
+  };
+
+  const handleSettings = () => {
+    router.push('/member/settings');
+  };
+
+  const handleNotifications = () => {
+    setShowNotifications(!showNotifications);
   };
 
   const SidebarContent = () => (
@@ -135,41 +146,134 @@ export const MemberLayout: React.FC<MemberLayoutProps> = ({
       {/* Main Content */}
       <div className="lg:ml-64">
         {/* Top Header */}
-        <header className="sticky top-0 z-20 bg-gradient-to-r from-green-600 to-green-700 border-b border-green-800 px-4 lg:px-8 py-4 shadow-lg">
+        <header className="sticky top-0 z-20 bg-gradient-to-r from-green-600 via-green-600 to-green-700 border-b border-green-800/20 px-4 lg:px-8 py-4 shadow-xl shadow-green-900/10">
           <div className="flex items-center justify-between">
             <button
               onClick={() => setIsSidebarOpen(true)}
-              className="lg:hidden p-2 hover:bg-green-500/30 rounded-lg transition-colors"
+              className="lg:hidden p-2.5 hover:bg-white/10 rounded-xl transition-all duration-200 active:scale-95"
             >
               <Menu size={24} className="text-white" />
             </button>
             
             <div className="flex-1 lg:flex-none">
-              <h2 className="text-xl font-semibold text-white">
+              <h2 className="text-xl font-semibold text-white drop-shadow-sm">
                 {menuItems.find(item => item.path === pathname)?.label || 'Member Portal'}
               </h2>
             </div>
 
-            <div className="flex items-center gap-3">
-              <button className="p-2 hover:bg-green-500/30 rounded-xl transition-colors relative">
-                <Bell size={20} className="text-white" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-              </button>
-              <button className="p-2 hover:bg-green-500/30 rounded-xl transition-colors">
-                <Settings size={20} className="text-white" />
-              </button>
-              <div className="flex items-center gap-3 pl-3 border-l border-green-500">
-                {userImage ? (
-                  <img src={userImage} alt={userName} className="w-9 h-9 rounded-full object-cover border-2 border-white" />
-                ) : (
-                  <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center text-green-600 font-semibold text-sm">
-                    {userName.split(' ').map(n => n[0]).join('')}
+            <div className="flex items-center gap-2">
+              {/* Notifications */}
+              <div className="relative">
+                <button 
+                  onClick={handleNotifications}
+                  className="p-2.5 hover:bg-white/10 rounded-xl transition-all duration-200 active:scale-95 relative"
+                >
+                  <Bell size={20} className="text-white" />
+                  <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                </button>
+                
+                {showNotifications && (
+                  <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden animate-slide-up">
+                    <div className="p-4 bg-gradient-to-r from-green-50 to-green-100 border-b border-green-200">
+                      <h3 className="font-semibold text-gray-900">Notifications</h3>
+                      <p className="text-xs text-gray-600 mt-0.5">You have 3 new notifications</p>
+                    </div>
+                    <div className="max-h-96 overflow-y-auto">
+                      {[
+                        { title: 'Payment Verified', message: 'Your payment of 50,000 RWF has been verified', time: '2 hours ago', unread: true },
+                        { title: 'Loan Approved', message: 'Your loan request of 400,000 RWF has been approved', time: '1 day ago', unread: true },
+                        { title: 'Share Created', message: 'You have successfully created 25 shares', time: '3 days ago', unread: false },
+                      ].map((notif, index) => (
+                        <div key={index} className={`p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer ${notif.unread ? 'bg-green-50/50' : ''}`}>
+                          <div className="flex items-start gap-3">
+                            <div className={`w-2 h-2 rounded-full mt-2 ${notif.unread ? 'bg-green-500' : 'bg-gray-300'}`}></div>
+                            <div className="flex-1">
+                              <p className="font-semibold text-sm text-gray-900">{notif.title}</p>
+                              <p className="text-xs text-gray-600 mt-1">{notif.message}</p>
+                              <p className="text-xs text-gray-500 mt-1">{notif.time}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="p-3 bg-gray-50 border-t border-gray-200">
+                      <button className="w-full text-center text-sm font-medium text-green-600 hover:text-green-700 transition-colors">
+                        View All Notifications
+                      </button>
+                    </div>
                   </div>
                 )}
-                <div className="hidden md:block">
-                  <p className="font-semibold text-white text-sm">{userName}</p>
-                  <p className="text-xs text-green-100">Member</p>
-                </div>
+              </div>
+
+              {/* Settings */}
+              <button 
+                onClick={handleSettings}
+                className="p-2.5 hover:bg-white/10 rounded-xl transition-all duration-200 active:scale-95"
+              >
+                <Settings size={20} className="text-white" />
+              </button>
+
+              {/* User Menu */}
+              <div className="relative">
+                <button 
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                  className="flex items-center gap-3 pl-3 ml-2 border-l border-white/20 hover:bg-white/10 rounded-r-xl pr-3 py-1.5 transition-all duration-200 active:scale-95"
+                >
+                  {userImage ? (
+                    <img src={userImage} alt={userName} className="w-9 h-9 rounded-full object-cover border-2 border-white shadow-lg" />
+                  ) : (
+                    <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center text-green-600 font-semibold text-sm shadow-lg">
+                      {userName.split(' ').map(n => n[0]).join('')}
+                    </div>
+                  )}
+                  <div className="hidden md:block text-left">
+                    <p className="font-semibold text-white text-sm drop-shadow-sm">{userName}</p>
+                    <p className="text-xs text-green-100">Member</p>
+                  </div>
+                </button>
+
+                {showUserMenu && (
+                  <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden animate-slide-up">
+                    <div className="p-4 bg-gradient-to-r from-green-50 to-green-100 border-b border-green-200">
+                      <div className="flex items-center gap-3">
+                        {userImage ? (
+                          <img src={userImage} alt={userName} className="w-12 h-12 rounded-full object-cover border-2 border-green-600" />
+                        ) : (
+                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-600 to-green-800 flex items-center justify-center text-white font-semibold">
+                            {userName.split(' ').map(n => n[0]).join('')}
+                          </div>
+                        )}
+                        <div>
+                          <p className="font-semibold text-gray-900">{userName}</p>
+                          <p className="text-xs text-gray-600">Member Account</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="p-2">
+                      <button 
+                        onClick={() => router.push('/member/dashboard')}
+                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-100 transition-colors text-left"
+                      >
+                        <LayoutDashboard size={18} className="text-gray-600" />
+                        <span className="text-sm font-medium text-gray-900">Dashboard</span>
+                      </button>
+                      <button 
+                        onClick={handleSettings}
+                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-100 transition-colors text-left"
+                      >
+                        <Settings size={18} className="text-gray-600" />
+                        <span className="text-sm font-medium text-gray-900">Settings</span>
+                      </button>
+                      <button 
+                        onClick={handleLogout}
+                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 transition-colors text-left"
+                      >
+                        <LogOut size={18} className="text-red-600" />
+                        <span className="text-sm font-medium text-red-600">Logout</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
