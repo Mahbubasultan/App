@@ -11,7 +11,7 @@ import {
   LogOut, 
   Menu, 
   X,
-  User
+  Settings
 } from 'lucide-react';
 
 interface MemberLayoutProps {
@@ -53,23 +53,6 @@ export const MemberLayout: React.FC<MemberLayoutProps> = ({
           ROSCA
         </h1>
         <p className="text-xs text-gray-600 mt-1">Member Portal</p>
-      </div>
-
-      {/* User Profile */}
-      <div className="p-6 border-b border-gray-200">
-        <div className="flex items-center gap-3">
-          {userImage ? (
-            <img src={userImage} alt={userName} className="w-12 h-12 rounded-full object-cover" />
-          ) : (
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-600 to-green-800 flex items-center justify-center text-white font-semibold">
-              {userName.charAt(0)}
-            </div>
-          )}
-          <div className="flex-1 min-w-0">
-            <p className="font-semibold text-gray-900 truncate">{userName}</p>
-            <p className="text-xs text-gray-600">Member</p>
-          </div>
-        </div>
       </div>
 
       {/* Navigation */}
@@ -167,11 +150,27 @@ export const MemberLayout: React.FC<MemberLayoutProps> = ({
               </h2>
             </div>
 
-            <div className="flex items-center gap-2">
-              <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors relative">
+            <div className="flex items-center gap-3">
+              <button className="p-2 hover:bg-gray-100 rounded-xl transition-colors relative">
                 <Bell size={20} className="text-gray-600" />
                 <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
               </button>
+              <button className="p-2 hover:bg-gray-100 rounded-xl transition-colors">
+                <Settings size={20} className="text-gray-600" />
+              </button>
+              <div className="flex items-center gap-3 pl-3 border-l border-gray-200">
+                {userImage ? (
+                  <img src={userImage} alt={userName} className="w-9 h-9 rounded-full object-cover" />
+                ) : (
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-green-600 to-green-800 flex items-center justify-center text-white font-semibold text-sm">
+                    {userName.split(' ').map(n => n[0]).join('')}
+                  </div>
+                )}
+                <div className="hidden md:block">
+                  <p className="font-semibold text-gray-900 text-sm">{userName}</p>
+                  <p className="text-xs text-gray-600">Member</p>
+                </div>
+              </div>
             </div>
           </div>
         </header>

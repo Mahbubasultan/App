@@ -2,7 +2,7 @@
 
 import { MemberLayout } from '@/components/layout/MemberLayout';
 import { useRouter } from 'next/navigation';
-import { Layers, Wallet, DollarSign, TrendingUp, Bell, Settings } from 'lucide-react';
+import { Layers, Wallet, DollarSign, TrendingUp } from 'lucide-react';
 
 export default function MemberDashboard() {
   const router = useRouter();
@@ -43,29 +43,9 @@ export default function MemberDashboard() {
   return (
     <MemberLayout userName="Jean Baptiste Mugabo">
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-            <p className="text-gray-600 mt-1">Welcome back! Here&apos;s your overview</p>
-          </div>
-          <div className="flex items-center gap-3">
-            <button className="p-2.5 hover:bg-gray-100 rounded-xl transition-colors relative">
-              <Bell size={22} className="text-gray-600" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
-            </button>
-            <button className="p-2.5 hover:bg-gray-100 rounded-xl transition-colors">
-              <Settings size={22} className="text-gray-600" />
-            </button>
-            <div className="flex items-center gap-3 pl-3 border-l border-gray-200">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-600 to-green-800 flex items-center justify-center text-white font-semibold">
-                JM
-              </div>
-              <div className="hidden md:block">
-                <p className="font-semibold text-gray-900 text-sm">Jean Baptiste Mugabo</p>
-                <p className="text-xs text-gray-600">Member</p>
-              </div>
-            </div>
-          </div>
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+          <p className="text-gray-600 mt-1">Welcome back! Here&apos;s your overview</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
