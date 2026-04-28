@@ -7,6 +7,13 @@ import { Layers, Wallet, DollarSign, TrendingUp } from 'lucide-react';
 export default function MemberDashboard() {
   const router = useRouter();
 
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 18) return 'Good Afternoon';
+    return 'Good Evening';
+  };
+
   const stats = [
     {
       title: 'Total Shares',
@@ -45,7 +52,9 @@ export default function MemberDashboard() {
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600 mt-1">Welcome back! Here&apos;s your overview</p>
+          <p className="text-gray-600 mt-1">
+            <span className="text-green-600 font-semibold">{getGreeting()}</span>, Jean Baptiste Mugabo
+          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
