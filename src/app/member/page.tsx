@@ -3,11 +3,11 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
-export default function SavingsRedirect() {
+export default function MemberRedirect() {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace('/member/my-savings');
+    router.replace('/member/dashboard');
   }, [router]);
 
   return null;

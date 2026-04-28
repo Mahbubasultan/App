@@ -2,13 +2,13 @@
 
 import { AccountantLayout } from '@/components/layout/AccountantLayout';
 
-export default function AccountantLoans() {
+export default function AccountantGuarantor() {
   return (
     <AccountantLayout userName="Marie Claire Uwase">
       <div className="space-y-6">
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Loans</h1>
-          <p className="text-gray-600">Review and approve loan applications</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Guarantors</h1>
+          <p className="text-gray-600">Manage loan guarantors and approvals</p>
         </div>
       </div>
     </AccountantLayout>
