@@ -2,7 +2,9 @@
 
 import { MemberLayout } from '@/components/layout/MemberLayout';
 import { useRef, useState } from 'react';
-import { Search, Plus, Eye, X } from 'lucide-react';
+import { Plus, Eye, X } from 'lucide-react';
+import { SearchBar } from '@/components/ui/SearchBar';
+import { useSettings } from '@/context/SettingsContext';
 
 const mockLoans = [
   { id: 1, amount: 400000, duration: 6, guarantor: 'Eric Habimana', monthlyInstallment: 70000, status: 'Approved', dueDate: '2024-07-15', createdDate: '2024-01-15' },
@@ -22,6 +24,7 @@ const mockGuarantors = [
 const userSavings = 250000;
 
 export default function LoansPage() {
+  const { t } = useSettings();
   const [activeTab, setActiveTab] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
@@ -140,19 +143,11 @@ export default function LoansPage() {
             </div>
 
             <div className="flex gap-2">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#0B5D3B] focus:border-transparent transition-all placeholder-gray-400 text-gray-900"
-                />
-              </div>
-              <button className="px-4 py-2 bg-[#0B5D3B] text-white rounded-xl font-medium hover:bg-[#094a2e] transition-all duration-200 text-sm whitespace-nowrap">
-                Search
-              </button>
+              <SearchBar
+                value={searchQuery}
+                onChange={setSearchQuery}
+                placeholder={t('searchPlaceholder') || 'Search...'}
+              />
             </div>
           </div>
 
@@ -161,13 +156,13 @@ export default function LoansPage() {
               <table className="min-w-full">
                 <thead>
                   <tr className="bg-gray-50 border-b border-gray-200">
-                    <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Amount</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Duration</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Guarantor</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Monthly</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Status</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Due Date</th>
-                    <th className="text-center py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Action</th>
+                    <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">{t('amount')}</th>
+                    <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">{t('duration')}</th>
+                    <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">{t('guarantor')}</th>
+                    <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">{t('monthly')}</th>
+                    <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">{t('status')}</th>
+                    <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">{t('dueDate')}</th>
+                    <th className="text-center py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">{t('action')}</th>
                   </tr>
                 </thead>
                 <tbody>

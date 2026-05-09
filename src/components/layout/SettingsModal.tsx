@@ -12,16 +12,20 @@ interface SettingsModalProps {
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, userRole }) => {
   const [activeTab, setActiveTab] = useState<'general' | 'notifications' | 'security'>('general');
-  const { settings, setLanguage, setTheme, t } = useSettings();
-  const [localSettings, setLocalSettings] = useState({
-    currency: 'RWF',
+  const { settings, setTheme } = useSettings();
+  const [notificationSettings, setNotificationSettings] = useState({
     emailNotifications: true,
     smsNotifications: true,
     paymentReminders: true,
     loanUpdates: true,
     systemAlerts: true,
+  });
+  const [securitySettings, setSecuritySettings] = useState({
     twoFactorAuth: false,
     loginAlerts: true,
+  });
+  const [localSettings, setLocalSettings] = useState({
+    currency: 'RWF',
   });
 
   const [showSuccess, setShowSuccess] = useState(false);
@@ -83,18 +87,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, u
           {activeTab === 'general' && (
             <div className="space-y-6 animate-in slide-in-from-right-4 duration-300">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Language</label>
-                <select
-                  value={settings.language}
-                  onChange={(e) => setLanguage(e.target.value as 'en' | 'fr')}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0B5D3B] bg-white"
-                >
-                  <option value="en">English (Eng)</option>
-                  <option value="fr">French (Fr)</option>
-                </select>
-              </div>
-
-              <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Theme</label>
                 <div className="grid grid-cols-2 gap-3">
                   <button
@@ -146,14 +138,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, u
                   <p className="text-sm text-gray-600">Receive updates via email</p>
                 </div>
                 <button
-                  onClick={() => setSettings({ ...settings, emailNotifications: !settings.emailNotifications })}
+                  onClick={() => setNotificationSettings({ ...notificationSettings, emailNotifications: !notificationSettings.emailNotifications })}
                   className={`relative w-12 h-6 rounded-full transition-colors ${
-                    settings.emailNotifications ? 'bg-[#0B5D3B]' : 'bg-gray-300'
+                    notificationSettings.emailNotifications ? 'bg-[#0B5D3B]' : 'bg-gray-300'
                   }`}
                 >
                   <div
                     className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
-                      settings.emailNotifications ? 'translate-x-6' : ''
+                      notificationSettings.emailNotifications ? 'translate-x-6' : ''
                     }`}
                   />
                 </button>
@@ -165,14 +157,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, u
                   <p className="text-sm text-gray-600">Receive updates via SMS</p>
                 </div>
                 <button
-                  onClick={() => setSettings({ ...settings, smsNotifications: !settings.smsNotifications })}
+                  onClick={() => setNotificationSettings({ ...notificationSettings, smsNotifications: !notificationSettings.smsNotifications })}
                   className={`relative w-12 h-6 rounded-full transition-colors ${
-                    settings.smsNotifications ? 'bg-[#0B5D3B]' : 'bg-gray-300'
+                    notificationSettings.smsNotifications ? 'bg-[#0B5D3B]' : 'bg-gray-300'
                   }`}
                 >
                   <div
                     className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
-                      settings.smsNotifications ? 'translate-x-6' : ''
+                      notificationSettings.smsNotifications ? 'translate-x-6' : ''
                     }`}
                   />
                 </button>
@@ -184,14 +176,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, u
                   <p className="text-sm text-gray-600">Get reminded about due payments</p>
                 </div>
                 <button
-                  onClick={() => setSettings({ ...settings, paymentReminders: !settings.paymentReminders })}
+                  onClick={() => setNotificationSettings({ ...notificationSettings, paymentReminders: !notificationSettings.paymentReminders })}
                   className={`relative w-12 h-6 rounded-full transition-colors ${
-                    settings.paymentReminders ? 'bg-[#0B5D3B]' : 'bg-gray-300'
+                    notificationSettings.paymentReminders ? 'bg-[#0B5D3B]' : 'bg-gray-300'
                   }`}
                 >
                   <div
                     className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
-                      settings.paymentReminders ? 'translate-x-6' : ''
+                      notificationSettings.paymentReminders ? 'translate-x-6' : ''
                     }`}
                   />
                 </button>
@@ -203,14 +195,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, u
                   <p className="text-sm text-gray-600">Notifications about loan status</p>
                 </div>
                 <button
-                  onClick={() => setSettings({ ...settings, loanUpdates: !settings.loanUpdates })}
+                  onClick={() => setNotificationSettings({ ...notificationSettings, loanUpdates: !notificationSettings.loanUpdates })}
                   className={`relative w-12 h-6 rounded-full transition-colors ${
-                    settings.loanUpdates ? 'bg-[#0B5D3B]' : 'bg-gray-300'
+                    notificationSettings.loanUpdates ? 'bg-[#0B5D3B]' : 'bg-gray-300'
                   }`}
                 >
                   <div
                     className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
-                      settings.loanUpdates ? 'translate-x-6' : ''
+                      notificationSettings.loanUpdates ? 'translate-x-6' : ''
                     }`}
                   />
                 </button>
@@ -222,14 +214,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, u
                   <p className="text-sm text-gray-600">Important system notifications</p>
                 </div>
                 <button
-                  onClick={() => setSettings({ ...settings, systemAlerts: !settings.systemAlerts })}
+                  onClick={() => setNotificationSettings({ ...notificationSettings, systemAlerts: !notificationSettings.systemAlerts })}
                   className={`relative w-12 h-6 rounded-full transition-colors ${
-                    settings.systemAlerts ? 'bg-[#0B5D3B]' : 'bg-gray-300'
+                    notificationSettings.systemAlerts ? 'bg-[#0B5D3B]' : 'bg-gray-300'
                   }`}
                 >
                   <div
                     className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
-                      settings.systemAlerts ? 'translate-x-6' : ''
+                      notificationSettings.systemAlerts ? 'translate-x-6' : ''
                     }`}
                   />
                 </button>
@@ -246,14 +238,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, u
                   <p className="text-sm text-gray-600">Add extra security to your account</p>
                 </div>
                 <button
-                  onClick={() => setSettings({ ...settings, twoFactorAuth: !settings.twoFactorAuth })}
+                  onClick={() => setSecuritySettings({ ...securitySettings, twoFactorAuth: !securitySettings.twoFactorAuth })}
                   className={`relative w-12 h-6 rounded-full transition-colors ${
-                    settings.twoFactorAuth ? 'bg-[#0B5D3B]' : 'bg-gray-300'
+                    securitySettings.twoFactorAuth ? 'bg-[#0B5D3B]' : 'bg-gray-300'
                   }`}
                 >
                   <div
                     className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
-                      settings.twoFactorAuth ? 'translate-x-6' : ''
+                      securitySettings.twoFactorAuth ? 'translate-x-6' : ''
                     }`}
                   />
                 </button>
@@ -265,14 +257,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, u
                   <p className="text-sm text-gray-600">Get notified of new logins</p>
                 </div>
                 <button
-                  onClick={() => setSettings({ ...settings, loginAlerts: !settings.loginAlerts })}
+                  onClick={() => setSecuritySettings({ ...securitySettings, loginAlerts: !securitySettings.loginAlerts })}
                   className={`relative w-12 h-6 rounded-full transition-colors ${
-                    settings.loginAlerts ? 'bg-[#0B5D3B]' : 'bg-gray-300'
+                    securitySettings.loginAlerts ? 'bg-[#0B5D3B]' : 'bg-gray-300'
                   }`}
                 >
                   <div
                     className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
-                      settings.loginAlerts ? 'translate-x-6' : ''
+                      securitySettings.loginAlerts ? 'translate-x-6' : ''
                     }`}
                   />
                 </button>

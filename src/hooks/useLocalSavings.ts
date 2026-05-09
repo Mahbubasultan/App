@@ -55,6 +55,13 @@ export interface UseSavingsReturn {
 export const useLocalSavings = (): UseSavingsReturn => {
   const [records, setRecords] = useState<SavingRecord[]>([]);
   const [userData, setUserDataState] = useState<UserData | null>(null);
+  const [statistics, setStatistics] = useState(() => ({
+    totalRecords: 0,
+    totalApproved: 0,
+    totalPending: 0,
+    totalRejected: 0,
+    totalAmount: 0,
+  }));
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -66,10 +73,18 @@ export const useLocalSavings = (): UseSavingsReturn => {
       const savedUserData = getUserData();
       setRecords(savedRecords);
       setUserDataState(savedUserData);
+      setStatistics(getSavingsStatistics());
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load data');
       setRecords([]);
+      setStatistics({
+        totalRecords: 0,
+        totalApproved: 0,
+        totalPending: 0,
+        totalRejected: 0,
+        totalAmount: 0,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -81,6 +96,7 @@ export const useLocalSavings = (): UseSavingsReturn => {
       const savedUserData = getUserData();
       setRecords(savedRecords);
       setUserDataState(savedUserData);
+      setStatistics(getSavingsStatistics());
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to refresh data');
@@ -92,6 +108,7 @@ export const useLocalSavings = (): UseSavingsReturn => {
       try {
         const newRecord = saveSavingRecord(saving);
         setRecords(prev => [...prev, newRecord]);
+        setStatistics(getSavingsStatistics());
         setError(null);
         return newRecord;
       } catch (err) {
@@ -109,6 +126,7 @@ export const useLocalSavings = (): UseSavingsReturn => {
         const updated = updateSavingRecord(id, updates);
         if (updated) {
           setRecords(prev => prev.map(r => r.id === id ? updated : r));
+          setStatistics(getSavingsStatistics());
           setError(null);
         }
         return updated;
@@ -187,8 +205,6 @@ export const useLocalSavings = (): UseSavingsReturn => {
       throw err;
     }
   }, []);
-
-  const statistics = getSavingsStatistics();
 
   return {
     records,

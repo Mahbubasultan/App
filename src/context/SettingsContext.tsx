@@ -43,6 +43,31 @@ const TRANSLATIONS: Record<'en' | 'fr', Record<string, string>> = {
     paymentProof: 'Payment Proof',
     noNotifications: 'No notifications found',
     searchNotifications: 'Search notifications...',
+    duration: 'Duration',
+    guarantor: 'Guarantor',
+    monthly: 'Monthly',
+    dueDate: 'Due Date',
+    requestLoan: 'Request Loan',
+    addShare: 'Add Share',
+    value: 'Value',
+    contributed: 'Contributed',
+    created: 'Created',
+    noData: 'No data found',
+    showing: 'Showing',
+    of: 'of',
+    previous: 'Previous',
+    next: 'Next',
+    language: 'Language',
+    general: 'General',
+    security: 'Security',
+    currency: 'Currency',
+    emailNotifications: 'Email Notifications',
+    smsNotifications: 'SMS Notifications',
+    paymentReminders: 'Payment Reminders',
+    loanUpdates: 'Loan Updates',
+    systemAlerts: 'System Alerts',
+    twoFactorAuth: 'Two-Factor Authentication',
+    loginAlerts: 'Login Alerts',
   },
   fr: {
     mySavings: 'Mes économies',
@@ -78,6 +103,31 @@ const TRANSLATIONS: Record<'en' | 'fr', Record<string, string>> = {
     paymentProof: 'Preuve de paiement',
     noNotifications: 'Aucune notification trouvée',
     searchNotifications: 'Rechercher des notifications...',
+    duration: 'Durée',
+    guarantor: 'Garant',
+    monthly: 'Mensuel',
+    dueDate: 'Date d\'échéance',
+    requestLoan: 'Demander un prêt',
+    addShare: 'Ajouter une action',
+    value: 'Valeur',
+    contributed: 'Contribué',
+    created: 'Créé',
+    noData: 'Aucune donnée trouvée',
+    showing: 'Affichage',
+    of: 'de',
+    previous: 'Précédent',
+    next: 'Suivant',
+    language: 'Langue',
+    general: 'Général',
+    security: 'Sécurité',
+    currency: 'Devise',
+    emailNotifications: 'Notifications par courrier électronique',
+    smsNotifications: 'Notifications par SMS',
+    paymentReminders: 'Rappels de paiement',
+    loanUpdates: 'Mises à jour des prêts',
+    systemAlerts: 'Alertes système',
+    twoFactorAuth: 'Authentification à deux facteurs',
+    loginAlerts: 'Alertes de connexion',
   },
 };
 
@@ -97,7 +147,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     if (typeof window === 'undefined') return;
     try {
       const saved = getAppSettings();
-      setSettings(saved);
+      setSettings({ ...saved, language: 'en' });
     } catch {
       setSettings(DEFAULT_SETTINGS);
     }
@@ -111,7 +161,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       } else {
         root.classList.remove('dark');
       }
-      root.setAttribute('lang', settings.language === 'fr' ? 'fr' : 'en');
+      root.setAttribute('lang', 'en');
     }
     try {
       saveAppSettings(settings);

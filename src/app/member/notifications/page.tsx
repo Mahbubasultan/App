@@ -2,7 +2,9 @@
 
 import { MemberLayout } from '@/components/layout/MemberLayout';
 import { useState } from 'react';
-import { Search, Filter, Eye, Trash2 } from 'lucide-react';
+import { Filter, Eye, Trash2 } from 'lucide-react';
+import { SearchBar } from '@/components/ui/SearchBar';
+import { useSettings } from '@/context/SettingsContext';
 
 const mockNotifications = [
   { id: 1, title: 'Payment Verified', message: 'Your payment of 50,000 RWF has been verified', date: '2024-01-20 10:30', status: 'Unread' },
@@ -13,6 +15,7 @@ const mockNotifications = [
 ];
 
 export default function Notifications() {
+  const { t } = useSettings();
   const [notifications, setNotifications] = useState(mockNotifications);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
@@ -51,23 +54,20 @@ export default function Notifications() {
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-              <input
-                type="text"
-                placeholder="Search notifications..."
+          <div className="flex flex-col gap-4 mb-6">
+            <div className="w-full">
+              <SearchBar
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
+                onChange={setSearchQuery}
+                placeholder={t('searchNotifications') || 'Search notifications...'}
               />
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 w-full sm:w-auto">
               <Filter size={20} className="text-gray-400" />
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="flex-1 sm:flex-initial px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0B5D3B]"
               >
                 <option>All</option>
                 <option>Read</option>

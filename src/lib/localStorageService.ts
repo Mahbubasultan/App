@@ -49,6 +49,33 @@ const DEFAULT_SETTINGS: AppSettings = {
   theme: 'light',
 };
 
+const isLocalStorageAvailable = (): boolean => {
+  try {
+    return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
+  } catch {
+    return false;
+  }
+};
+
+export const getMimeTypeFromFileName = (fileName: string): string => {
+  const extension = fileName.split('.').pop()?.toLowerCase() || '';
+  switch (extension) {
+    case 'jpg':
+    case 'jpeg':
+      return 'image/jpeg';
+    case 'png':
+      return 'image/png';
+    case 'gif':
+      return 'image/gif';
+    case 'webp':
+      return 'image/webp';
+    case 'svg':
+      return 'image/svg+xml';
+    default:
+      return 'image/png';
+  }
+};
+
 /**
  * Convert File to Base64 string
  */
@@ -77,6 +104,10 @@ export const base64ToDataUrl = (base64: string, mimeType: string = 'image/png'):
  * Save a new saving record
  */
 export const saveSavingRecord = (record: Omit<SavingRecord, 'id' | 'createdAt' | 'updatedAt'>): SavingRecord => {
+  if (!isLocalStorageAvailable()) {
+    throw new Error('Local storage is not available.');
+  }
+
   try {
     const existingRecords = getSavingRecords();
     
@@ -104,6 +135,10 @@ export const saveSavingRecord = (record: Omit<SavingRecord, 'id' | 'createdAt' |
  * Get all saving records
  */
 export const getSavingRecords = (): SavingRecord[] => {
+  if (!isLocalStorageAvailable()) {
+    return [];
+  }
+
   try {
     const stored = localStorage.getItem(STORAGE_KEYS.SAVINGS);
     return stored ? JSON.parse(stored) : [];
@@ -131,6 +166,10 @@ export const getSavingRecordById = (id: string): SavingRecord | null => {
  * Update a saving record
  */
 export const updateSavingRecord = (id: string, updates: Partial<SavingRecord>): SavingRecord | null => {
+  if (!isLocalStorageAvailable()) {
+    throw new Error('Local storage is not available.');
+  }
+
   try {
     const records = getSavingRecords();
     const index = records.findIndex(record => record.id === id);
@@ -160,6 +199,10 @@ export const updateSavingRecord = (id: string, updates: Partial<SavingRecord>): 
  * Delete a saving record
  */
 export const deleteSavingRecord = (id: string): boolean => {
+  if (!isLocalStorageAvailable()) {
+    throw new Error('Local storage is not available.');
+  }
+
   try {
     const records = getSavingRecords();
     const filteredRecords = records.filter(record => record.id !== id);
@@ -197,6 +240,10 @@ export const searchSavingRecords = (query: string): SavingRecord[] => {
  * Save user data
  */
 export const saveUserData = (userData: UserData): void => {
+  if (!isLocalStorageAvailable()) {
+    throw new Error('Local storage is not available.');
+  }
+
   try {
     const userDataWithTimestamp: UserData = {
       ...userData,
@@ -213,6 +260,10 @@ export const saveUserData = (userData: UserData): void => {
  * Get user data
  */
 export const getUserData = (): UserData | null => {
+  if (!isLocalStorageAvailable()) {
+    return null;
+  }
+
   try {
     const stored = localStorage.getItem(STORAGE_KEYS.USER_DATA);
     return stored ? JSON.parse(stored) : null;
@@ -245,6 +296,10 @@ export const updateUserData = (updates: Partial<UserData>): UserData | null => {
 };
 
 export const saveAppSettings = (settings: AppSettings): void => {
+  if (!isLocalStorageAvailable()) {
+    throw new Error('Local storage is not available.');
+  }
+
   try {
     localStorage.setItem(STORAGE_KEYS.APP_SETTINGS, JSON.stringify(settings));
   } catch (error) {
@@ -254,6 +309,10 @@ export const saveAppSettings = (settings: AppSettings): void => {
 };
 
 export const getAppSettings = (): AppSettings => {
+  if (!isLocalStorageAvailable()) {
+    return DEFAULT_SETTINGS;
+  }
+
   try {
     const stored = localStorage.getItem(STORAGE_KEYS.APP_SETTINGS);
     return stored ? (JSON.parse(stored) as AppSettings) : DEFAULT_SETTINGS;
@@ -271,6 +330,10 @@ export interface SavingDraft {
 }
 
 export const saveSavingDraft = (draft: SavingDraft | null): void => {
+  if (!isLocalStorageAvailable()) {
+    return;
+  }
+
   try {
     if (draft) {
       localStorage.setItem(STORAGE_KEYS.SAVING_DRAFT, JSON.stringify(draft));
@@ -283,6 +346,10 @@ export const saveSavingDraft = (draft: SavingDraft | null): void => {
 };
 
 export const getSavingDraft = (): SavingDraft | null => {
+  if (!isLocalStorageAvailable()) {
+    return null;
+  }
+
   try {
     const stored = localStorage.getItem(STORAGE_KEYS.SAVING_DRAFT);
     return stored ? (JSON.parse(stored) as SavingDraft) : null;

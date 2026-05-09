@@ -2,7 +2,9 @@
 
 import { MemberLayout } from '@/components/layout/MemberLayout';
 import { useState, useEffect, useRef } from 'react';
-import { Search, Plus, Eye, X, Edit, Trash2 } from 'lucide-react';
+import { Plus, Eye, X, Edit, Trash2 } from 'lucide-react';
+import { SearchBar } from '@/components/ui/SearchBar';
+import { useSettings } from '@/context/SettingsContext';
 
 const mockShares = [
   { id: 1, name: 'Emergency Fund', value: 2000, totalContributed: 100000, createdDate: '2023-01-15', status: 'Approved', hasSavings: true },
@@ -13,6 +15,7 @@ const mockShares = [
 ];
 
 export default function Shares() {
+  const { t } = useSettings();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -101,21 +104,11 @@ export default function Shares() {
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
           <div className="p-4 sm:p-6 border-b border-gray-100">
-            <div className="flex gap-2">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#0B5D3B] focus:border-transparent transition-all placeholder-gray-400 text-gray-900"
-                />
-              </div>
-              <button className="px-4 py-2 bg-[#0B5D3B] text-white rounded-xl font-medium hover:bg-[#094a2e] transition-all duration-200 text-sm whitespace-nowrap">
-                Search
-              </button>
-            </div>
+            <SearchBar
+              value={searchQuery}
+              onChange={setSearchQuery}
+              placeholder={t('searchPlaceholder') || 'Search...'}
+            />
           </div>
 
           <div className="overflow-x-auto -mx-4 sm:mx-0">
@@ -123,12 +116,12 @@ export default function Shares() {
               <table className="min-w-full">
                 <thead>
                   <tr className="border-b border-gray-200 bg-gray-50">
-                    <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Share Name</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Share Value</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Total Contributed</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Created Date</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Status</th>
-                    <th className="text-center py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Action</th>
+                    <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">{t('shareName')}</th>
+                    <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">{t('value')}</th>
+                    <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">{t('contributed')}</th>
+                    <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">{t('created')}</th>
+                    <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">{t('status')}</th>
+                    <th className="text-center py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">{t('action')}</th>
                   </tr>
                 </thead>
                 <tbody>
