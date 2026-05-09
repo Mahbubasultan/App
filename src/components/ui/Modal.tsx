@@ -49,7 +49,7 @@ export const Modal: React.FC<ModalProps> = ({
   if (!isOpen) return null;
 
   const sizes = {
-    sm: 'max-w-md',
+    sm: 'max-w-sm',
     md: 'max-w-lg',
     lg: 'max-w-2xl',
     xl: 'max-w-4xl',
@@ -58,23 +58,23 @@ export const Modal: React.FC<ModalProps> = ({
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
       onClick={onClose}
     >
       <div 
-        className={`bg-white rounded-2xl shadow-large w-full ${sizes[size]} max-h-[90vh] overflow-hidden animate-slide-up`}
+        className={`bg-white rounded-lg sm:rounded-2xl shadow-large w-full ${sizes[size]} max-h-[90vh] overflow-hidden animate-slide-up`}
         onClick={(e) => e.stopPropagation()}
       >
         {(title || showCloseButton) && (
-          <div className="flex items-start justify-between p-6 border-b">
-            <div className="flex-1">
-              {title && <h2 className="text-2xl font-semibold text-gray-900">{title}</h2>}
-              {description && <p className="text-sm text-gray-600 mt-1">{description}</p>}
+          <div className="flex items-start justify-between p-4 sm:p-6 border-b">
+            <div className="flex-1 min-w-0">
+              {title && <h2 className="text-lg sm:text-2xl font-semibold text-gray-900">{title}</h2>}
+              {description && <p className="text-xs sm:text-sm text-gray-600 mt-1">{description}</p>}
             </div>
             {showCloseButton && (
               <button 
                 onClick={onClose} 
-                className="ml-4 p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="ml-2 sm:ml-4 p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
               >
                 <X size={20} className="text-gray-500" />
               </button>
@@ -82,7 +82,7 @@ export const Modal: React.FC<ModalProps> = ({
           </div>
         )}
         
-        <div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+        <div className="p-4 sm:p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
           {children}
         </div>
       </div>

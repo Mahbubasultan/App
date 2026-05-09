@@ -1,13 +1,16 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Wallet, Layers, DollarSign, TrendingUp } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { Wallet, Layers, DollarSign, TrendingUp, Users, UserCheck, Megaphone, BarChart3 } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 
 const summaryData = {
   totalSavings: 2450000,
   totalShares: 1225,
   totalLoans: 1850000,
+  totalMembers: 24,
+  totalAccountants: 3,
+  totalAnnouncements: 8,
 };
 
 const loanStats = [
@@ -17,7 +20,6 @@ const loanStats = [
   { name: 'Overdue', value: 2, color: '#EF4444' },
 ];
 
-// Horizontal bar chart data - Member contributions
 const memberContributions = [
   { name: 'Jean Baptiste', amount: 250000 },
   { name: 'Marie Claire', amount: 360000 },
@@ -26,7 +28,15 @@ const memberContributions = [
   { name: 'Grace Uwera', amount: 190000 },
 ];
 
-export default function AccountantDashboard() {
+const monthlyGrowth = [
+  { month: 'Sep', members: 20, savings: 1800000 },
+  { month: 'Oct', members: 21, savings: 2050000 },
+  { month: 'Nov', members: 22, savings: 2100000 },
+  { month: 'Dec', members: 23, savings: 2150000 },
+  { month: 'Jan', members: 24, savings: 2450000 },
+];
+
+export default function AdminDashboard() {
   const router = useRouter();
 
   const cards = [
@@ -35,7 +45,7 @@ export default function AccountantDashboard() {
       value: `${summaryData.totalSavings.toLocaleString()} RWF`,
       icon: Wallet,
       color: 'bg-blue-500',
-      route: '/accountant/savings',
+      route: '/admin/savings',
       trend: '+12.5%',
     },
     {
@@ -43,7 +53,7 @@ export default function AccountantDashboard() {
       value: summaryData.totalShares.toLocaleString(),
       icon: Layers,
       color: 'bg-purple-500',
-      route: '/accountant/shares',
+      route: '/admin/shares',
       trend: '+8.3%',
     },
     {
@@ -51,8 +61,16 @@ export default function AccountantDashboard() {
       value: `${summaryData.totalLoans.toLocaleString()} RWF`,
       icon: DollarSign,
       color: 'bg-orange-500',
-      route: '/accountant/loans',
+      route: '/admin/loans',
       trend: '+15.7%',
+    },
+    {
+      title: 'Total Members',
+      value: summaryData.totalMembers.toString(),
+      icon: Users,
+      color: 'bg-green-500',
+      route: '/admin/users',
+      trend: '+4.3%',
     },
   ];
 
@@ -60,12 +78,12 @@ export default function AccountantDashboard() {
     <div className="space-y-4 sm:space-y-6 animate-in fade-in-0 duration-500">
         {/* Header */}
         <div className="animate-in slide-in-from-top-4 duration-500">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-sm sm:text-base text-gray-600 mt-1">Overview of all member activities</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+          <p className="text-sm sm:text-base text-gray-600 mt-1">Complete platform overview and management</p>
         </div>
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {cards.map((card, index) => {
             const Icon = card.icon;
             return (
@@ -78,7 +96,7 @@ export default function AccountantDashboard() {
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <p className="text-xs sm:text-sm font-medium text-gray-600 mb-1 sm:mb-2">{card.title}</p>
-                    <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">{card.value}</p>
+                    <p className="text-xl sm:text-2xl font-bold text-gray-900 mb-1 sm:mb-2">{card.value}</p>
                     <div className="flex items-center gap-1 text-xs sm:text-sm">
                       <TrendingUp size={14} className="text-green-600" />
                       <span className="text-green-600 font-semibold">{card.trend}</span>
@@ -95,32 +113,32 @@ export default function AccountantDashboard() {
         </div>
 
         {/* Quick Stats */}
-        <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 animate-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: '300ms' }}>
+        <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 animate-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: '400ms' }}>
           <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4">Quick Statistics</h3>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <div className="text-center p-3 sm:p-4 bg-gray-50 rounded-lg sm:rounded-xl hover:bg-gray-100 transition-colors duration-300">
-              <p className="text-xl sm:text-2xl font-bold text-[#0B5D3B]">24</p>
+              <p className="text-xl sm:text-2xl font-bold text-[#0B5D3B]">{summaryData.totalMembers}</p>
               <p className="text-xs sm:text-sm text-gray-600 mt-1">Active Members</p>
             </div>
             <div className="text-center p-3 sm:p-4 bg-gray-50 rounded-lg sm:rounded-xl hover:bg-gray-100 transition-colors duration-300">
-              <p className="text-xl sm:text-2xl font-bold text-blue-600">12</p>
-              <p className="text-xs sm:text-sm text-gray-600 mt-1">Pending Approvals</p>
+              <p className="text-xl sm:text-2xl font-bold text-blue-600">{summaryData.totalAccountants}</p>
+              <p className="text-xs sm:text-sm text-gray-600 mt-1">Accountants</p>
             </div>
             <div className="text-center p-3 sm:p-4 bg-gray-50 rounded-lg sm:rounded-xl hover:bg-gray-100 transition-colors duration-300">
               <p className="text-xl sm:text-2xl font-bold text-orange-600">8</p>
               <p className="text-xs sm:text-sm text-gray-600 mt-1">Active Loans</p>
             </div>
             <div className="text-center p-3 sm:p-4 bg-gray-50 rounded-lg sm:rounded-xl hover:bg-gray-100 transition-colors duration-300">
-              <p className="text-xl sm:text-2xl font-bold text-purple-600">5</p>
-              <p className="text-xs sm:text-sm text-gray-600 mt-1">Guarantors</p>
+              <p className="text-xl sm:text-2xl font-bold text-purple-600">{summaryData.totalAnnouncements}</p>
+              <p className="text-xs sm:text-sm text-gray-600 mt-1">Announcements</p>
             </div>
           </div>
         </div>
 
-        {/* Charts Section */}
+        {/* Charts Section - Row 1 */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
           {/* Loan Status Pie Chart */}
-          <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 animate-in slide-in-from-left-4 duration-500" style={{ animationDelay: '400ms' }}>
+          <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 animate-in slide-in-from-left-4 duration-500" style={{ animationDelay: '500ms' }}>
             <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4">Loan Status Overview</h3>
             <ResponsiveContainer width="100%" height={280}>
               <PieChart>
@@ -155,7 +173,7 @@ export default function AccountantDashboard() {
           </div>
 
           {/* Horizontal Bar Chart - Member Contributions */}
-          <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 animate-in slide-in-from-right-4 duration-500" style={{ animationDelay: '500ms' }}>
+          <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 animate-in slide-in-from-right-4 duration-500" style={{ animationDelay: '600ms' }}>
             <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4">Top Member Savings</h3>
             <ResponsiveContainer width="100%" height={280}>
               <BarChart 
@@ -194,6 +212,80 @@ export default function AccountantDashboard() {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Platform Growth Chart */}
+        <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 animate-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: '700ms' }}>
+          <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4">Platform Growth</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={monthlyGrowth}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="month" tick={{ fontSize: 12 }} />
+              <YAxis yAxisId="left" tick={{ fontSize: 12 }} />
+              <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 12 }} />
+              <Tooltip />
+              <Legend wrapperStyle={{ fontSize: '12px' }} />
+              <Line yAxisId="left" type="monotone" dataKey="savings" stroke="#0B5D3B" strokeWidth={3} name="Total Savings (RWF)" dot={{ r: 5 }} />
+              <Line yAxisId="right" type="monotone" dataKey="members" stroke="#3B82F6" strokeWidth={3} name="Total Members" dot={{ r: 5 }} />
+            </LineChart>
+          </ResponsiveContainer>
+          <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+            <div className="p-3 bg-green-50 rounded-lg">
+              <p className="text-xs text-gray-600">Savings Growth</p>
+              <p className="text-sm font-bold text-green-600">+36.1%</p>
+            </div>
+            <div className="p-3 bg-blue-50 rounded-lg">
+              <p className="text-xs text-gray-600">Member Growth</p>
+              <p className="text-sm font-bold text-blue-600">+20.0%</p>
+            </div>
+            <div className="p-3 bg-purple-50 rounded-lg">
+              <p className="text-xs text-gray-600">Avg per Member</p>
+              <p className="text-sm font-bold text-purple-600">102,083 RWF</p>
+            </div>
+            <div className="p-3 bg-orange-50 rounded-lg">
+              <p className="text-xs text-gray-600">Monthly Increase</p>
+              <p className="text-sm font-bold text-orange-600">+7.2%</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 animate-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: '800ms' }}>
+          <button
+            onClick={() => router.push('/admin/users')}
+            className="p-4 bg-white rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-300 hover:scale-105 text-left group"
+          >
+            <Users className="text-[#0B5D3B] mb-2 group-hover:scale-110 transition-transform" size={24} />
+            <p className="font-semibold text-gray-900">Manage Users</p>
+            <p className="text-xs text-gray-600 mt-1">View and manage all members</p>
+          </button>
+          
+          <button
+            onClick={() => router.push('/admin/accountants')}
+            className="p-4 bg-white rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-300 hover:scale-105 text-left group"
+          >
+            <UserCheck className="text-blue-600 mb-2 group-hover:scale-110 transition-transform" size={24} />
+            <p className="font-semibold text-gray-900">Accountants</p>
+            <p className="text-xs text-gray-600 mt-1">View accountant activity logs</p>
+          </button>
+          
+          <button
+            onClick={() => router.push('/admin/announcements')}
+            className="p-4 bg-white rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-300 hover:scale-105 text-left group"
+          >
+            <Megaphone className="text-purple-600 mb-2 group-hover:scale-110 transition-transform" size={24} />
+            <p className="font-semibold text-gray-900">Announcements</p>
+            <p className="text-xs text-gray-600 mt-1">Create and manage announcements</p>
+          </button>
+          
+          <button
+            onClick={() => router.push('/admin/analytics')}
+            className="p-4 bg-white rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-300 hover:scale-105 text-left group"
+          >
+            <BarChart3 className="text-orange-600 mb-2 group-hover:scale-110 transition-transform" size={24} />
+            <p className="font-semibold text-gray-900">Analytics</p>
+            <p className="text-xs text-gray-600 mt-1">View detailed platform analytics</p>
+          </button>
         </div>
       </div>
   );

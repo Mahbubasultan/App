@@ -40,7 +40,7 @@ export default function RegisterPage() {
     if (formData.role === 'member') {
       router.push('/member/savings');
     } else if (formData.role === 'accountant') {
-      router.push('/accountant/verify');
+      router.push('/accountant/dashboard');
     } else if (formData.role === 'admin') {
       router.push('/admin/analytics');
     }

@@ -3,17 +3,18 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { 
-  Home, 
-  CreditCard, 
-  Wallet, 
-  CheckSquare, 
-  Users, 
-  BarChart3, 
-  Gift, 
+import {
+  LayoutDashboard,
+  Layers,
+  Wallet,
+  DollarSign,
+  UserCheck,
+  Users,
+  BarChart3,
+  Megaphone,
+  Sparkles,
   X,
   LogOut,
-  Sparkles
 } from 'lucide-react';
 import { UserRole } from '@/types';
 
@@ -27,20 +28,30 @@ export const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, onClose }) => {
   const pathname = usePathname();
 
   const memberLinks = [
-    { href: '/member/savings', label: 'My Savings', icon: Home },
-    { href: '/member/payment', label: 'Pay Shares', icon: CreditCard },
-    { href: '/member/loan', label: 'Loan', icon: Wallet },
+    { href: '/member/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/member/my-savings', label: 'My Savings', icon: Wallet },
+    { href: '/member/shares', label: 'Shares', icon: Layers },
+    { href: '/member/loans', label: 'Loans', icon: DollarSign },
   ];
 
   const accountantLinks = [
-    { href: '/accountant/verify', label: 'Verify Payments', icon: CheckSquare },
-    { href: '/accountant/loans', label: 'Loan Approvals', icon: Wallet },
+    { href: '/accountant/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/accountant/shares', label: 'Shares', icon: Layers },
+    { href: '/accountant/savings', label: 'Savings', icon: Wallet },
+    { href: '/accountant/loans', label: 'Loans', icon: DollarSign },
+    { href: '/accountant/guarantor', label: 'Guarantors', icon: UserCheck },
   ];
 
   const adminLinks = [
-    { href: '/admin/analytics', label: 'Group Analytics', icon: BarChart3 },
+    { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/admin/shares', label: 'Shares', icon: Layers },
+    { href: '/admin/savings', label: 'Savings', icon: Wallet },
+    { href: '/admin/loans', label: 'Loans', icon: DollarSign },
+    { href: '/admin/guarantor', label: 'Guarantors', icon: UserCheck },
+    { href: '/admin/accountants', label: 'Accountants', icon: Users },
     { href: '/admin/users', label: 'User Management', icon: Users },
-    { href: '/admin/giveaway', label: 'Run Giveaway', icon: Gift },
+    { href: '/admin/announcements', label: 'Announcements', icon: Megaphone },
+    { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
   ];
 
   const links = role === 'member' ? memberLinks : role === 'accountant' ? accountantLinks : adminLinks;
@@ -55,7 +66,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, onClose }) => {
         />
       )}
       
-      {/* Sidebar - Dark Green */}
       <aside
         className={`
           fixed lg:static inset-y-0 left-0 z-50 w-72 bg-primary
@@ -64,14 +74,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, onClose }) => {
         `}
       >
         {/* Logo */}
-        <div className="p-6 border-b border-primary-light/20">
+        <div className="p-4 sm:p-6 border-b border-primary-light/20">
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-2">
-                <Sparkles className="text-white" size={24} />
-                <h1 className="text-2xl font-bold text-white">ROSCA</h1>
+                <Sparkles className="text-white w-5 h-5 sm:w-6 sm:h-6" />
+                <h1 className="text-xl sm:text-2xl font-bold text-white">ROSCA</h1>
               </div>
-              <p className="text-sm text-white/70 mt-1 capitalize">{role} Portal</p>
+              <p className="text-xs sm:text-sm text-white/70 mt-1 capitalize">{role} Portal</p>
             </div>
             <button 
               onClick={onClose} 
@@ -83,7 +93,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, onClose }) => {
         </div>
         
         {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+        <nav className="flex-1 p-3 sm:p-4 space-y-1 sm:space-y-2 overflow-y-auto">
           {links.map((link) => {
             const Icon = link.icon;
             const isActive = pathname === link.href;
@@ -93,15 +103,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, onClose }) => {
                 href={link.href}
                 onClick={onClose}
                 className={`
-                  group flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200
+                  group flex items-center gap-3 px-3 sm:px-4 py-2 sm:py-3 rounded-xl sm:rounded-2xl transition-all duration-200
                   ${isActive
                     ? 'bg-white text-primary shadow-soft'
                     : 'text-white/70 hover:bg-white/10 hover:text-white'
                   }
                 `}
               >
-                <Icon size={20} className="flex-shrink-0" />
-                <span className="font-medium">{link.label}</span>
+                <Icon size={18} className="flex-shrink-0 sm:w-5 sm:h-5" />
+                <span className="font-medium text-sm sm:text-base">{link.label}</span>
                 {isActive && (
                   <div className="ml-auto w-2 h-2 rounded-full bg-primary animate-pulse" />
                 )}
@@ -111,10 +121,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, onClose }) => {
         </nav>
 
         {/* Logout */}
-        <div className="p-4 border-t border-primary-light/20">
-          <button className="w-full flex items-center gap-3 px-4 py-3 text-white/70 hover:bg-white/10 hover:text-white rounded-2xl transition-all duration-200">
-            <LogOut size={20} />
-            <span className="font-medium">Logout</span>
+        <div className="p-3 sm:p-4 border-t border-primary-light/20">
+          <button className="w-full flex items-center gap-3 px-3 sm:px-4 py-2 sm:py-3 text-white/70 hover:bg-white/10 hover:text-white rounded-xl sm:rounded-2xl transition-all duration-200">
+            <LogOut size={18} className="flex-shrink-0 sm:w-5 sm:h-5" />
+            <span className="font-medium text-sm sm:text-base">Logout</span>
           </button>
         </div>
       </aside>

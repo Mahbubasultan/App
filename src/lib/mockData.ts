@@ -305,6 +305,52 @@ export const mockGiveaways: Giveaway[] = [
   },
 ];
 
+// Mock Shares Data
+export interface ShareRecord {
+  id: string;
+  memberId: string;
+  memberName: string;
+  shareName: string;
+  shareValue: number;
+  totalAssigned: number;
+  sharesCount: number;
+  status: 'active' | 'pending' | 'suspended';
+  date: string;
+}
+
+export const mockShares: ShareRecord[] = [
+  { id: 'SH001', memberId: '1', memberName: 'Jean Baptiste Mugabo', shareName: 'Emergency Fund', shareValue: 2000, totalAssigned: 250000, sharesCount: 125, status: 'active', date: '2024-01-15' },
+  { id: 'SH002', memberId: '2', memberName: 'Marie Claire Uwase', shareName: 'Education Share', shareValue: 2000, totalAssigned: 360000, sharesCount: 180, status: 'active', date: '2024-01-15' },
+  { id: 'SH003', memberId: '3', memberName: 'Patrick Nkurunziza', shareName: 'Business Capital', shareValue: 2000, totalAssigned: 500000, sharesCount: 250, status: 'active', date: '2024-01-15' },
+  { id: 'SH004', memberId: '4', memberName: 'Grace Umutoni', shareName: 'Health Share', shareValue: 2000, totalAssigned: 190000, sharesCount: 95, status: 'pending', date: '2024-01-18' },
+  { id: 'SH005', memberId: '5', memberName: 'Eric Habimana', shareName: 'Investment Fund', shareValue: 2000, totalAssigned: 280000, sharesCount: 140, status: 'active', date: '2024-01-05' },
+  { id: 'SH006', memberId: '6', memberName: 'Diane Mukamana', shareName: 'Emergency Fund', shareValue: 2000, totalAssigned: 156000, sharesCount: 78, status: 'suspended', date: '2024-01-20' },
+  { id: 'SH007', memberId: '1', memberName: 'Jean Baptiste Mugabo', shareName: 'Business Capital', shareValue: 2000, totalAssigned: 100000, sharesCount: 50, status: 'active', date: '2023-11-10' },
+  { id: 'SH008', memberId: '4', memberName: 'Grace Umutoni', shareName: 'Education Share', shareValue: 2000, totalAssigned: 60000, sharesCount: 30, status: 'pending', date: '2024-01-22' },
+];
+
+// Mock Guarantor Records
+export interface GuarantorRecord {
+  id: string;
+  borrowerId: string;
+  borrowerName: string;
+  guarantorId: string;
+  guarantorName: string;
+  coverageAmount: number;
+  loanAmount: number;
+  status: 'pending' | 'accepted' | 'rejected' | 'on_hold';
+  date: string;
+  loanId: string;
+}
+
+export const mockGuarantors: GuarantorRecord[] = [
+  { id: 'GR001', borrowerId: '1', borrowerName: 'Jean Baptiste Mugabo', guarantorId: '5', guarantorName: 'Eric Habimana', coverageAmount: 530000, loanAmount: 400000, status: 'pending', date: '2024-01-18', loanId: 'LOAN001' },
+  { id: 'GR002', borrowerId: '4', borrowerName: 'Grace Umutoni', guarantorId: '1', guarantorName: 'Jean Baptiste Mugabo', coverageAmount: 440000, loanAmount: 300000, status: 'accepted', date: '2024-01-14', loanId: 'LOAN002' },
+  { id: 'GR003', borrowerId: '6', borrowerName: 'Diane Mukamana', guarantorId: '2', guarantorName: 'Marie Claire Uwase', coverageAmount: 516000, loanAmount: 200000, status: 'rejected', date: '2024-01-10', loanId: 'LOAN003' },
+  { id: 'GR004', borrowerId: '5', borrowerName: 'Eric Habimana', guarantorId: '3', guarantorName: 'Patrick Nkurunziza', coverageAmount: 780000, loanAmount: 500000, status: 'on_hold', date: '2024-01-20', loanId: 'LOAN004' },
+  { id: 'GR005', borrowerId: '2', borrowerName: 'Marie Claire Uwase', guarantorId: '5', guarantorName: 'Eric Habimana', coverageAmount: 640000, loanAmount: 350000, status: 'accepted', date: '2023-12-20', loanId: 'LOAN005' },
+];
+
 // Mock Group Stats
 export const mockGroupStats: GroupStats = {
   totalMembers: 45,

@@ -10,6 +10,11 @@
   body {
     @apply bg-white text-text-dark antialiased;
   }
+
+  html.dark body {
+    background-color: #0f172a;
+    color: #f8fafc;
+  }
   
   h1, h2, h3, h4, h5, h6 {
     @apply font-semibold tracking-tight;

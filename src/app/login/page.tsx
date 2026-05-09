@@ -8,7 +8,7 @@ import { Wallet, Mail, Lock, ArrowRight, Loader2 } from 'lucide-react';
 const MOCK_USERS = [
   { email: 'admin@gmail.com', password: '123456', role: 'admin', redirect: '/admin/analytics' },
   { email: 'member@gmail.com', password: '123456', role: 'member', redirect: '/member/savings' },
-  { email: 'accountant@gmail.com', password: '123456', role: 'accountant', redirect: '/accountant/verify' },
+  { email: 'accountant@gmail.com', password: '123456', role: 'accountant', redirect: '/accountant/dashboard' },
 ];
 
 export default function LoginPage() {

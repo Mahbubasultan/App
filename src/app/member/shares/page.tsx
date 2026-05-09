@@ -1,8 +1,8 @@
 'use client';
 
 import { MemberLayout } from '@/components/layout/MemberLayout';
-import { useState } from 'react';
-import { Search, Plus, Eye, Edit, Trash2, Filter } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Search, Plus, Eye, X, Edit, Trash2 } from 'lucide-react';
 
 const mockShares = [
   { id: 1, name: 'Emergency Fund', value: 2000, totalContributed: 100000, createdDate: '2023-01-15', status: 'Approved', hasSavings: true },
@@ -21,6 +21,17 @@ export default function Shares() {
   const [selectedShare, setSelectedShare] = useState<any>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setStatusFilter('All');
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -61,19 +72,19 @@ export default function Shares() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Approved': return 'bg-green-100 text-green-700';
-      case 'Pending': return 'bg-yellow-100 text-yellow-700';
-      default: return 'bg-gray-100 text-gray-700';
+      case 'Approved': return 'bg-emerald-100 text-emerald-700 border border-emerald-200';
+      case 'Pending': return 'bg-amber-100 text-amber-700 border border-amber-200';
+      default: return 'bg-gray-100 text-gray-700 border border-gray-200';
     }
   };
 
   return (
     <MemberLayout userName="Jean Baptiste Mugabo">
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Shares</h1>
-            <p className="text-gray-600 mt-1">Manage your shares and equity</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Shares</h1>
+            <p className="text-sm sm:text-base text-gray-600 mt-1">Manage your shares and equity</p>
           </div>
           <button
             onClick={() => {
@@ -81,114 +92,94 @@ export default function Shares() {
               setFormData({ name: '', value: 2000 });
               setIsAddModalOpen(true);
             }}
-            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-300"
+            className="flex items-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-[#0B5D3B] text-white rounded-xl font-semibold hover:bg-[#094a2e] hover:shadow-lg transition-all duration-300 w-full sm:w-fit justify-center text-sm sm:text-base"
           >
-            <Plus size={20} />
+            <Plus size={18} className="sm:w-5 sm:h-5" />
             Add Share
           </button>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-              <input
-                type="text"
-                placeholder="Search by share name..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <Filter size={20} className="text-gray-400" />
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
-              >
-                <option>All</option>
-                <option>Approved</option>
-                <option>Pending</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-200">
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700">Share Name</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700">Share Value</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700">Total Contributed</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700">Created Date</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700">Status</th>
-                  <th className="text-center py-3 px-4 font-semibold text-gray-700">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {paginatedShares.map((share) => (
-                  <tr key={share.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                    <td className="py-3 px-4 font-medium text-gray-900">{share.name}</td>
-                    <td className="py-3 px-4 text-gray-900">{share.value.toLocaleString()} RWF</td>
-                    <td className="py-3 px-4 text-gray-900">{share.totalContributed.toLocaleString()} RWF</td>
-                    <td className="py-3 px-4 text-gray-600">{share.createdDate}</td>
-                    <td className="py-3 px-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(share.status)}`}>
-                        {share.status}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4">
-                      <div className="flex items-center justify-center gap-2">
-                        <button
-                          onClick={() => {
-                            setSelectedShare(share);
-                            setIsViewModalOpen(true);
-                          }}
-                          className="p-2 hover:bg-green-50 text-green-600 rounded-lg transition-colors"
-                        >
-                          <Eye size={18} />
-                        </button>
-                        {share.status !== 'Approved' && (
-                          <>
-                            <button
-                              onClick={() => handleEdit(share)}
-                              className="p-2 hover:bg-blue-50 text-blue-600 rounded-lg transition-colors"
-                            >
-                              <Edit size={18} />
-                            </button>
-                            <button
-                              onClick={() => handleDelete(share.id)}
-                              className="p-2 hover:bg-red-50 text-red-600 rounded-lg transition-colors"
-                            >
-                              <Trash2 size={18} />
-                            </button>
-                          </>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <div className="flex items-center justify-between mt-6">
-            <p className="text-sm text-gray-600">
-              Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, filteredShares.length)} of {filteredShares.length} entries
-            </p>
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="p-4 sm:p-6 border-b border-gray-100">
             <div className="flex gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#0B5D3B] focus:border-transparent transition-all placeholder-gray-400 text-gray-900"
+                />
+              </div>
+              <button className="px-4 py-2 bg-[#0B5D3B] text-white rounded-xl font-medium hover:bg-[#094a2e] transition-all duration-200 text-sm whitespace-nowrap">
+                Search
+              </button>
+            </div>
+          </div>
+
+          <div className="overflow-x-auto -mx-4 sm:mx-0">
+            <div className="inline-block min-w-full align-middle">
+              <table className="min-w-full">
+                <thead>
+                  <tr className="border-b border-gray-200 bg-gray-50">
+                    <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Share Name</th>
+                    <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Share Value</th>
+                    <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Total Contributed</th>
+                    <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Created Date</th>
+                    <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Status</th>
+                    <th className="text-center py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {paginatedShares.map((share) => (
+                    <tr key={share.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                      <td className="py-3 px-4 font-medium text-gray-900 text-xs sm:text-sm">{share.name}</td>
+                      <td className="py-3 px-4 text-gray-900 text-xs sm:text-sm whitespace-nowrap">{share.value.toLocaleString()} RWF</td>
+                      <td className="py-3 px-4 text-gray-900 text-xs sm:text-sm whitespace-nowrap">{share.totalContributed.toLocaleString()} RWF</td>
+                      <td className="py-3 px-4 text-gray-600 text-xs sm:text-sm whitespace-nowrap">{share.createdDate}</td>
+                      <td className="py-3 px-4">
+                        <span className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(share.status)}`}>
+                          {share.status}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="flex items-center justify-center">
+                          <button
+                            onClick={() => {
+                              setSelectedShare(share);
+                              setIsViewModalOpen(true);
+                            }}
+                            className="p-2 hover:bg-[#0B5D3B]/10 text-[#0B5D3B] rounded-lg transition-colors"
+                            title="View details"
+                          >
+                            <Eye size={16} className="sm:w-[18px] sm:h-[18px]" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <p className="text-xs sm:text-sm text-gray-600 text-center sm:text-left">
+              Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, filteredShares.length)} of {filteredShares.length}
+            </p>
+            <div className="flex gap-2 justify-center">
               <button
                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
-                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-3 sm:px-4 py-1.5 sm:py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Previous
               </button>
               <button
                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                 disabled={currentPage === totalPages}
-                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-3 sm:px-4 py-1.5 sm:py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Next
               </button>
@@ -199,10 +190,21 @@ export default function Shares() {
 
       {/* Add/Edit Share Modal */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">{isEditMode ? 'Edit Share' : 'Add Share'}</h2>
-            <div className="space-y-4">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in-0 duration-200">
+          <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="bg-[#0B5D3B] px-6 py-5 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-white">{isEditMode ? 'Edit Share' : 'Add Share'}</h2>
+              <button
+                onClick={() => {
+                  setIsAddModalOpen(false);
+                  setIsEditMode(false);
+                }}
+                className="p-1.5 hover:bg-white/20 rounded-lg transition-colors"
+              >
+                <X size={20} className="text-white" />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Share Name</label>
                 <input
@@ -223,19 +225,19 @@ export default function Shares() {
                   placeholder="2000"
                 />
               </div>
-              <div className="flex gap-3 mt-6">
+              <div className="flex gap-3 pt-2">
                 <button
                   onClick={() => {
                     setIsAddModalOpen(false);
                     setIsEditMode(false);
                   }}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors"
+                  className="flex-1 px-4 py-2.5 border border-gray-300 rounded-xl font-semibold hover:bg-gray-50 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSubmit}
-                  className="flex-1 px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors"
+                  className="flex-1 px-4 py-2.5 bg-[#0B5D3B] text-white rounded-xl font-semibold hover:bg-[#094a2e] transition-colors"
                 >
                   {isEditMode ? 'Update' : 'Create'}
                 </button>
@@ -247,35 +249,71 @@ export default function Shares() {
 
       {/* View Modal */}
       {isViewModalOpen && selectedShare && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Share Details</h2>
-            <div className="space-y-4">
-              <div>
-                <p className="text-sm text-gray-600">Share Name</p>
-                <p className="font-semibold text-gray-900">{selectedShare.name}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Share Value</p>
-                <p className="font-semibold text-gray-900">{selectedShare.value.toLocaleString()} RWF</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Total Contributed</p>
-                <p className="font-semibold text-gray-900">{selectedShare.totalContributed.toLocaleString()} RWF</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Created Date</p>
-                <p className="font-semibold text-gray-900">{selectedShare.createdDate}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Status</p>
-                <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(selectedShare.status)}`}>
-                  {selectedShare.status}
-                </span>
-              </div>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in-0 duration-200">
+          <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="bg-[#0B5D3B] px-6 py-5 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-white">Share Details</h2>
               <button
                 onClick={() => setIsViewModalOpen(false)}
-                className="w-full px-4 py-2 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors mt-4"
+                className="p-1.5 hover:bg-white/20 rounded-lg transition-colors"
+              >
+                <X size={20} className="text-white" />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                  <p className="text-xs font-semibold text-gray-600 mb-1">Share Name</p>
+                  <p className="font-semibold text-gray-900">{selectedShare.name}</p>
+                </div>
+                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                  <p className="text-xs font-semibold text-gray-600 mb-1">Share Value</p>
+                  <p className="font-semibold text-[#0B5D3B]">{selectedShare.value.toLocaleString()} RWF</p>
+                </div>
+                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                  <p className="text-xs font-semibold text-gray-600 mb-1">Total Contributed</p>
+                  <p className="font-semibold text-gray-900">{selectedShare.totalContributed.toLocaleString()} RWF</p>
+                </div>
+                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                  <p className="text-xs font-semibold text-gray-600 mb-1">Created Date</p>
+                  <p className="font-semibold text-gray-900">{selectedShare.createdDate}</p>
+                </div>
+                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200 col-span-2">
+                  <p className="text-xs font-semibold text-gray-600 mb-2">Status</p>
+                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(selectedShare.status)}`}>
+                    {selectedShare.status}
+                  </span>
+                </div>
+              </div>
+              
+              {selectedShare.status !== 'Approved' && (
+                <div className="flex gap-3 pt-2 border-t border-gray-200">
+                  <button
+                    onClick={() => {
+                      handleEdit(selectedShare);
+                      setIsViewModalOpen(false);
+                    }}
+                    className="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <Edit size={18} />
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => {
+                      handleDelete(selectedShare.id);
+                      setIsViewModalOpen(false);
+                    }}
+                    className="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <Trash2 size={18} />
+                    Delete
+                  </button>
+                </div>
+              )}
+              
+              <button
+                onClick={() => setIsViewModalOpen(false)}
+                className="w-full px-4 py-2.5 bg-gray-100 rounded-xl font-semibold hover:bg-gray-200 transition-colors"
               >
                 Close
               </button>

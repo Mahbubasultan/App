@@ -1,355 +1,427 @@
 'use client';
 
 import { useState } from 'react';
-import { Layout } from '@/components/layout/Layout';
-import { Card } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
-import { Button } from '@/components/ui/Button';
-import { Avatar } from '@/components/ui/Avatar';
-import { mockUsers } from '@/lib/mockData';
-import { formatCurrency, formatDate, getGreeting } from '@/lib/utils';
-import { Edit, Trash2, Plus, Users as UsersIcon, TrendingUp, DollarSign, Search, Download, Eye } from 'lucide-react';
-import UserViewModal from '@/components/admin/UserViewModal';
-import DeleteConfirmDialog from '@/components/admin/DeleteConfirmDialog';
-import AddUserModal from '@/components/admin/AddUserModal';
-import { User } from '@/types/user';
+import { Search, Eye, X, Filter, Ban, Lock, Unlock, UserX, UserCheck, Mail, Phone } from 'lucide-react';
 
-export default function AdminUsers() {
-  const [adminUser] = useState(mockUsers[2]);
-  const [userImage, setUserImage] = useState<string | undefined>(undefined);
-  const [users, setUsers] = useState(mockUsers);
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  role: 'member' | 'accountant' | 'admin';
+  status: 'active' | 'restricted' | 'blocked';
+  totalSavings: number;
+  shares: number;
+  joinedDate: string;
+  lastActive: string;
+}
+
+const mockUsers: User[] = [
+  { id: '1', name: 'Jean Baptiste Mugabo', email: 'jean.mugabo@email.com', phone: '+250788123456', role: 'member', status: 'active', totalSavings: 250000, shares: 125, joinedDate: '2023-01-15', lastActive: '2 hours ago' },
+  { id: '2', name: 'Marie Claire Uwase', email: 'marie.uwase@email.com', phone: '+250788234567', role: 'accountant', status: 'active', totalSavings: 360000, shares: 180, joinedDate: '2022-11-20', lastActive: '30 min ago' },
+  { id: '3', name: 'Patrick Nkurunziza', email: 'patrick.admin@email.com', phone: '+250788345678', role: 'admin', status: 'active', totalSavings: 500000, shares: 250, joinedDate: '2022-10-01', lastActive: '5 min ago' },
+  { id: '4', name: 'Grace Umutoni', email: 'grace.umutoni@email.com', phone: '+250788456789', role: 'member', status: 'restricted', totalSavings: 190000, shares: 95, joinedDate: '2023-02-10', lastActive: '1 day ago' },
+  { id: '5', name: 'Eric Habimana', email: 'eric.habimana@email.com', phone: '+250788567890', role: 'member', status: 'active', totalSavings: 280000, shares: 140, joinedDate: '2023-01-05', lastActive: '3 hours ago' },
+  { id: '6', name: 'Diane Mukamana', email: 'diane.mukamana@email.com', phone: '+250788678901', role: 'member', status: 'blocked', totalSavings: 156000, shares: 78, joinedDate: '2023-03-12', lastActive: '1 week ago' },
+];
+
+export default function AdminUserManagement() {
+  const [users, setUsers] = useState<User[]>(mockUsers);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('All');
+  const [roleFilter, setRoleFilter] = useState('All');
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isRoleFilterOpen, setIsRoleFilterOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [userToDelete, setUserToDelete] = useState<any>(null);
-  const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const greeting = getGreeting();
+  const [isActionModalOpen, setIsActionModalOpen] = useState(false);
+  const [actionType, setActionType] = useState<'restrict' | 'block' | 'unblock'>('restrict');
 
-  // Convert mockUser to User type for modal
-  const convertToUser = (mockUser: any): User => ({
-    id: mockUser.id,
-    firstName: mockUser.name.split(' ')[0],
-    lastName: mockUser.name.split(' ').slice(1).join(' '),
-    email: mockUser.email,
-    phone: mockUser.phone,
-    role: mockUser.role === 'admin' ? 'Admin' : mockUser.role === 'accountant' ? 'Manager' : 'User',
-    avatar: undefined,
-    bio: `Member with ${mockUser.shares} shares and ${formatCurrency(mockUser.totalValue)} total value.`,
-    address: 'Address not available',
-    createdAt: new Date().toISOString(),
-    status: mockUser.isActive ? 'Active' : 'Inactive',
+  const filteredUsers = users.filter(user => {
+    const matchesSearch = 
+      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.phone.includes(searchQuery);
+    const matchesStatus = statusFilter === 'All' || user.status === statusFilter;
+    const matchesRole = roleFilter === 'All' || user.role === roleFilter;
+    return matchesSearch && matchesStatus && matchesRole;
   });
 
-  // Filter users based on search
-  const filteredUsers = users.filter(user => 
-    user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    user.phone.includes(searchQuery)
-  );
-
-  const handleViewUser = (user: any) => {
-    setSelectedUser(convertToUser(user));
-    setIsViewModalOpen(true);
-  };
-
-  const handleEditUser = (user: any) => {
-    alert(`Edit functionality for ${user.name} - To be implemented`);
-  };
-
-  const handleDeleteClick = (user: any) => {
-    setUserToDelete(user);
-    setIsDeleteDialogOpen(true);
-  };
-
-  const handleDeleteConfirm = () => {
-    if (!userToDelete) return;
-    setUsers(users.filter((u) => u.id !== userToDelete.id));
-    setIsDeleteDialogOpen(false);
-    setUserToDelete(null);
-  };
-
-  const handleDeleteCancel = () => {
-    setIsDeleteDialogOpen(false);
-    setUserToDelete(null);
-  };
-
-  const handleAddUser = () => {
-    setIsAddUserModalOpen(true);
-  };
-
-  const handleAddUserSubmit = (newUser: any) => {
-    setUsers([...users, newUser]);
-    setIsAddUserModalOpen(false);
-  };
-
-  const handleExport = () => {
-    // Create CSV content
-    const headers = ['Name', 'Email', 'Phone', 'Role', 'Shares', 'Total Value', 'Status'];
-    const csvContent = [
-      headers.join(','),
-      ...users.map(user => [
-        user.name,
-        user.email,
-        user.phone,
-        user.role,
-        user.shares,
-        user.totalValue,
-        user.isActive ? 'Active' : 'Inactive'
-      ].join(','))
-    ].join('\n');
-
-    // Create download link
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `users-${new Date().toISOString().split('T')[0]}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
-  };
-
-  const handleSearchToggle = () => {
-    setIsSearchOpen(!isSearchOpen);
-    if (isSearchOpen) {
-      setSearchQuery('');
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active': return 'bg-green-100 text-green-700 border-green-200';
+      case 'restricted': return 'bg-orange-100 text-orange-700 border-orange-200';
+      case 'blocked': return 'bg-red-100 text-red-700 border-red-200';
+      default: return 'bg-gray-100 text-gray-700 border-gray-200';
     }
   };
 
-  const stats = [
-    {
-      label: 'Total Members',
-      value: mockUsers.length.toString(),
-      icon: UsersIcon,
-      gradient: 'from-primary to-secondary',
-      iconBg: 'bg-primary/10',
-      iconColor: 'text-primary',
-      shadow: 'shadow-green'
-    },
-    {
-      label: 'Active Members',
-      value: mockUsers.filter(u => u.isActive).length.toString(),
-      icon: TrendingUp,
-      gradient: 'from-accent-orange to-accent-orange/80',
-      iconBg: 'bg-accent-orange/10',
-      iconColor: 'text-accent-orange',
-      shadow: 'shadow-orange'
-    },
-    {
-      label: 'Total Savings',
-      value: formatCurrency(mockUsers.reduce((sum, u) => sum + u.totalValue, 0)),
-      icon: DollarSign,
-      gradient: 'from-accent-blue to-accent-blue/80',
-      iconBg: 'bg-accent-blue/10',
-      iconColor: 'text-accent-blue',
-      shadow: 'shadow-blue'
-    },
-  ];
+  const getRoleBadge = (role: string) => {
+    switch (role) {
+      case 'admin': return 'bg-purple-100 text-purple-700 border-purple-200';
+      case 'accountant': return 'bg-blue-100 text-blue-700 border-blue-200';
+      case 'member': return 'bg-gray-100 text-gray-700 border-gray-200';
+      default: return 'bg-gray-100 text-gray-700 border-gray-200';
+    }
+  };
+
+  const handleAction = (user: User, action: 'restrict' | 'block' | 'unblock') => {
+    setSelectedUser(user);
+    setActionType(action);
+    setIsActionModalOpen(true);
+  };
+
+  const confirmAction = () => {
+    if (!selectedUser) return;
+    
+    const newStatus = actionType === 'unblock' ? 'active' : actionType === 'restrict' ? 'restricted' : 'blocked';
+    setUsers(users.map(u => u.id === selectedUser.id ? { ...u, status: newStatus } : u));
+    setIsActionModalOpen(false);
+    setSelectedUser(null);
+  };
+
+  const stats = {
+    total: users.length,
+    active: users.filter(u => u.status === 'active').length,
+    restricted: users.filter(u => u.status === 'restricted').length,
+    blocked: users.filter(u => u.status === 'blocked').length,
+  };
 
   return (
-    <Layout role="admin" userName={adminUser.name} userImage={userImage} onImageUpdate={setUserImage}>
-      <div className="space-y-6 animate-slide-up">
-        {/* Dynamic Greeting */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent-orange bg-clip-text text-transparent">
-              {greeting}, {adminUser.name.split(' ')[0]}!
-            </h1>
-            <p className="text-text-gray mt-1">Manage all members and their roles</p>
-          </div>
-          <button 
-            onClick={handleAddUser}
-            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-secondary text-white rounded-2xl font-semibold shadow-green hover:shadow-large transition-all duration-300 active:scale-95"
-          >
-            <Plus size={20} />
-            Add New User
-          </button>
-        </div>
+    <div className="space-y-4 sm:space-y-6 animate-in fade-in-0 duration-500">
+      {/* Header */}
+      <div className="animate-in slide-in-from-top-4 duration-500">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">User Management</h1>
+        <p className="text-sm sm:text-base text-gray-600 mt-1">View and manage all platform users</p>
+      </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {stats.map((stat, index) => {
-            const Icon = stat.icon;
-            return (
-              <Card 
-                key={stat.label} 
-                hover 
-                className={`relative overflow-hidden ${stat.shadow} border-2 border-transparent hover:border-gray-200 transition-all duration-500`}
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${stat.gradient} opacity-10 rounded-full blur-2xl`} />
-                <div className="relative flex items-center gap-4">
-                  <div className={`p-4 rounded-2xl ${stat.iconBg} group-hover:scale-110 transition-transform duration-300`}>
-                    <Icon size={28} className={stat.iconColor} />
-                  </div>
-                  <div>
-                    <p className="text-sm text-text-gray">{stat.label}</p>
-                    <p className="text-3xl font-bold text-text-dark">{stat.value}</p>
-                  </div>
-                </div>
-              </Card>
-            );
-          })}
+      {/* Stats Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 animate-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: '100ms' }}>
+        <div className="bg-white rounded-xl p-4 border border-gray-200">
+          <p className="text-sm text-gray-600">Total Users</p>
+          <p className="text-2xl font-bold text-gray-900 mt-1">{stats.total}</p>
         </div>
+        <div className="bg-white rounded-xl p-4 border border-gray-200">
+          <p className="text-sm text-gray-600">Active</p>
+          <p className="text-2xl font-bold text-green-600 mt-1">{stats.active}</p>
+        </div>
+        <div className="bg-white rounded-xl p-4 border border-gray-200">
+          <p className="text-sm text-gray-600">Restricted</p>
+          <p className="text-2xl font-bold text-orange-600 mt-1">{stats.restricted}</p>
+        </div>
+        <div className="bg-white rounded-xl p-4 border border-gray-200">
+          <p className="text-sm text-gray-600">Blocked</p>
+          <p className="text-2xl font-bold text-red-600 mt-1">{stats.blocked}</p>
+        </div>
+      </div>
 
-        {/* Users Table */}
-        <Card className="animate-slide-up" style={{ animationDelay: '0.3s' }}>
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-xl font-semibold text-text-dark">All Members</h2>
-              <p className="text-sm text-text-gray mt-1">View and manage user accounts</p>
+      {/* Content Card */}
+      <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 overflow-hidden animate-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: '200ms' }}>
+        {/* Filter Section */}
+        <div className="p-4 sm:p-6 border-b border-gray-100">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex-1 flex gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <input
+                  type="text"
+                  placeholder="Search by name, email, or phone..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#0B5D3B] focus:border-transparent transition-all"
+                />
+              </div>
+              <button className="px-4 py-2 bg-[#0B5D3B] text-white rounded-xl font-medium hover:bg-[#094a2e] transition-all text-sm whitespace-nowrap active:scale-95">
+                Search
+              </button>
             </div>
+
             <div className="flex gap-2">
+              {/* Status Filter */}
               <div className="relative">
-                <button 
-                  onClick={handleSearchToggle}
-                  className="flex items-center gap-2 px-4 py-2 border-2 border-gray-200 rounded-2xl hover:border-primary hover:bg-primary/5 transition-all duration-300 active:scale-95"
+                <button
+                  onClick={() => {
+                    setIsFilterOpen(!isFilterOpen);
+                    setIsRoleFilterOpen(false);
+                  }}
+                  className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-xl bg-white hover:bg-gray-50 transition-all text-sm font-medium text-gray-700 active:scale-95"
                 >
-                  <Search size={18} className="text-text-gray" />
-                  <span className="text-sm font-medium text-text-dark">Search</span>
+                  <Filter size={18} />
+                  <span>{statusFilter}</span>
                 </button>
-                {isSearchOpen && (
-                  <div className="absolute top-full mt-2 right-0 z-10 w-64 animate-slide-up">
-                    <input
-                      type="text"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Search by name, email, or phone..."
-                      className="w-full px-4 py-2 border-2 border-primary rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20"
-                      autoFocus
-                    />
-                  </div>
+                
+                {isFilterOpen && (
+                  <>
+                    <div className="fixed inset-0 z-10" onClick={() => setIsFilterOpen(false)} />
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-20 animate-in fade-in-0 zoom-in-95 duration-200">
+                      {['All', 'active', 'restricted', 'blocked'].map((status) => (
+                        <button
+                          key={status}
+                          onClick={() => {
+                            setStatusFilter(status);
+                            setIsFilterOpen(false);
+                          }}
+                          className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 transition-colors capitalize ${
+                            statusFilter === status ? 'bg-[#0B5D3B]/10 text-[#0B5D3B] font-semibold' : 'text-gray-700'
+                          }`}
+                        >
+                          {status}
+                        </button>
+                      ))}
+                    </div>
+                  </>
                 )}
               </div>
-              <button 
-                onClick={handleExport}
-                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-accent-orange to-accent-orange/80 text-white rounded-2xl shadow-orange hover:shadow-large transition-all duration-300 active:scale-95"
+
+              {/* Role Filter */}
+              <div className="relative">
+                <button
+                  onClick={() => {
+                    setIsRoleFilterOpen(!isRoleFilterOpen);
+                    setIsFilterOpen(false);
+                  }}
+                  className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-xl bg-white hover:bg-gray-50 transition-all text-sm font-medium text-gray-700 active:scale-95"
+                >
+                  <span className="capitalize">{roleFilter}</span>
+                </button>
+                
+                {isRoleFilterOpen && (
+                  <>
+                    <div className="fixed inset-0 z-10" onClick={() => setIsRoleFilterOpen(false)} />
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-20 animate-in fade-in-0 zoom-in-95 duration-200">
+                      {['All', 'member', 'accountant', 'admin'].map((role) => (
+                        <button
+                          key={role}
+                          onClick={() => {
+                            setRoleFilter(role);
+                            setIsRoleFilterOpen(false);
+                          }}
+                          className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 transition-colors capitalize ${
+                            roleFilter === role ? 'bg-[#0B5D3B]/10 text-[#0B5D3B] font-semibold' : 'text-gray-700'
+                          }`}
+                        >
+                          {role}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Table */}
+        <div className="overflow-x-auto">
+          <table className="min-w-full">
+            <thead>
+              <tr className="bg-gray-50 border-b border-gray-200">
+                <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm">Name</th>
+                <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm">Role</th>
+                <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm">Savings</th>
+                <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm">Status</th>
+                <th className="text-center py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredUsers.map((user) => (
+                <tr key={user.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                  <td className="py-3 px-4">
+                    <div>
+                      <p className="font-medium text-gray-900 text-xs sm:text-sm">{user.name}</p>
+                      <p className="text-xs text-gray-500">{user.email}</p>
+                    </div>
+                  </td>
+                  <td className="py-3 px-4">
+                    <span className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium border capitalize ${getRoleBadge(user.role)}`}>
+                      {user.role}
+                    </span>
+                  </td>
+                  <td className="py-3 px-4 text-xs sm:text-sm">
+                    <span className="font-semibold text-[#0B5D3B]">{user.totalSavings.toLocaleString()} RWF</span>
+                  </td>
+                  <td className="py-3 px-4">
+                    <span className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium border capitalize ${getStatusColor(user.status)}`}>
+                      {user.status}
+                    </span>
+                  </td>
+                  <td className="py-3 px-4">
+                    <div className="flex items-center justify-center gap-1">
+                      <button
+                        onClick={() => {
+                          setSelectedUser(user);
+                          setIsViewModalOpen(true);
+                        }}
+                        className="p-1.5 hover:bg-blue-50 text-blue-600 rounded-lg transition-all active:scale-95"
+                        title="View"
+                      >
+                        <Eye size={16} />
+                      </button>
+                      {user.status === 'active' && (
+                        <>
+                          <button
+                            onClick={() => handleAction(user, 'restrict')}
+                            className="p-1.5 hover:bg-orange-50 text-orange-600 rounded-lg transition-all active:scale-95"
+                            title="Restrict"
+                          >
+                            <Ban size={16} />
+                          </button>
+                          <button
+                            onClick={() => handleAction(user, 'block')}
+                            className="p-1.5 hover:bg-red-50 text-red-600 rounded-lg transition-all active:scale-95"
+                            title="Block"
+                          >
+                            <Lock size={16} />
+                          </button>
+                        </>
+                      )}
+                      {(user.status === 'restricted' || user.status === 'blocked') && (
+                        <button
+                          onClick={() => handleAction(user, 'unblock')}
+                          className="p-1.5 hover:bg-green-50 text-green-600 rounded-lg transition-all active:scale-95"
+                          title="Unblock"
+                        >
+                          <Unlock size={16} />
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* View Modal */}
+      {isViewModalOpen && selectedUser && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in-0 duration-200">
+          <div className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col">
+            <div className="bg-[#0B5D3B] px-6 py-4 flex items-center justify-between flex-shrink-0">
+              <h2 className="text-xl font-bold text-white">User Details</h2>
+              <button onClick={() => setIsViewModalOpen(false)} className="p-2 hover:bg-white/20 rounded-lg transition-colors">
+                <X size={20} className="text-white" />
+              </button>
+            </div>
+
+            <div className="p-6 overflow-y-auto touch-pan-y flex-1">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="col-span-full bg-gradient-to-r from-[#0B5D3B]/10 to-blue-50 rounded-xl p-4 border border-[#0B5D3B]/20">
+                  <h3 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+                    <div className="w-8 h-8 bg-[#0B5D3B] rounded-full flex items-center justify-center text-white font-bold">
+                      {selectedUser.name.charAt(0)}
+                    </div>
+                    Personal Information
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <p className="text-xs text-gray-600 mb-1">Full Name</p>
+                      <p className="text-sm font-bold text-gray-900">{selectedUser.name}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-600 mb-1">Role</p>
+                      <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium border capitalize ${getRoleBadge(selectedUser.role)}`}>
+                        {selectedUser.role}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-600 mb-1">Email</p>
+                      <p className="text-sm font-semibold text-gray-900">{selectedUser.email}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-600 mb-1">Phone</p>
+                      <p className="text-sm font-semibold text-gray-900">{selectedUser.phone}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                  <p className="text-xs font-semibold text-gray-600 mb-1">Total Savings</p>
+                  <p className="text-base font-bold text-[#0B5D3B]">{selectedUser.totalSavings.toLocaleString()} RWF</p>
+                </div>
+                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                  <p className="text-xs font-semibold text-gray-600 mb-1">Shares</p>
+                  <p className="text-base font-bold text-blue-600">{selectedUser.shares}</p>
+                </div>
+                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                  <p className="text-xs font-semibold text-gray-600 mb-1">Joined Date</p>
+                  <p className="text-base font-bold text-gray-900">{selectedUser.joinedDate}</p>
+                </div>
+                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                  <p className="text-xs font-semibold text-gray-600 mb-1">Last Active</p>
+                  <p className="text-base font-bold text-gray-900">{selectedUser.lastActive}</p>
+                </div>
+                <div className="col-span-full bg-gray-50 rounded-xl p-4 border border-gray-200">
+                  <p className="text-xs font-semibold text-gray-600 mb-1">Status</p>
+                  <span className={`inline-block px-3 py-1.5 rounded-full text-xs font-medium border capitalize ${getStatusColor(selectedUser.status)}`}>
+                    {selectedUser.status}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6 border-t border-gray-200 flex-shrink-0">
+              <button
+                onClick={() => setIsViewModalOpen(false)}
+                className="w-full px-4 py-3 bg-[#0B5D3B] text-white rounded-xl font-semibold hover:bg-[#094a2e] transition-all active:scale-95"
               >
-                <Download size={18} />
-                <span className="text-sm font-medium">Export</span>
+                Close
               </button>
             </div>
           </div>
+        </div>
+      )}
 
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b-2 border-gray-200">
-                  <th className="text-left py-4 px-4 font-semibold text-text-gray text-sm">Member</th>
-                  <th className="text-left py-4 px-4 font-semibold text-text-gray text-sm">Contact</th>
-                  <th className="text-left py-4 px-4 font-semibold text-text-gray text-sm">Role</th>
-                  <th className="text-right py-4 px-4 font-semibold text-text-gray text-sm">Shares</th>
-                  <th className="text-right py-4 px-4 font-semibold text-text-gray text-sm">Total Value</th>
-                  <th className="text-center py-4 px-4 font-semibold text-text-gray text-sm">Status</th>
-                  <th className="text-center py-4 px-4 font-semibold text-text-gray text-sm">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredUsers.map((user, index) => (
-                  <tr 
-                    key={user.id} 
-                    className="border-b border-gray-100 hover:bg-gradient-to-r hover:from-background-gray hover:to-transparent transition-all duration-300"
-                  >
-                    <td className="py-4 px-4">
-                      <div className="flex items-center gap-3">
-                        <div className="transition-transform duration-300 hover:scale-110">
-                          <Avatar name={user.name} size="md" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-text-dark">{user.name}</p>
-                          <p className="text-xs text-text-gray">ID: {user.id}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-4 px-4">
-                      <p className="text-sm text-text-dark">{user.email}</p>
-                      <p className="text-xs text-text-gray">{user.phone}</p>
-                    </td>
-                    <td className="py-4 px-4">
-                      <Badge 
-                        variant={user.role === 'admin' ? 'danger' : user.role === 'accountant' ? 'warning' : 'success'}
-                        size="sm"
-                      >
-                        {user.role}
-                      </Badge>
-                    </td>
-                    <td className="py-4 px-4 text-right">
-                      <span className="font-semibold text-primary">{user.shares}</span>
-                    </td>
-                    <td className="py-4 px-4 text-right font-semibold text-text-dark">
-                      {formatCurrency(user.totalValue)}
-                    </td>
-                    <td className="py-4 px-4 text-center">
-                      <Badge variant={user.isActive ? 'success' : 'danger'} size="sm">
-                        {user.isActive ? 'Active' : 'Inactive'}
-                      </Badge>
-                    </td>
-                    <td className="py-4 px-4">
-                      <div className="flex justify-center gap-2">
-                        <button 
-                          onClick={() => handleViewUser(user)}
-                          className="p-2 hover:bg-primary/10 text-primary rounded-xl transition-all duration-300 active:scale-90"
-                          title="View Details"
-                        >
-                          <Eye size={18} />
-                        </button>
-                        <button 
-                          onClick={() => handleEditUser(user)}
-                          className="p-2 hover:bg-accent-blue/10 text-accent-blue rounded-xl transition-all duration-300 active:scale-90"
-                          title="Edit User"
-                        >
-                          <Edit size={18} />
-                        </button>
-                        <button 
-                          onClick={() => handleDeleteClick(user)}
-                          className="p-2 hover:bg-accent-red/10 text-accent-red rounded-xl transition-all duration-300 active:scale-90"
-                          title="Delete User"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* No Results Message */}
-          {filteredUsers.length === 0 && (
-            <div className="text-center py-12">
-              <Search size={48} className="mx-auto text-gray-300 mb-4" />
-              <h3 className="text-lg font-semibold text-text-dark mb-2">No users found</h3>
-              <p className="text-sm text-text-gray">
-                {searchQuery ? `No results for "${searchQuery}"` : 'No users available'}
-              </p>
+      {/* Action Confirmation Modal */}
+      {isActionModalOpen && selectedUser && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in-0 duration-200">
+          <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className={`px-6 py-4 ${actionType === 'block' ? 'bg-red-600' : actionType === 'restrict' ? 'bg-orange-600' : 'bg-green-600'}`}>
+              <h2 className="text-xl font-bold text-white capitalize">{actionType} User</h2>
             </div>
-          )}
-        </Card>
-      </div>
 
-      {/* Modals */}
-      <UserViewModal
-        user={selectedUser}
-        isOpen={isViewModalOpen}
-        onClose={() => setIsViewModalOpen(false)}
-      />
+            <div className="p-6">
+              <p className="text-gray-900 mb-4">
+                Are you sure you want to <span className="font-bold">{actionType}</span> <span className="font-bold">{selectedUser.name}</span>?
+              </p>
+              {actionType === 'restrict' && (
+                <p className="text-sm text-gray-600 bg-orange-50 p-3 rounded-lg border border-orange-200">
+                  User will have limited access to certain features.
+                </p>
+              )}
+              {actionType === 'block' && (
+                <p className="text-sm text-gray-600 bg-red-50 p-3 rounded-lg border border-red-200">
+                  User will be completely blocked from accessing the platform.
+                </p>
+              )}
+              {actionType === 'unblock' && (
+                <p className="text-sm text-gray-600 bg-green-50 p-3 rounded-lg border border-green-200">
+                  User will regain full access to the platform.
+                </p>
+              )}
+            </div>
 
-      <DeleteConfirmDialog
-        isOpen={isDeleteDialogOpen}
-        userName={userToDelete ? userToDelete.name : ''}
-        onConfirm={handleDeleteConfirm}
-        onCancel={handleDeleteCancel}
-      />
-
-      <AddUserModal
-        isOpen={isAddUserModalOpen}
-        onClose={() => setIsAddUserModalOpen(false)}
-        onAdd={handleAddUserSubmit}
-      />
-    </Layout>
+            <div className="p-6 border-t border-gray-200 flex gap-3">
+              <button
+                onClick={() => setIsActionModalOpen(false)}
+                className="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition-all active:scale-95"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmAction}
+                className={`flex-1 px-4 py-3 text-white rounded-xl font-semibold transition-all active:scale-95 ${
+                  actionType === 'block' ? 'bg-red-600 hover:bg-red-700' : 
+                  actionType === 'restrict' ? 'bg-orange-600 hover:bg-orange-700' : 
+                  'bg-green-600 hover:bg-green-700'
+                }`}
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

@@ -17,15 +17,15 @@ export const Card: React.FC<CardProps> = ({
 }) => {
   const paddings = {
     none: '',
-    sm: 'p-4',
-    md: 'p-6',
-    lg: 'p-8',
+    sm: 'p-3 sm:p-4',
+    md: 'p-4 sm:p-6',
+    lg: 'p-4 sm:p-8',
   };
   
   const hoverClass = hover ? 'card-hover cursor-pointer' : '';
 
   return (
-    <div className={`bg-white rounded-2xl shadow-soft border border-gray-100 ${paddings[padding]} ${hoverClass} ${className}`} style={style}>
+    <div className={`bg-white rounded-lg sm:rounded-2xl shadow-soft border border-gray-100 ${paddings[padding]} ${hoverClass} ${className}`} style={style}>
       {children}
     </div>
   );
@@ -35,7 +35,7 @@ export const CardHeader: React.FC<{ children: React.ReactNode; className?: strin
   children, 
   className = '' 
 }) => (
-  <div className={`mb-4 ${className}`}>
+  <div className={`mb-3 sm:mb-4 ${className}`}>
     {children}
   </div>
 );
@@ -44,7 +44,7 @@ export const CardTitle: React.FC<{ children: React.ReactNode; className?: string
   children, 
   className = '' 
 }) => (
-  <h3 className={`text-xl font-semibold text-text-black ${className}`}>
+  <h3 className={`text-lg sm:text-xl font-semibold text-text-black ${className}`}>
     {children}
   </h3>
 );

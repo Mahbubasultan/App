@@ -17,11 +17,12 @@ export const Layout: React.FC<LayoutProps> = ({ children, role, userName, userIm
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="flex h-screen bg-background-gray overflow-hidden">
+    <div className="flex min-h-screen bg-background-gray overflow-hidden">
       <Sidebar role={role} isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       
       <div className="flex-1 flex flex-col overflow-hidden">
         <Navbar 
+          role={role}
           userName={userName} 
           userImage={userImage}
           onImageUpdate={onImageUpdate}

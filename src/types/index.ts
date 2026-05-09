@@ -1,6 +1,6 @@
 export type UserRole = 'member' | 'accountant' | 'admin';
 export type PaymentStatus = 'pending' | 'verified' | 'flagged' | 'rejected';
-export type LoanStatus = 'pending' | 'guarantor_pending' | 'approved' | 'rejected' | 'disbursed' | 'repaid';
+export type LoanStatus = 'pending' | 'guarantor_pending' | 'approved' | 'rejected' | 'disbursed' | 'repaid' | 'on_hold';
 export type PenaltyTier = 'none' | 'tier1' | 'tier2' | 'tier3' | 'daily';
 
 export interface User {

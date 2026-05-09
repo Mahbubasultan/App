@@ -129,14 +129,14 @@ const UserTable: React.FC = () => {
     <div className="w-full">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
-        <p className="mt-1 text-sm text-gray-600">
+        <h1 className="text-lg sm:text-2xl font-bold text-gray-900">User Management</h1>
+        <p className="mt-1 text-xs sm:text-sm text-gray-600">
           Manage your team members and their account permissions
         </p>
       </div>
 
-      {/* Table Container */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      {/* Desktop Table View */}
+      <div className="bg-white rounded-lg shadow overflow-hidden hidden md:block">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             {/* Table Header */}
@@ -298,7 +298,7 @@ const UserTable: React.FC = () => {
           </table>
         </div>
 
-        {/* Empty State */}
+        {/* Empty State - Desktop */}
         {users.length === 0 && (
           <div className="text-center py-12">
             <svg
@@ -319,6 +319,159 @@ const UserTable: React.FC = () => {
               Get started by adding a new user.
             </p>
           </div>
+        )}
+      </div>
+
+      {/* Mobile Card View */}
+      <div className="space-y-4 md:hidden">
+        {users.length === 0 ? (
+          <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
+            <svg
+              className="mx-auto h-12 w-12 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+              />
+            </svg>
+            <h3 className="mt-2 text-sm font-medium text-gray-900">No users</h3>
+            <p className="mt-1 text-sm text-gray-500">
+              Get started by adding a new user.
+            </p>
+          </div>
+        ) : (
+          users.map((user) => (
+            <div key={user.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+              {/* User Header */}
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className="flex-shrink-0 h-10 w-10">
+                    {user.avatar ? (
+                      <Image
+                        className="h-10 w-10 rounded-full object-cover"
+                        src={user.avatar}
+                        alt={`${user.firstName} ${user.lastName}`}
+                        width={40}
+                        height={40}
+                      />
+                    ) : (
+                      <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-xs">
+                        {user.firstName.charAt(0)}
+                        {user.lastName.charAt(0)}
+                      </div>
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm font-medium text-gray-900 truncate">
+                      {user.firstName} {user.lastName}
+                    </div>
+                    <div className="text-xs text-gray-500 truncate">{user.email}</div>
+                  </div>
+                </div>
+                <span
+                  className={`px-2 py-1 text-xs font-semibold rounded-full flex-shrink-0 ${getStatusBadgeColor(
+                    user.status
+                  )}`}
+                >
+                  {user.status}
+                </span>
+              </div>
+
+              {/* User Details */}
+              <div className="space-y-3 mb-4 pb-4 border-b border-gray-200">
+                <div className="flex justify-between text-xs">
+                  <span className="text-gray-600">Phone:</span>
+                  <span className="text-gray-900 font-medium truncate ml-2">{user.phone}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-gray-600">Role:</span>
+                  <span
+                    className={`px-2 py-0.5 text-xs font-semibold rounded-full ${getRoleBadgeColor(
+                      user.role
+                    )}`}
+                  >
+                    {user.role}
+                  </span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-gray-600">Joined:</span>
+                  <span className="text-gray-900 font-medium">{new Date(user.createdAt).toLocaleDateString()}</span>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex items-center gap-2 justify-end">
+                <button
+                  onClick={() => handleViewUser(user)}
+                  className="text-blue-600 hover:text-blue-900 hover:bg-blue-50 p-2 rounded-lg transition-colors flex-shrink-0"
+                  title="View Details"
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                    />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => handleEditUser(user)}
+                  className="text-indigo-600 hover:text-indigo-900 hover:bg-indigo-50 p-2 rounded-lg transition-colors flex-shrink-0"
+                  title="Edit User"
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                    />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => handleDeleteClick(user)}
+                  className="text-red-600 hover:text-red-900 hover:bg-red-50 p-2 rounded-lg transition-colors flex-shrink-0"
+                  title="Delete User"
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          ))
         )}
       </div>
 
