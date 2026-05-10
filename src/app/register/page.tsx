@@ -24,7 +24,7 @@ export default function RegisterPage() {
     });
   };
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
@@ -40,7 +40,7 @@ export default function RegisterPage() {
 
     // Save user data to local storage
     try {
-      await saveUserData({
+      saveUserData({
         id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         name: formData.name,
         email: formData.email,
