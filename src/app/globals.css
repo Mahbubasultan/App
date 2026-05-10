@@ -11,9 +11,56 @@
     @apply bg-white text-text-dark antialiased;
   }
 
+  html {
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
   html.dark body {
     background-color: #0f172a;
     color: #f8fafc;
+  }
+
+  html.dark .bg-white,
+  html.dark .bg-gray-50,
+  html.dark .bg-background-gray,
+  html.dark .bg-background-light,
+  html.dark .bg-slate-100,
+  html.dark .bg-slate-200 {
+    background-color: #111827 !important;
+  }
+
+  html.dark .bg-gray-100,
+  html.dark .bg-slate-50 {
+    background-color: #1f2937 !important;
+  }
+
+  html.dark .text-gray-900,
+  html.dark .text-text-dark {
+    color: #f8fafc !important;
+  }
+
+  html.dark .text-gray-700,
+  html.dark .text-text-gray {
+    color: #cbd5e1 !important;
+  }
+
+  html.dark .text-gray-600,
+  html.dark .text-text-light {
+    color: #94a3b8 !important;
+  }
+
+  html.dark .border-gray-200,
+  html.dark .border-gray-300,
+  html.dark .border-gray-100 {
+    border-color: #334155 !important;
+  }
+
+  html.dark .shadow-soft {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25) !important;
   }
   
   h1, h2, h3, h4, h5, h6 {

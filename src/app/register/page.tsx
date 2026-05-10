@@ -3,13 +3,15 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Wallet, User, Mail, Lock, Shield, ArrowRight } from 'lucide-react';
+import { Wallet, User, Mail, Lock, Shield, ArrowRight, Phone } from 'lucide-react';
+import { saveUserData } from '@/lib/localStorageService';
 
 export default function RegisterPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    phone: '',
     password: '',
     role: 'member'
   });
@@ -26,13 +28,33 @@ export default function RegisterPage() {
     e.preventDefault();
     setError('');
 
-    if (!formData.name || !formData.email || !formData.password) {
+    if (!formData.name || !formData.email || !formData.phone || !formData.password) {
       setError('Please fill in all fields');
       return;
     }
 
     if (formData.password.length < 6) {
       setError('Password must be at least 6 characters');
+      return;
+    }
+
+    // Save user data to local storage
+    try {
+      await saveUserData({
+        id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        joinedDate: new Date().toISOString(),
+        totalSavings: 0,
+        lastUpdated: new Date().toISOString(),
+      });
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('full')) {
+        setError('Storage is full. Please clear some data or try again later.');
+      } else {
+        setError('Failed to save user data. Please try again.');
+      }
       return;
     }
 
@@ -101,6 +123,25 @@ export default function RegisterPage() {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="you@example.com"
+                  className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Phone Input */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Phone Number
+              </label>
+              <div className="relative">
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  placeholder="+250 123 456 789"
                   className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   required
                 />

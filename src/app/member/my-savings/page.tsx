@@ -47,6 +47,7 @@ export default function MySavings() {
   const [viewImagePreview, setViewImagePreview] = useState<string | null>(null);
   const [viewImageFileName, setViewImageFileName] = useState<string>('');
   const [viewImageBase64, setViewImageBase64] = useState<string>('');
+  const [addImagePreview, setAddImagePreview] = useState<string | null>(null);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -74,6 +75,13 @@ export default function MySavings() {
 
       if (draft) {
         setFormData(draft);
+        if (draft.screenshot) {
+          const preview = base64ToDataUrl(
+            draft.screenshot,
+            getMimeTypeFromFileName(draft.screenshotFileName || '')
+          );
+          setAddImagePreview(preview);
+        }
       }
     } catch {
       setStorageError('Unable to restore draft data.');
@@ -118,11 +126,16 @@ export default function MySavings() {
         const file = e.target.files[0];
 
         const base64 = await fileToBase64(file);
+        const preview = base64ToDataUrl(
+          base64,
+          getMimeTypeFromFileName(file.name)
+        );
 
         handleFormChange({
           screenshot: base64,
           screenshotFileName: file.name,
         });
+        setAddImagePreview(preview);
       } catch {
         setStorageError('Unable to upload image.');
       }
@@ -153,6 +166,7 @@ export default function MySavings() {
       setFormData(initialDraft);
       setIsAddModalOpen(false);
       setStorageError(null);
+      setAddImagePreview(null);
     } catch {
       setStorageError('Unable to save record.');
     }
@@ -436,11 +450,24 @@ export default function MySavings() {
                   {formData.screenshotFileName && (
                     <p className="mt-3 text-sm text-gray-600">Selected file: {formData.screenshotFileName}</p>
                   )}
+                  {addImagePreview && (
+                    <div className="mt-4">
+                      <p className="text-sm font-medium text-gray-700 mb-2">Preview:</p>
+                      <img
+                        src={addImagePreview}
+                        alt="Proof preview"
+                        className="max-w-full h-auto max-h-48 rounded-lg border border-gray-200"
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
               <div className="flex flex-col gap-3 border-t border-gray-200 px-6 py-4 md:flex-row md:justify-end">
                 <button
-                  onClick={() => setIsAddModalOpen(false)}
+                  onClick={() => {
+                    setIsAddModalOpen(false);
+                    setAddImagePreview(null);
+                  }}
                   className="rounded-2xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
                 >
                   Cancel
