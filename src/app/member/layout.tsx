@@ -5,24 +5,24 @@ import { useRouter } from 'next/navigation';
 import { Layout } from '@/components/layout/Layout';
 import { getUserSession, clearUserSession } from '@/lib/auth';
 
-export default function AccountantSegmentLayout({ children }: { children: React.ReactNode }) {
+export default function MemberSegmentLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const [userName, setUserName] = useState('Accountant');
+  const [userName, setUserName] = useState('Member');
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
     const user = getUserSession();
-    if (!user || user.role !== 'accountant') {
+    if (!user || user.role !== 'member') {
       clearUserSession();
       router.push('/login');
       return;
     }
 
-    setUserName(user.name || 'Accountant');
+    setUserName(user.name || 'Member');
     setIsReady(true);
   }, [router]);
 
   if (!isReady) return null;
 
-  return <Layout role="accountant" userName={userName}>{children}</Layout>;
+  return <Layout role="member" userName={userName}>{children}</Layout>;
 }

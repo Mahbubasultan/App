@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Sidebar } from './Sidebar';
 import { Navbar } from './Navbar';
 import { UserRole } from '@/types';
+import { clearUserSession } from '@/lib/auth';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -15,10 +17,16 @@ interface LayoutProps {
 
 export const Layout: React.FC<LayoutProps> = ({ children, role, userName, userImage, onImageUpdate }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const router = useRouter();
+
+  const handleLogout = () => {
+    clearUserSession();
+    router.push('/login');
+  };
 
   return (
     <div className="flex min-h-screen bg-background-gray overflow-hidden">
-      <Sidebar role={role} isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <Sidebar role={role} isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} onLogout={handleLogout} />
       
       <div className="flex-1 flex flex-col overflow-hidden">
         <Navbar 
@@ -27,6 +35,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, role, userName, userIm
           userImage={userImage}
           onImageUpdate={onImageUpdate}
           onMenuClick={() => setSidebarOpen(true)} 
+          onLogout={handleLogout}
         />
         
         <main className="flex-1 overflow-y-auto">

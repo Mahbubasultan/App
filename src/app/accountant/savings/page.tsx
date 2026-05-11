@@ -14,6 +14,7 @@ const mockSavings = [
 ];
 
 export default function AccountantSavings() {
+  const [searchInput, setSearchInput] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -24,6 +25,7 @@ export default function AccountantSavings() {
 
   const filteredSavings = mockSavings.filter(saving => {
     const matchesSearch = 
+      searchQuery === '' ||
       saving.memberName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       saving.shareName.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === 'All' || saving.status === statusFilter;
@@ -65,12 +67,15 @@ export default function AccountantSavings() {
                 <input
                   type="text"
                   placeholder="Search by member or share name..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
                   className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#0B5D3B] focus:border-transparent transition-all"
                 />
               </div>
-              <button className="px-4 py-2 bg-[#0B5D3B] text-white rounded-xl font-medium hover:bg-[#094a2e] transition-all text-sm whitespace-nowrap">
+              <button
+                onClick={() => setSearchQuery(searchInput)}
+                className="px-4 py-2 bg-[#0B5D3B] text-white rounded-xl font-medium hover:bg-[#094a2e] transition-all text-sm whitespace-nowrap"
+              >
                 Search
               </button>
             </div>

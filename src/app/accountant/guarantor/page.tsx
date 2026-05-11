@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Search, Eye, X, Filter } from 'lucide-react';
+import { ConfirmDialog } from '@/components/accountant/ConfirmDialog';
 
 const mockGuarantors = [
   { id: 1, guarantorName: 'Eric Habimana', borrowerName: 'Jean Baptiste', loanAmount: 400000, guarantorSavings: 280000, borrowerSavings: 250000, combinedSavings: 530000, coverage: '132.5%', status: 'Pending', date: '2024-01-15', guarantorPhone: '+250788345678', guarantorEmail: 'eric@email.com', borrowerPhone: '+250788123456', borrowerEmail: 'jean@email.com' },
@@ -12,16 +13,65 @@ const mockGuarantors = [
 ];
 
 export default function AccountantGuarantor() {
+  const [searchInput, setSearchInput] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [guarantors, setGuarantors] = useState(mockGuarantors);
   const [selectedGuarantor, setSelectedGuarantor] = useState<any>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    action: 'Approve' | 'Reject' | 'Hold' | null;
+    guarantor: typeof mockGuarantors[number] | null;
+  }>({ isOpen: false, action: null, guarantor: null });
+  const [isProcessing, setIsProcessing] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  const filteredGuarantors = mockGuarantors.filter(guarantor => {
+  const handleGuarantorAction = (guarantor: typeof mockGuarantors[number], action: 'Approve' | 'Reject' | 'Hold') => {
+    setConfirmDialog({ isOpen: true, action, guarantor });
+  };
+
+  const confirmAction = async () => {
+    if (!confirmDialog.action || !confirmDialog.guarantor) return;
+
+    setIsProcessing(true);
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    const statusMap: Record<'Approve' | 'Reject' | 'Hold', string> = {
+      Approve: 'Approved',
+      Reject: 'Rejected',
+      Hold: 'On Hold',
+    };
+
+    const updatedStatus = statusMap[confirmDialog.action];
+    const updatedGuarantor = {
+      ...confirmDialog.guarantor,
+      status: updatedStatus,
+    };
+
+    setGuarantors((current) =>
+      current.map((item) =>
+        item.id === confirmDialog.guarantor?.id ? updatedGuarantor : item
+      )
+    );
+
+    if (selectedGuarantor?.id === confirmDialog.guarantor.id) {
+      setSelectedGuarantor(updatedGuarantor);
+    }
+
+    setConfirmDialog({ isOpen: false, action: null, guarantor: null });
+    setIsProcessing(false);
+  };
+
+  const cancelAction = () => {
+    setConfirmDialog({ isOpen: false, action: null, guarantor: null });
+  };
+
+  const filteredGuarantors = guarantors.filter(guarantor => {
     const matchesSearch = 
+      searchQuery === '' ||
       guarantor.guarantorName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       guarantor.borrowerName.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === 'All' || guarantor.status === statusFilter;
@@ -66,12 +116,15 @@ export default function AccountantGuarantor() {
                 <input
                   type="text"
                   placeholder="Search by guarantor or borrower..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
                   className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#0B5D3B] focus:border-transparent transition-all"
                 />
               </div>
-              <button className="px-4 py-2 bg-[#0B5D3B] text-white rounded-xl font-medium hover:bg-[#094a2e] transition-all text-sm whitespace-nowrap">
+              <button
+                onClick={() => setSearchQuery(searchInput)}
+                className="px-4 py-2 bg-[#0B5D3B] text-white rounded-xl font-medium hover:bg-[#094a2e] transition-all text-sm whitespace-nowrap"
+              >
                 Search
               </button>
             </div>
@@ -134,16 +187,40 @@ export default function AccountantGuarantor() {
                       </span>
                     </td>
                     <td className="py-3 px-4 text-center">
-                      <button
-                        onClick={() => {
-                          setSelectedGuarantor(guarantor);
-                          setIsViewModalOpen(true);
-                        }}
-                        className="p-2 hover:bg-[#0B5D3B]/10 text-[#0B5D3B] rounded-lg transition-colors"
-                        title="View details"
-                      >
-                        <Eye size={16} className="sm:w-[18px] sm:h-[18px]" />
-                      </button>
+                      <div className="flex flex-col sm:flex-row items-center justify-center gap-2">
+                        <button
+                          onClick={() => {
+                            setSelectedGuarantor(guarantor);
+                            setIsViewModalOpen(true);
+                          }}
+                          className="p-2 hover:bg-[#0B5D3B]/10 text-[#0B5D3B] rounded-lg transition-colors"
+                          title="View details"
+                        >
+                          <Eye size={16} className="sm:w-[18px] sm:h-[18px]" />
+                        </button>
+                        {guarantor.status !== 'Approved' && guarantor.status !== 'Rejected' && (
+                          <div className="flex gap-1 flex-wrap justify-center">
+                            <button
+                              onClick={() => handleGuarantorAction(guarantor, 'Approve')}
+                              className="px-3 py-1 text-xs font-semibold text-white bg-green-600 rounded-full hover:bg-green-700 transition-colors"
+                            >
+                              Approve
+                            </button>
+                            <button
+                              onClick={() => handleGuarantorAction(guarantor, 'Reject')}
+                              className="px-3 py-1 text-xs font-semibold text-white bg-red-600 rounded-full hover:bg-red-700 transition-colors"
+                            >
+                              Reject
+                            </button>
+                            <button
+                              onClick={() => handleGuarantorAction(guarantor, 'Hold')}
+                              className="px-3 py-1 text-xs font-semibold text-white bg-amber-600 rounded-full hover:bg-amber-700 transition-colors"
+                            >
+                              Hold
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -279,6 +356,17 @@ export default function AccountantGuarantor() {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        title={`${confirmDialog.action} Guarantor`}
+        message={`Are you sure you want to ${confirmDialog.action?.toLowerCase()} this guarantor request?`}
+        confirmText={confirmDialog.action === 'Reject' ? 'Reject' : confirmDialog.action === 'Hold' ? 'Hold' : 'Approve'}
+        variant={confirmDialog.action === 'Reject' ? 'danger' : confirmDialog.action === 'Hold' ? 'warning' : 'default'}
+        onConfirm={confirmAction}
+        onCancel={cancelAction}
+        isLoading={isProcessing}
+      />
     </div>
   );
 }

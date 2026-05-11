@@ -1,22 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface AddUserModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAdd: (user: any) => void;
+  user?: any; // For edit mode
 }
 
-const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onAdd }) => {
+const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onAdd, user }) => {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    role: 'member',
-    shares: '0',
-    isActive: true,
+    name: user ? `${user.firstName} ${user.lastName}` : '',
+    email: user ? user.email : '',
+    phone: user ? user.phone : '',
+    role: user ? user.role.toLowerCase() : 'member',
+    shares: user ? '0' : '0', // Assuming shares not in user
+    isActive: user ? user.status === 'Active' : true,
   });
 
-  const [errors, setErrors] = useState<any>({});
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        name: `${user.firstName} ${user.lastName}`,
+        email: user.email,
+        phone: user.phone,
+        role: user.role.toLowerCase(),
+        shares: '0',
+        isActive: user.status === 'Active',
+      });
+    } else {
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        role: 'member',
+        shares: '0',
+        isActive: true,
+      });
+    }
+  }, [user]);
 
   if (!isOpen) return null;
 
@@ -114,7 +135,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onAdd }) =
         >
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-gray-200">
-            <h2 className="text-2xl font-bold text-gray-900">Add New User</h2>
+            <h2 className="text-2xl font-bold text-gray-900">{user ? 'Edit User' : 'Add New User'}</h2>
             <button
               onClick={handleClose}
               className="text-gray-400 hover:text-gray-600 transition-colors"
@@ -278,7 +299,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onAdd }) =
                 type="submit"
                 className="px-6 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-colors"
               >
-                Add User
+                {user ? 'Update User' : 'Add User'}
               </button>
             </div>
           </form>

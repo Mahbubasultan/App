@@ -4,11 +4,12 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Wallet, Mail, Lock, ArrowRight, Loader2 } from 'lucide-react';
+import { saveUserSession } from '@/lib/auth';
 
 const MOCK_USERS = [
-  { email: 'admin@gmail.com', password: '123456', role: 'admin', redirect: '/admin/analytics' },
-  { email: 'member@gmail.com', password: '123456', role: 'member', redirect: '/member/savings' },
-  { email: 'accountant@gmail.com', password: '123456', role: 'accountant', redirect: '/accountant/dashboard' },
+  { email: 'admin@gmail.com', password: '123456', role: 'admin', redirect: '/admin/analytics', name: 'Admin User' },
+  { email: 'member@gmail.com', password: '123456', role: 'member', redirect: '/member/savings', name: 'Member User' },
+  { email: 'accountant@gmail.com', password: '123456', role: 'accountant', redirect: '/accountant/dashboard', name: 'Accountant User' },
 ];
 
 export default function LoginPage() {
@@ -31,6 +32,7 @@ export default function LoginPage() {
     );
 
     if (user) {
+      saveUserSession(user);
       router.push(user.redirect);
     } else {
       setError('Invalid email or password');

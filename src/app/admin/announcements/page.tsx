@@ -1,11 +1,13 @@
 'use client';
 
+import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { Megaphone, Plus, Calendar, Users } from 'lucide-react';
+import { Megaphone, Plus, Calendar, Users, Edit, Trash2 } from 'lucide-react';
+import AnnouncementModal from '@/components/admin/AnnouncementModal';
 
 export default function AnnouncementsPage() {
-  const announcements = [
+  const [announcements, setAnnouncements] = useState([
     {
       id: 1,
       title: 'Monthly Meeting Reminder',
@@ -30,7 +32,35 @@ export default function AnnouncementsPage() {
       audience: 'All Members',
       status: 'Draft',
     },
-  ];
+  ]);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingAnnouncement, setEditingAnnouncement] = useState<any>(null);
+
+  const handleCreate = () => {
+    setEditingAnnouncement(null);
+    setIsModalOpen(true);
+  };
+
+  const handleEdit = (announcement: any) => {
+    setEditingAnnouncement(announcement);
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = (id: number) => {
+    if (confirm('Are you sure you want to delete this announcement?')) {
+      setAnnouncements(announcements.filter(a => a.id !== id));
+    }
+  };
+
+  const handleSave = (announcement: any) => {
+    if (editingAnnouncement) {
+      setAnnouncements(announcements.map(a => a.id === editingAnnouncement.id ? { ...announcement, id: editingAnnouncement.id } : a));
+    } else {
+      setAnnouncements([...announcements, { ...announcement, id: Date.now() }]);
+    }
+    setIsModalOpen(false);
+  };
 
   return (
     <div className="space-y-4 sm:space-y-6 animate-in fade-in-0 duration-500">
@@ -39,7 +69,7 @@ export default function AnnouncementsPage() {
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Announcements</h1>
             <p className="text-xs sm:text-sm text-gray-600 mt-1">Create and manage group communications</p>
           </div>
-          <Button className="flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-start">
+          <Button onClick={handleCreate} className="flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-start">
             <Plus size={16} />
             New Announcement
           </Button>
@@ -75,10 +105,12 @@ export default function AnnouncementsPage() {
                 </div>
 
                 <div className="mt-4 pt-4 border-t border-gray-200 flex gap-2">
-                  <Button variant="outline" size="sm" className="flex-1">
+                  <Button variant="outline" size="sm" className="flex-1" onClick={() => handleEdit(announcement)}>
+                    <Edit size={14} className="mr-1" />
                     Edit
                   </Button>
-                  <Button variant="outline" size="sm" className="flex-1">
+                  <Button variant="outline" size="sm" className="flex-1" onClick={() => handleDelete(announcement.id)}>
+                    <Trash2 size={14} className="mr-1" />
                     Delete
                   </Button>
                 </div>
@@ -94,7 +126,7 @@ export default function AnnouncementsPage() {
                 <Megaphone size={40} className="text-gray-400 mx-auto mb-4 sm:w-12 sm:h-12" />
                 <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">No Announcements Yet</h3>
                 <p className="text-xs sm:text-sm text-gray-500 mb-4 sm:mb-6">Create your first announcement to communicate with group members.</p>
-                <Button className="w-full sm:w-auto">
+                <Button onClick={handleCreate} className="w-full sm:w-auto">
                   <Plus size={16} className="mr-2" />
                   Create Announcement
                 </Button>
@@ -102,6 +134,13 @@ export default function AnnouncementsPage() {
             </CardContent>
           </Card>
         )}
+
+        <AnnouncementModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSave={handleSave}
+          announcement={editingAnnouncement}
+        />
       </div>
   );
 }

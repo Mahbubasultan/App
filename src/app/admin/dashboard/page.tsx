@@ -69,7 +69,7 @@ export default function AdminDashboard() {
       value: summaryData.totalMembers.toString(),
       icon: Users,
       color: 'bg-green-500',
-      route: '/admin/users',
+      route: '/admin/user-management',
       trend: '+4.3%',
     },
   ];
@@ -252,7 +252,7 @@ export default function AdminDashboard() {
         {/* Quick Actions */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 animate-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: '800ms' }}>
           <button
-            onClick={() => router.push('/admin/users')}
+            onClick={() => router.push('/admin/user-management')}
             className="p-4 bg-white rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-300 hover:scale-105 text-left group"
           >
             <Users className="text-[#0B5D3B] mb-2 group-hover:scale-110 transition-transform" size={24} />

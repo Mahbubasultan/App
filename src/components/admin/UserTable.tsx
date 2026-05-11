@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { User } from '@/types/user';
 import UserViewModal from './UserViewModal';
 import DeleteConfirmDialog from './DeleteConfirmDialog';
+import AddUserModal from './AddUserModal';
 
 const UserTable: React.FC = () => {
   // State management
@@ -66,6 +67,8 @@ const UserTable: React.FC = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [userToEdit, setUserToEdit] = useState<User | null>(null);
 
   // Handlers
   const handleViewUser = (user: User) => {
@@ -74,9 +77,16 @@ const UserTable: React.FC = () => {
   };
 
   const handleEditUser = (user: User) => {
-    // TODO: Implement edit functionality
-    console.log('Edit user:', user);
-    alert(`Edit functionality for ${user.firstName} ${user.lastName} - To be implemented`);
+    setUserToEdit(user);
+    setIsEditModalOpen(true);
+  };
+
+  const handleRestrictUser = (user: User) => {
+    setUsers(users.map(u => 
+      u.id === user.id 
+        ? { ...u, status: u.status === 'Restricted' ? 'Active' : 'Restricted' }
+        : u
+    ));
   };
 
   const handleDeleteClick = (user: User) => {
@@ -101,9 +111,25 @@ const UserTable: React.FC = () => {
     }, 500);
   };
 
-  const handleDeleteCancel = () => {
-    setIsDeleteDialogOpen(false);
-    setUserToDelete(null);
+  const handleEditSave = (updatedUser: any) => {
+    if (!userToEdit) return;
+    const [firstName, ...lastNameParts] = updatedUser.name.split(' ');
+    const lastName = lastNameParts.join(' ');
+    setUsers(users.map(u => 
+      u.id === userToEdit.id 
+        ? { 
+            ...u, 
+            firstName, 
+            lastName, 
+            email: updatedUser.email,
+            phone: updatedUser.phone,
+            role: updatedUser.role.charAt(0).toUpperCase() + updatedUser.role.slice(1),
+            status: updatedUser.isActive ? 'Active' : 'Inactive'
+          }
+        : u
+    ));
+    setIsEditModalOpen(false);
+    setUserToEdit(null);
   };
 
   const getRoleBadgeColor = (role: string) => {
@@ -121,6 +147,7 @@ const UserTable: React.FC = () => {
       Active: 'bg-green-100 text-green-800',
       Inactive: 'bg-gray-100 text-gray-800',
       Suspended: 'bg-red-100 text-red-800',
+      Restricted: 'bg-orange-100 text-orange-800',
     };
     return colors[status as keyof typeof colors] || colors.Inactive;
   };
@@ -268,6 +295,23 @@ const UserTable: React.FC = () => {
                             d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
                           />
                         </svg>
+                      </button>
+
+                      {/* Restrict/Unrestrict Button */}
+                      <button
+                        onClick={() => handleRestrictUser(user)}
+                        className={`${user.status === 'Restricted' ? 'text-green-600 hover:text-green-900 hover:bg-green-50' : 'text-orange-600 hover:text-orange-900 hover:bg-orange-50'} p-2 rounded-lg transition-colors`}
+                        title={user.status === 'Restricted' ? 'Unrestrict User' : 'Restrict User'}
+                      >
+                        {user.status === 'Restricted' ? (
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        ) : (
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                          </svg>
+                        )}
                       </button>
 
                       {/* Delete Button */}
@@ -491,6 +535,13 @@ const UserTable: React.FC = () => {
         }
         onConfirm={handleDeleteConfirm}
         onCancel={handleDeleteCancel}
+      />
+
+      <AddUserModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        onAdd={handleEditSave}
+        user={userToEdit}
       />
 
       {/* Loading Overlay */}

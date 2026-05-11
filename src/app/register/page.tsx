@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Wallet, User, Mail, Lock, Shield, ArrowRight, Phone } from 'lucide-react';
 import { saveUserData } from '@/lib/localStorageService';
+import { saveUserSession } from '@/lib/auth';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -58,7 +59,19 @@ export default function RegisterPage() {
       return;
     }
 
-    // Dummy registration - redirect based on role
+    // Save session for the newly registered user.
+    saveUserSession({
+      name: formData.name,
+      email: formData.email,
+      role: formData.role as 'admin' | 'accountant' | 'member',
+      redirect: formData.role === 'admin'
+        ? '/admin/analytics'
+        : formData.role === 'accountant'
+        ? '/accountant/dashboard'
+        : '/member/savings',
+    });
+
+    // Redirect based on role
     if (formData.role === 'member') {
       router.push('/member/savings');
     } else if (formData.role === 'accountant') {

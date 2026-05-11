@@ -3,7 +3,8 @@
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { mockGroupStats, mockMonthlyData } from '@/lib/mockData';
 import { formatCurrency } from '@/lib/utils';
-import { Users, DollarSign, TrendingUp, AlertCircle, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { Users, DollarSign, TrendingUp, AlertCircle, ArrowUpRight, ArrowDownRight, BarChart3, PieChart, Activity } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line, PieChart as RechartsPieChart, Pie, Cell, Area, AreaChart } from 'recharts';
 
 export default function AdminAnalytics() {
   const stats = [
@@ -11,6 +12,46 @@ export default function AdminAnalytics() {
     { label: 'Total Savings', value: formatCurrency(mockGroupStats.totalValue), icon: DollarSign, color: 'bg-success-500', change: '+8.2%' },
     { label: 'Active Loans', value: mockGroupStats.activeLoans, icon: TrendingUp, color: 'bg-info-500', change: '-2' },
     { label: 'Pending Verifications', value: mockGroupStats.pendingVerifications, icon: AlertCircle, color: 'bg-warning-500', change: '+4' },
+  ];
+
+  // Chart data
+  const savingsOverTime = [
+    { month: 'Jan', savings: 1800000 },
+    { month: 'Feb', savings: 1950000 },
+    { month: 'Mar', savings: 2100000 },
+    { month: 'Apr', savings: 2250000 },
+    { month: 'May', savings: 2400000 },
+    { month: 'Jun', savings: 2450000 },
+  ];
+
+  const loanData = [
+    { name: 'Disbursed', value: 1200000, color: '#10B981' },
+    { name: 'Repaid', value: 800000, color: '#3B82F6' },
+    { name: 'Outstanding', value: 400000, color: '#F59E0B' },
+  ];
+
+  const memberGrowth = [
+    { month: 'Jan', members: 20 },
+    { month: 'Feb', members: 21 },
+    { month: 'Mar', members: 22 },
+    { month: 'Apr', members: 23 },
+    { month: 'May', members: 24 },
+    { month: 'Jun', members: 24 },
+  ];
+
+  const shareContributions = [
+    { month: 'Jan', contributions: 150000 },
+    { month: 'Feb', contributions: 160000 },
+    { month: 'Mar', contributions: 170000 },
+    { month: 'Apr', contributions: 180000 },
+    { month: 'May', contributions: 190000 },
+    { month: 'Jun', contributions: 200000 },
+  ];
+
+  const accountantActivity = [
+    { name: 'Marie Claire', actions: 45 },
+    { name: 'Eric Habimana', actions: 38 },
+    { name: 'Grace Umutoni', actions: 12 },
   ];
 
   return (
@@ -43,6 +84,124 @@ export default function AdminAnalytics() {
             );
           })}
         </div>
+
+        {/* Charts Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+          {/* Total Savings Over Time */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 size={20} />
+                Total Savings Over Time
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <AreaChart data={savingsOverTime}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`} />
+                  <Tooltip formatter={(value) => [formatCurrency(value as number), 'Savings']} />
+                  <Area type="monotone" dataKey="savings" stroke="#10B981" fill="#10B981" fillOpacity={0.3} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          {/* Loan Disbursements and Repayments */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <PieChart size={20} />
+                Loan Overview
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <RechartsPieChart>
+                  <Pie
+                    data={loanData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {loanData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={(value) => formatCurrency(value as number)} />
+                </RechartsPieChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          {/* Member Growth */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users size={20} />
+                Member Growth Over Time
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={memberGrowth}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis />
+                  <Tooltip />
+                  <Line type="monotone" dataKey="members" stroke="#3B82F6" strokeWidth={3} />
+                </LineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          {/* Share Contributions */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp size={20} />
+                Share Contributions
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={shareContributions}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`} />
+                  <Tooltip formatter={(value) => formatCurrency(value as number)} />
+                  <Bar dataKey="contributions" fill="#8B5CF6" />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Accountant Activity */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Activity size={20} />
+              Accountant Activity Summary
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={accountantActivity} layout="horizontal">
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis type="number" />
+                <YAxis dataKey="name" type="category" width={100} />
+                <Tooltip />
+                <Bar dataKey="actions" fill="#F59E0B" />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
 
         <Card>
           <CardHeader>

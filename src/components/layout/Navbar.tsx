@@ -15,9 +15,10 @@ interface NavbarProps {
   userImage?: string;
   onMenuClick: () => void;
   onImageUpdate?: (image: string) => void;
+  onLogout: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ role, userName, userImage, onMenuClick, onImageUpdate }) => {
+export const Navbar: React.FC<NavbarProps> = ({ role, userName, userImage, onMenuClick, onImageUpdate, onLogout }) => {
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
@@ -43,7 +44,7 @@ export const Navbar: React.FC<NavbarProps> = ({ role, userName, userImage, onMen
   };
 
   const handleLogout = () => {
-    alert('Logged out successfully!');
+    onLogout();
     setShowProfileDropdown(false);
   };
 

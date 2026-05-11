@@ -22,9 +22,10 @@ interface SidebarProps {
   role: UserRole;
   isOpen: boolean;
   onClose: () => void;
+  onLogout: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, onClose }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, onClose, onLogout }) => {
   const pathname = usePathname();
 
   const memberLinks = [
@@ -49,7 +50,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, onClose }) => {
     { href: '/admin/loans', label: 'Loans', icon: DollarSign },
     { href: '/admin/guarantor', label: 'Guarantors', icon: UserCheck },
     { href: '/admin/accountants', label: 'Accountants', icon: Users },
-    { href: '/admin/users', label: 'User Management', icon: Users },
+    { href: '/admin/user-management', label: 'User Management', icon: Users },
     { href: '/admin/announcements', label: 'Announcements', icon: Megaphone },
     { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
   ];
@@ -122,7 +123,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, onClose }) => {
 
         {/* Logout */}
         <div className="p-3 sm:p-4 border-t border-primary-light/20">
-          <button className="w-full flex items-center gap-3 px-3 sm:px-4 py-2 sm:py-3 text-white/70 hover:bg-white/10 hover:text-white rounded-xl sm:rounded-2xl transition-all duration-200">
+          <button onClick={onLogout} className="w-full flex items-center gap-3 px-3 sm:px-4 py-2 sm:py-3 text-white/70 hover:bg-white/10 hover:text-white rounded-xl sm:rounded-2xl transition-all duration-200">
             <LogOut size={18} className="flex-shrink-0 sm:w-5 sm:h-5" />
             <span className="font-medium text-sm sm:text-base">Logout</span>
           </button>
