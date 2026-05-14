@@ -3,6 +3,8 @@
  * Handles persistent storage of savings records, images, and user information
  */
 
+import { UserRole } from '@/types';
+
 export interface SavingRecord {
   id: string;
   shareName: string;
@@ -34,10 +36,23 @@ export interface UserData {
 const STORAGE_KEYS = {
   SAVINGS: 'app_savings_records',
   USER_DATA: 'app_user_data',
+  USERS: 'app_users',
   SAVINGS_BACKUP: 'app_savings_backup',
   APP_SETTINGS: 'app_settings',
   SAVING_DRAFT: 'app_saving_draft',
 };
+
+export interface RegisteredUser {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  password: string;
+  role: UserRole;
+  joinedDate: string;
+  totalSavings: number;
+  lastUpdated: string;
+}
 
 export interface AppSettings {
   language: 'en' | 'fr';
@@ -256,6 +271,53 @@ export const saveUserData = (userData: UserData): void => {
   }
 };
 
+export const getRegisteredUsers = (): RegisteredUser[] => {
+  if (!isLocalStorageAvailable()) {
+    return [];
+  }
+
+  try {
+    const stored = localStorage.getItem(STORAGE_KEYS.USERS);
+    return stored ? JSON.parse(stored) : [];
+  } catch (error) {
+    console.error('Error retrieving registered users:', error);
+    return [];
+  }
+};
+
+export const saveRegisteredUser = (user: RegisteredUser): void => {
+  if (!isLocalStorageAvailable()) {
+    throw new Error('Local storage is not available.');
+  }
+
+  try {
+    const users = getRegisteredUsers();
+    const existing = users.find((existingUser) => existingUser.email.toLowerCase() === user.email.toLowerCase());
+    if (existing) {
+      throw new Error('An account with this email already exists.');
+    }
+
+    users.push(user);
+    localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
+  } catch (error) {
+    console.error('Error saving registered user:', error);
+    throw error instanceof Error ? error : new Error('Failed to save registration data.');
+  }
+};
+
+export const findRegisteredUserByEmail = (email: string): RegisteredUser | null => {
+  const users = getRegisteredUsers();
+  return users.find((user) => user.email.toLowerCase() === email.toLowerCase()) || null;
+};
+
+export const authenticateRegisteredUser = (email: string, password: string): RegisteredUser | null => {
+  const user = findRegisteredUserByEmail(email);
+  if (!user) {
+    return null;
+  }
+  return user.password === password ? user : null;
+};
+
 /**
  * Get user data
  */
@@ -398,6 +460,7 @@ export const clearAllSavingsData = (): void => {
     localStorage.removeItem(STORAGE_KEYS.SAVINGS);
     localStorage.removeItem(STORAGE_KEYS.SAVINGS_BACKUP);
     localStorage.removeItem(STORAGE_KEYS.USER_DATA);
+    localStorage.removeItem(STORAGE_KEYS.USERS);
   } catch (error) {
     console.error('Error clearing data:', error);
     throw new Error('Failed to clear data.');

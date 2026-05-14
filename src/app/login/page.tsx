@@ -4,11 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Wallet, Mail, Lock, ArrowRight, Loader2 } from 'lucide-react';
+import { authenticateRegisteredUser, saveUserData } from '@/lib/localStorageService';
 import { saveUserSession } from '@/lib/auth';
-
-const MOCK_USERS = [
-  // Production-ready: Start with empty array, users will be authenticated via database/API
-];
 
 export default function LoginPage() {
   const router = useRouter();
@@ -25,15 +22,36 @@ export default function LoginPage() {
     // Simulate network delay
     await new Promise(resolve => setTimeout(resolve, 800));
 
-    const user = MOCK_USERS.find(
-      (u) => u.email === email && u.password === password
-    );
+    const user = authenticateRegisteredUser(email, password);
 
     if (user) {
-      saveUserSession(user);
-      router.push(user.redirect);
+      const redirectUrl =
+        user.role === 'admin'
+          ? '/admin/analytics'
+          : user.role === 'accountant'
+          ? '/accountant/dashboard'
+          : '/member/savings';
+
+      saveUserSession({
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        redirect: redirectUrl,
+      });
+
+      saveUserData({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        joinedDate: user.joinedDate,
+        totalSavings: user.totalSavings,
+        lastUpdated: new Date().toISOString(),
+      });
+
+      router.push(redirectUrl);
     } else {
-      setError('Authentication system not yet configured. Please register a new account.');
+      setError('Invalid email or password. Please register or try again.');
       setLoading(false);
     }
   };

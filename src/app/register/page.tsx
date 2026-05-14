@@ -4,25 +4,38 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Wallet, User, Mail, Lock, Shield, ArrowRight, Phone } from 'lucide-react';
-import { saveUserData } from '@/lib/localStorageService';
+import { UserRole } from '@/types';
+import { saveUserData, saveRegisteredUser } from '@/lib/localStorageService';
 import { saveUserSession } from '@/lib/auth';
+
+const ADMIN_REGISTRATION_SECRET = 'COMMUNITY_SAVINGS_ADMIN';
+
+type RegisterFormData = {
+  name: string;
+  email: string;
+  phone: string;
+  password: string;
+  role: UserRole;
+  adminCode: string;
+};
 
 export default function RegisterPage() {
   const router = useRouter();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<RegisterFormData>({
     name: '',
     email: '',
     phone: '',
     password: '',
-    role: 'member'
+    role: 'member',
+    adminCode: '',
   });
   const [error, setError] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    setFormData(prev => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    } as RegisterFormData));
   };
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -39,10 +52,28 @@ export default function RegisterPage() {
       return;
     }
 
-    // Save user data to local storage
+    if (formData.role === 'admin' && formData.adminCode !== ADMIN_REGISTRATION_SECRET) {
+      setError('Admin registration requires a valid admin access code.');
+      return;
+    }
+
+    const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
     try {
+      saveRegisteredUser({
+        id: userId,
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        password: formData.password,
+        role: formData.role,
+        joinedDate: new Date().toISOString(),
+        totalSavings: 0,
+        lastUpdated: new Date().toISOString(),
+      });
+
       saveUserData({
-        id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        id: userId,
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
@@ -51,34 +82,31 @@ export default function RegisterPage() {
         lastUpdated: new Date().toISOString(),
       });
     } catch (error) {
-      if (error instanceof Error && error.message.includes('full')) {
+      if (error instanceof Error && error.message.includes('already exists')) {
+        setError('An account with this email already exists. Please log in instead.');
+      } else if (error instanceof Error && error.message.includes('full')) {
         setError('Storage is full. Please clear some data or try again later.');
       } else {
-        setError('Failed to save user data. Please try again.');
+        setError('Failed to save your account. Please try again.');
       }
       return;
     }
 
-    // Save session for the newly registered user.
-    saveUserSession({
-      name: formData.name,
-      email: formData.email,
-      role: formData.role as 'admin' | 'accountant' | 'member',
-      redirect: formData.role === 'admin'
+    const redirectUrl =
+      formData.role === 'admin'
         ? '/admin/analytics'
         : formData.role === 'accountant'
         ? '/accountant/dashboard'
-        : '/member/savings',
+        : '/member/savings';
+
+    saveUserSession({
+      name: formData.name,
+      email: formData.email,
+      role: formData.role,
+      redirect: redirectUrl,
     });
 
-    // Redirect based on role
-    if (formData.role === 'member') {
-      router.push('/member/savings');
-    } else if (formData.role === 'accountant') {
-      router.push('/accountant/dashboard');
-    } else if (formData.role === 'admin') {
-      router.push('/admin/analytics');
-    }
+    router.push(redirectUrl);
   };
 
   return (
@@ -199,6 +227,26 @@ export default function RegisterPage() {
                 </select>
               </div>
             </div>
+
+            {formData.role === 'admin' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Admin Access Code
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                  <input
+                    type="password"
+                    name="adminCode"
+                    value={formData.adminCode}
+                    onChange={handleChange}
+                    placeholder="Enter admin access code"
+                    className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    required
+                  />
+                </div>
+              </div>
+            )}
 
             {/* Register Button */}
             <button
