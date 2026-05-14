@@ -1,6 +1,5 @@
 'use client';
 
-import { MemberLayout } from '@/components/layout/MemberLayout';
 import { useState, useEffect, useRef } from 'react';
 import { Plus, Eye, X, Edit, Trash2 } from 'lucide-react';
 import { SearchBar } from '@/components/ui/SearchBar';
@@ -78,12 +77,11 @@ export default function Shares() {
   };
 
   return (
-    <MemberLayout userName="Jean Baptiste Mugabo">
-      <div className="space-y-4 sm:space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Shares</h1>
-            <p className="text-sm sm:text-base text-gray-600 mt-1">Manage your shares and equity</p>
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Shares</h1>
+          <p className="text-sm sm:text-base text-gray-600 mt-1">Manage your shares and equity</p>
           </div>
           <button
             onClick={() => {
@@ -310,6 +308,6 @@ export default function Shares() {
           </div>
         </div>
       )}
-    </MemberLayout>
+    </div>
   );
 }

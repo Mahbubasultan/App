@@ -1,6 +1,5 @@
 'use client';
 
-import { MemberLayout } from '@/components/layout/MemberLayout';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Plus, Eye, ChevronDown, X } from 'lucide-react';
 import { SearchBar } from '@/components/ui/SearchBar';
@@ -262,12 +261,11 @@ export default function MySavings() {
   const statusOptions = ['All', 'Approved', 'Pending', 'Rejected'];
 
   return (
-    <MemberLayout userName="Jean Baptiste Mugabo">
-      <div className="space-y-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-              My Savings
+    <div className="space-y-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+            My Savings
             </h1>
             <p className="mt-2 text-sm text-gray-600 max-w-2xl">
               Track your savings contributions and manage proof images for each record.
@@ -587,6 +585,5 @@ export default function MySavings() {
           </div>
         )}
       </div>
-    </MemberLayout>
   );
 }

@@ -1,6 +1,5 @@
 'use client';
 
-import { MemberLayout } from '@/components/layout/MemberLayout';
 import { useState } from 'react';
 import { Filter, Eye, Trash2 } from 'lucide-react';
 import { SearchBar } from '@/components/ui/SearchBar';
@@ -46,14 +45,13 @@ export default function Notifications() {
   };
 
   return (
-    <MemberLayout userName="Jean Baptiste Mugabo">
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Notifications</h1>
-          <p className="text-gray-600 mt-1">View all your notifications and alerts</p>
-        </div>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">Notifications</h1>
+        <p className="text-gray-600 mt-1">View all your notifications and alerts</p>
+      </div>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
           <div className="flex flex-col gap-4 mb-6">
             <div className="w-full">
               <SearchBar
@@ -151,6 +149,5 @@ export default function Notifications() {
           )}
         </div>
       </div>
-    </MemberLayout>
   );
 }

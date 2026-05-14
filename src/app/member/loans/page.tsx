@@ -1,6 +1,5 @@
 'use client';
 
-import { MemberLayout } from '@/components/layout/MemberLayout';
 import { useRef, useState } from 'react';
 import { Plus, Eye, X } from 'lucide-react';
 import { SearchBar } from '@/components/ui/SearchBar';
@@ -97,18 +96,17 @@ export default function LoansPage() {
   };
 
   return (
-    <MemberLayout userName="Jean Baptiste Mugabo">
-      <div className="space-y-4 sm:space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Loans</h1>
-            <p className="text-sm sm:text-base text-gray-600 mt-1">Request and manage your loans</p>
-          </div>
-          <button
-            onClick={() => {
-              setFormData({ amount: 0, duration: 6, description: '', guarantorId: '' });
-              if (editorRef.current) editorRef.current.innerHTML = '';
-              setIsRequestModalOpen(true);
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Loans</h1>
+          <p className="text-sm sm:text-base text-gray-600 mt-1">Request and manage your loans</p>
+        </div>
+        <button
+          onClick={() => {
+            setFormData({ amount: 0, duration: 6, description: '', guarantorId: '' });
+            if (editorRef.current) editorRef.current.innerHTML = '';
+            setIsRequestModalOpen(true);
             }}
             className="flex items-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-[#0B5D3B] text-white rounded-xl font-semibold hover:bg-[#094a2e] hover:shadow-lg transition-all duration-300 w-full sm:w-fit justify-center text-sm sm:text-base"
           >
@@ -423,6 +421,5 @@ export default function LoansPage() {
           </div>
         </div>
       )}
-    </MemberLayout>
   );
 }

@@ -1,6 +1,5 @@
 'use client';
 
-import { MemberLayout } from '@/components/layout/MemberLayout';
 import { useRouter } from 'next/navigation';
 import { Layers, Wallet, DollarSign, TrendingUp } from 'lucide-react';
 
@@ -48,14 +47,13 @@ export default function MemberDashboard() {
   ];
 
   return (
-    <MemberLayout userName="Jean Baptiste Mugabo">
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">
-            <span className="text-green-600">{getGreeting()}</span>, Jean Baptiste!
-          </h1>
-          <p className="text-gray-600 mt-1">Track your shares and manage your savings</p>
-        </div>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">
+          <span className="text-green-600">{getGreeting()}</span>, Jean Baptiste!
+        </h1>
+        <p className="text-gray-600 mt-1">Track your shares and manage your savings</p>
+      </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {stats.map((stat) => {
@@ -106,6 +104,5 @@ export default function MemberDashboard() {
           </div>
         </div>
       </div>
-    </MemberLayout>
   );
 }
