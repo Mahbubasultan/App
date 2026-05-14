@@ -17,10 +17,7 @@ import {
 } from '@/lib/localStorageService';
 
 const mockShares = [
-  { id: 1, name: 'Emergency Fund' },
-  { id: 2, name: 'Education Share' },
-  { id: 3, name: 'Business Capital' },
-  { id: 4, name: 'Health Share' },
+  // Production-ready: Start with empty array, shares will be loaded from database
 ];
 
 const initialDraft: SavingDraft = {

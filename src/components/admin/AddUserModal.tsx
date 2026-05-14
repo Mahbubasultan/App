@@ -17,6 +17,8 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onAdd, use
     isActive: user ? user.status === 'Active' : true,
   });
 
+  const [errors, setErrors] = useState<any>({});
+
   useEffect(() => {
     if (user) {
       setFormData({

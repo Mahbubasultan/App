@@ -5,11 +5,7 @@ import { Search, Eye, X, Filter } from 'lucide-react';
 import { ConfirmDialog } from '@/components/accountant/ConfirmDialog';
 
 const mockGuarantors = [
-  { id: 1, guarantorName: 'Eric Habimana', borrowerName: 'Jean Baptiste', loanAmount: 400000, guarantorSavings: 280000, borrowerSavings: 250000, combinedSavings: 530000, coverage: '132.5%', status: 'Pending', date: '2024-01-15', guarantorPhone: '+250788345678', guarantorEmail: 'eric@email.com', borrowerPhone: '+250788123456', borrowerEmail: 'jean@email.com' },
-  { id: 2, guarantorName: 'Patrick Nkunda', borrowerName: 'Marie Claire', loanAmount: 300000, guarantorSavings: 500000, borrowerSavings: 360000, combinedSavings: 860000, coverage: '286.7%', status: 'Approved', date: '2024-01-20', guarantorPhone: '+250788456789', guarantorEmail: 'patrick@email.com', borrowerPhone: '+250788234567', borrowerEmail: 'marie@email.com' },
-  { id: 3, guarantorName: 'Marie Claire', borrowerName: 'Eric Habimana', loanAmount: 500000, guarantorSavings: 360000, borrowerSavings: 280000, combinedSavings: 640000, coverage: '128%', status: 'Approved', date: '2023-01-10', guarantorPhone: '+250788234567', guarantorEmail: 'marie@email.com', borrowerPhone: '+250788345678', borrowerEmail: 'eric@email.com' },
-  { id: 4, guarantorName: 'Grace Uwera', borrowerName: 'Patrick Nkunda', loanAmount: 200000, guarantorSavings: 190000, borrowerSavings: 500000, combinedSavings: 690000, coverage: '345%', status: 'Rejected', date: '2024-01-05', guarantorPhone: '+250788567890', guarantorEmail: 'grace@email.com', borrowerPhone: '+250788456789', borrowerEmail: 'patrick@email.com' },
-  { id: 5, guarantorName: 'David Mugisha', borrowerName: 'Grace Uwera', loanAmount: 350000, guarantorSavings: 250000, borrowerSavings: 190000, combinedSavings: 440000, coverage: '125.7%', status: 'On Hold', date: '2023-12-25', guarantorPhone: '+250788678901', guarantorEmail: 'david@email.com', borrowerPhone: '+250788567890', borrowerEmail: 'grace@email.com' },
+  // Production-ready: Start with empty array, guarantors will be loaded from database
 ];
 
 export default function AccountantGuarantor() {

@@ -5,35 +5,24 @@ import { Wallet, Layers, DollarSign, TrendingUp, Users, UserCheck, Megaphone, Ba
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 
 const summaryData = {
-  totalSavings: 2450000,
-  totalShares: 1225,
-  totalLoans: 1850000,
-  totalMembers: 24,
-  totalAccountants: 3,
-  totalAnnouncements: 8,
+  totalSavings: 0,
+  totalShares: 0,
+  totalLoans: 0,
+  totalMembers: 0,
+  totalAccountants: 0,
+  totalAnnouncements: 0,
 };
 
 const loanStats = [
-  { name: 'Active', value: 8, color: '#0B5D3B' },
-  { name: 'Pending', value: 4, color: '#F59E0B' },
-  { name: 'Repaid', value: 12, color: '#10B981' },
-  { name: 'Overdue', value: 2, color: '#EF4444' },
+  // Production-ready: Start with empty array, loan stats will be loaded from database
 ];
 
 const memberContributions = [
-  { name: 'Jean Baptiste', amount: 250000 },
-  { name: 'Marie Claire', amount: 360000 },
-  { name: 'Patrick Nkunda', amount: 500000 },
-  { name: 'Eric Habimana', amount: 280000 },
-  { name: 'Grace Uwera', amount: 190000 },
+  // Production-ready: Start with empty array, member contributions will be loaded from database
 ];
 
 const monthlyGrowth = [
-  { month: 'Sep', members: 20, savings: 1800000 },
-  { month: 'Oct', members: 21, savings: 2050000 },
-  { month: 'Nov', members: 22, savings: 2100000 },
-  { month: 'Dec', members: 23, savings: 2150000 },
-  { month: 'Jan', members: 24, savings: 2450000 },
+  // Production-ready: Start with empty array, monthly growth data will be loaded from database
 ];
 
 export default function AdminDashboard() {
@@ -69,7 +58,7 @@ export default function AdminDashboard() {
       value: summaryData.totalMembers.toString(),
       icon: Users,
       color: 'bg-green-500',
-      route: '/admin/user-management',
+      route: '/admin/users',
       trend: '+4.3%',
     },
   ];
@@ -252,7 +241,7 @@ export default function AdminDashboard() {
         {/* Quick Actions */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 animate-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: '800ms' }}>
           <button
-            onClick={() => router.push('/admin/user-management')}
+            onClick={() => router.push('/admin/users')}
             className="p-4 bg-white rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-300 hover:scale-105 text-left group"
           >
             <Users className="text-[#0B5D3B] mb-2 group-hover:scale-110 transition-transform" size={24} />

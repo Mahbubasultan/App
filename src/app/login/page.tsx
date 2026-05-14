@@ -7,9 +7,7 @@ import { Wallet, Mail, Lock, ArrowRight, Loader2 } from 'lucide-react';
 import { saveUserSession } from '@/lib/auth';
 
 const MOCK_USERS = [
-  { email: 'admin@gmail.com', password: '123456', role: 'admin', redirect: '/admin/analytics', name: 'Admin User' },
-  { email: 'member@gmail.com', password: '123456', role: 'member', redirect: '/member/savings', name: 'Member User' },
-  { email: 'accountant@gmail.com', password: '123456', role: 'accountant', redirect: '/accountant/dashboard', name: 'Accountant User' },
+  // Production-ready: Start with empty array, users will be authenticated via database/API
 ];
 
 export default function LoginPage() {
@@ -35,7 +33,7 @@ export default function LoginPage() {
       saveUserSession(user);
       router.push(user.redirect);
     } else {
-      setError('Invalid email or password');
+      setError('Authentication system not yet configured. Please register a new account.');
       setLoading(false);
     }
   };

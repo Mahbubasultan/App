@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { DollarSign, TrendingUp, Users, AlertCircle, CheckCircle, Eye, Check, X, Clock } from 'lucide-react';
 import { mockLoans, mockGroupStats } from '@/lib/mockData';
+import { LoanStatus } from '@/types';
 
 export default function AdminLoansPage() {
   const [loans, setLoans] = useState(mockLoans);
@@ -30,7 +31,7 @@ export default function AdminLoansPage() {
       hold: 'on_hold',
     };
     setLoans(loans.map(l => 
-      l.id === loan.id ? { ...l, status: statusMap[action] } : l
+      l.id === loan.id ? { ...l, status: statusMap[action] as LoanStatus } : l
     ));
   };
 

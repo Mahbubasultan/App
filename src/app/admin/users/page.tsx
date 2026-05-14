@@ -17,12 +17,7 @@ interface User {
 }
 
 const mockUsers: User[] = [
-  { id: '1', name: 'Jean Baptiste Mugabo', email: 'jean.mugabo@email.com', phone: '+250788123456', role: 'member', status: 'active', totalSavings: 250000, shares: 125, joinedDate: '2023-01-15', lastActive: '2 hours ago' },
-  { id: '2', name: 'Marie Claire Uwase', email: 'marie.uwase@email.com', phone: '+250788234567', role: 'accountant', status: 'active', totalSavings: 360000, shares: 180, joinedDate: '2022-11-20', lastActive: '30 min ago' },
-  { id: '3', name: 'Patrick Nkurunziza', email: 'patrick.admin@email.com', phone: '+250788345678', role: 'admin', status: 'active', totalSavings: 500000, shares: 250, joinedDate: '2022-10-01', lastActive: '5 min ago' },
-  { id: '4', name: 'Grace Umutoni', email: 'grace.umutoni@email.com', phone: '+250788456789', role: 'member', status: 'restricted', totalSavings: 190000, shares: 95, joinedDate: '2023-02-10', lastActive: '1 day ago' },
-  { id: '5', name: 'Eric Habimana', email: 'eric.habimana@email.com', phone: '+250788567890', role: 'member', status: 'active', totalSavings: 280000, shares: 140, joinedDate: '2023-01-05', lastActive: '3 hours ago' },
-  { id: '6', name: 'Diane Mukamana', email: 'diane.mukamana@email.com', phone: '+250788678901', role: 'member', status: 'blocked', totalSavings: 156000, shares: 78, joinedDate: '2023-03-12', lastActive: '1 week ago' },
+  // Production-ready: Start with empty array, users will be loaded from database
 ];
 
 export default function AdminUserManagement() {

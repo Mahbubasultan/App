@@ -110,7 +110,10 @@ const UserTable: React.FC = () => {
       alert(`User ${userToDelete.firstName} ${userToDelete.lastName} deleted successfully`);
     }, 500);
   };
-
+  const handleDeleteCancel = () => {
+    setIsDeleteDialogOpen(false);
+    setUserToDelete(null);
+  };
   const handleEditSave = (updatedUser: any) => {
     if (!userToEdit) return;
     const [firstName, ...lastNameParts] = updatedUser.name.split(' ');

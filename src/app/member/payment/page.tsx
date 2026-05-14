@@ -5,7 +5,11 @@ import { PaymentProofForm } from '@/components/member/PaymentProofForm';
 import { mockUsers } from '@/lib/mockData';
 
 export default function MemberPayment() {
-  const currentUser = mockUsers[0];
+  // Production-ready: Get current user from authentication context/database
+  const currentUser = mockUsers.length > 0 ? mockUsers[0] : {
+    name: 'Member',
+    nextPaymentDue: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days from now
+  };
 
   return (
     <MemberLayout userName={currentUser.name}>

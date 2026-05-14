@@ -7,18 +7,11 @@ import { SearchBar } from '@/components/ui/SearchBar';
 import { useSettings } from '@/context/SettingsContext';
 
 const mockLoans = [
-  { id: 1, amount: 400000, duration: 6, guarantor: 'Eric Habimana', monthlyInstallment: 70000, status: 'Approved', dueDate: '2024-07-15', createdDate: '2024-01-15' },
-  { id: 2, amount: 300000, duration: 4, guarantor: 'Marie Claire', monthlyInstallment: 78750, status: 'Pending', dueDate: '2024-05-20', createdDate: '2024-01-20' },
-  { id: 3, amount: 500000, duration: 12, guarantor: 'Patrick Nkunda', monthlyInstallment: 43750, status: 'Active', dueDate: '2025-01-10', createdDate: '2023-01-10' },
-  { id: 4, amount: 200000, duration: 3, guarantor: 'Grace Uwera', monthlyInstallment: 70000, status: 'Rejected', dueDate: '', createdDate: '2024-01-05' },
-  { id: 5, amount: 350000, duration: 6, guarantor: 'David Mugisha', monthlyInstallment: 61250, status: 'Active', dueDate: '2024-06-25', createdDate: '2023-12-25' },
+  // Production-ready: Start with empty array, loans will be loaded from database
 ];
 
 const mockGuarantors = [
-  { id: 1, name: 'Eric Habimana', savings: 280000 },
-  { id: 2, name: 'Marie Claire', savings: 360000 },
-  { id: 3, name: 'Patrick Nkunda', savings: 500000 },
-  { id: 4, name: 'Grace Uwera', savings: 190000 },
+  // Production-ready: Start with empty array, guarantors will be loaded from database
 ];
 
 const userSavings = 250000;

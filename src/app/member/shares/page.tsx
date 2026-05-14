@@ -7,11 +7,7 @@ import { SearchBar } from '@/components/ui/SearchBar';
 import { useSettings } from '@/context/SettingsContext';
 
 const mockShares = [
-  { id: 1, name: 'Emergency Fund', value: 2000, totalContributed: 100000, createdDate: '2023-01-15', status: 'Approved', hasSavings: true },
-  { id: 2, name: 'Education Share', value: 2000, totalContributed: 150000, createdDate: '2023-02-20', status: 'Approved', hasSavings: true },
-  { id: 3, name: 'Business Capital', value: 2000, totalContributed: 0, createdDate: '2024-01-10', status: 'Pending', hasSavings: false },
-  { id: 4, name: 'Health Share', value: 2000, totalContributed: 120000, createdDate: '2023-06-05', status: 'Approved', hasSavings: true },
-  { id: 5, name: 'Investment Fund', value: 2000, totalContributed: 0, createdDate: '2024-01-20', status: 'Pending', hasSavings: false },
+  // Production-ready: Start with empty array, shares will be loaded from database
 ];
 
 export default function Shares() {
