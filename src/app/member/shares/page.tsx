@@ -77,8 +77,9 @@ export default function Shares() {
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <>
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Shares</h1>
           <p className="text-sm sm:text-base text-gray-600 mt-1">Manage your shares and equity</p>
@@ -308,6 +309,6 @@ export default function Shares() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

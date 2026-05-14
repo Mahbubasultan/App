@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Layout } from '@/components/layout/Layout';
 import { Card } from '@/components/ui/Card';
@@ -9,12 +9,13 @@ import { Select } from '@/components/ui/Input';
 import { useToast } from '@/components/ui/Toast';
 import { mockUsers } from '@/lib/mockData';
 import { formatCurrency, checkLoanEligibility, calculateLoanPayment } from '@/lib/utils';
+import { getUserSession } from '@/lib/auth';
 import { ArrowLeft, DollarSign, Calendar, FileText, Shield, CheckCircle, XCircle, Percent, User as UserIcon } from 'lucide-react';
 
 export default function RequestLoanPage() {
   const router = useRouter();
   const { success, error } = useToast();
-  const currentUser = mockUsers[0]; // Jean Baptiste Mugabo
+  const [currentUser, setCurrentUser] = useState(null);
 
   const [formData, setFormData] = useState({
     amount: '',
@@ -23,6 +24,18 @@ export default function RequestLoanPage() {
     reason: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    const user = getUserSession();
+    if (user) {
+      setCurrentUser(user);
+    } else {
+      // Fallback to mock user if no session
+      setCurrentUser(mockUsers[0]);
+    }
+  }, []);
+
+  if (!currentUser) return null;
 
   const guarantors = mockUsers.filter(u => u.id !== currentUser.id && u.role === 'member');
   const selectedGuarantor = guarantors.find(g => g.id === formData.guarantorId);

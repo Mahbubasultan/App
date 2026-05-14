@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Plus, Eye, ChevronDown, X } from 'lucide-react';
 import { SearchBar } from '@/components/ui/SearchBar';
 import { useLocalSavings } from '@/hooks/useLocalSavings';
+import { getUserSession } from '@/lib/auth';
 import {
   SavingRecord,
   fileToBase64,
@@ -45,6 +46,8 @@ export default function MySavings() {
   const [viewImageBase64, setViewImageBase64] = useState<string>('');
   const [addImagePreview, setAddImagePreview] = useState<string | null>(null);
 
+  const [userName, setUserName] = useState('Member');
+
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const [formData, setFormData] = useState<SavingDraft>(initialDraft);
@@ -81,6 +84,13 @@ export default function MySavings() {
       }
     } catch {
       setStorageError('Unable to restore draft data.');
+    }
+  }, []);
+
+  useEffect(() => {
+    const user = getUserSession();
+    if (user) {
+      setUserName(user.name || 'Member');
     }
   }, []);
 
@@ -498,7 +508,7 @@ export default function MySavings() {
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="rounded-2xl bg-gray-50 p-4">
                     <p className="text-xs uppercase tracking-[0.16em] text-gray-500 mb-3">Member</p>
-                    <p className="text-sm text-gray-900">Jean Baptiste Mugabo</p>
+                    <p className="text-sm text-gray-900">{userName}</p>
                   </div>
                   <div className="rounded-2xl bg-gray-50 p-4">
                     <p className="text-xs uppercase tracking-[0.16em] text-gray-500 mb-3">Share</p>

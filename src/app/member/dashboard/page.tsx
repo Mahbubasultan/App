@@ -1,10 +1,20 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { Layers, Wallet, DollarSign, TrendingUp } from 'lucide-react';
+import { getUserSession } from '@/lib/auth';
 
 export default function MemberDashboard() {
   const router = useRouter();
+  const [userName, setUserName] = useState('Member');
+
+  useEffect(() => {
+    const user = getUserSession();
+    if (user) {
+      setUserName(user.name || 'Member');
+    }
+  }, []);
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -50,7 +60,7 @@ export default function MemberDashboard() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-gray-900">
-          <span className="text-green-600">{getGreeting()}</span>, Jean Baptiste!
+          <span className="text-green-600">{getGreeting()}</span>, {userName}!
         </h1>
         <p className="text-gray-600 mt-1">Track your shares and manage your savings</p>
       </div>

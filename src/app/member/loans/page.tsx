@@ -96,11 +96,12 @@ export default function LoansPage() {
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Loans</h1>
-          <p className="text-sm sm:text-base text-gray-600 mt-1">Request and manage your loans</p>
+    <>
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Loans</h1>
+            <p className="text-sm sm:text-base text-gray-600 mt-1">Request and manage your loans</p>
         </div>
         <button
           onClick={() => {
@@ -421,5 +422,6 @@ export default function LoansPage() {
           </div>
         </div>
       )}
+    </>
   );
 }
