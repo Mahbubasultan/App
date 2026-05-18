@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect, useRef } from 'react';
 import { Plus, Eye, X, Edit, Trash2 } from 'lucide-react';
@@ -33,10 +33,10 @@ export default function Shares() {
 
   const [formData, setFormData] = useState({
     name: '',
-    value: 2000,
+    value: '',
   });
 
-  const filteredShares = mockShares.filter(share => {
+  const filteredShares = mockShares.filter((share) => {
     const matchesSearch = share.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === 'All' || share.status === statusFilter;
     return matchesSearch && matchesStatus;
@@ -50,7 +50,7 @@ export default function Shares() {
 
   const handleEdit = (share: any) => {
     setSelectedShare(share);
-    setFormData({ name: share.name, value: share.value });
+    setFormData({ name: share.name, value: share.value?.toString() || '' });
     setIsEditMode(true);
     setIsAddModalOpen(true);
   };
@@ -65,14 +65,17 @@ export default function Shares() {
     console.log('Submitting:', formData);
     setIsAddModalOpen(false);
     setIsEditMode(false);
-    setFormData({ name: '', value: 2000 });
+    setFormData({ name: '', value: '' });
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Approved': return 'bg-emerald-100 text-emerald-700 border border-emerald-200';
-      case 'Pending': return 'bg-amber-100 text-amber-700 border border-amber-200';
-      default: return 'bg-gray-100 text-gray-700 border border-gray-200';
+      case 'Approved':
+        return 'bg-emerald-100 text-emerald-700 border border-emerald-200';
+      case 'Pending':
+        return 'bg-amber-100 text-amber-700 border border-amber-200';
+      default:
+        return 'bg-gray-100 text-gray-700 border border-gray-200';
     }
   };
 
@@ -80,14 +83,14 @@ export default function Shares() {
     <>
       <div className="space-y-4 sm:space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Shares</h1>
-          <p className="text-sm sm:text-base text-gray-600 mt-1">Manage your shares and equity</p>
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Shares</h1>
+            <p className="text-sm sm:text-base text-gray-600 mt-1">Manage your shares and equity</p>
           </div>
           <button
             onClick={() => {
               setIsEditMode(false);
-              setFormData({ name: '', value: 2000 });
+              setFormData({ name: '', value: '' });
               setIsAddModalOpen(true);
             }}
             className="flex items-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-[#0B5D3B] text-white rounded-xl font-semibold hover:bg-[#094a2e] hover:shadow-lg transition-all duration-300 w-full sm:w-fit justify-center text-sm sm:text-base"
@@ -103,6 +106,7 @@ export default function Shares() {
               value={searchQuery}
               onChange={setSearchQuery}
               placeholder={t('searchPlaceholder') || 'Search...'}
+              className="max-w-[320px]"
             />
           </div>
 
@@ -158,14 +162,14 @@ export default function Shares() {
             </p>
             <div className="flex gap-2 justify-center">
               <button
-                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
                 className="px-3 sm:px-4 py-1.5 sm:py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Previous
               </button>
               <button
-                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                 disabled={currentPage === totalPages}
                 className="px-3 sm:px-4 py-1.5 sm:py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -176,7 +180,6 @@ export default function Shares() {
         </div>
       </div>
 
-      {/* Add/Edit Share Modal */}
       {isAddModalOpen && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in-0 duration-200">
           <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
@@ -208,9 +211,9 @@ export default function Shares() {
                 <input
                   type="number"
                   value={formData.value}
-                  onChange={(e) => setFormData({ ...formData, value: Number(e.target.value) })}
+                  onChange={(e) => setFormData({ ...formData, value: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
-                  placeholder="2000"
+                  placeholder="Enter share value"
                 />
               </div>
               <div className="flex gap-3 pt-2">
@@ -235,7 +238,6 @@ export default function Shares() {
         </div>
       )}
 
-      {/* View Modal */}
       {isViewModalOpen && selectedShare && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in-0 duration-200">
           <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
@@ -266,39 +268,29 @@ export default function Shares() {
                   <p className="text-xs font-semibold text-gray-600 mb-1">Created Date</p>
                   <p className="font-semibold text-gray-900">{selectedShare.createdDate}</p>
                 </div>
-                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200 col-span-2">
-                  <p className="text-xs font-semibold text-gray-600 mb-2">Status</p>
-                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(selectedShare.status)}`}>
-                    {selectedShare.status}
-                  </span>
-                </div>
               </div>
-              
-              {selectedShare.status !== 'Approved' && (
-                <div className="flex gap-3 pt-2 border-t border-gray-200">
-                  <button
-                    onClick={() => {
-                      handleEdit(selectedShare);
-                      setIsViewModalOpen(false);
-                    }}
-                    className="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
-                  >
-                    <Edit size={18} />
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => {
-                      handleDelete(selectedShare.id);
-                      setIsViewModalOpen(false);
-                    }}
-                    className="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
-                  >
-                    <Trash2 size={18} />
-                    Delete
-                  </button>
-                </div>
-              )}
-              
+              <div className="flex gap-3 pt-2 border-t border-gray-200">
+                <button
+                  onClick={() => {
+                    handleEdit(selectedShare);
+                    setIsViewModalOpen(false);
+                  }}
+                  className="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                >
+                  <Edit size={18} />
+                  Edit
+                </button>
+                <button
+                  onClick={() => {
+                    handleDelete(selectedShare.id);
+                    setIsViewModalOpen(false);
+                  }}
+                  className="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
+                >
+                  <Trash2 size={18} />
+                  Delete
+                </button>
+              </div>
               <button
                 onClick={() => setIsViewModalOpen(false)}
                 className="w-full px-4 py-2.5 bg-gray-100 rounded-xl font-semibold hover:bg-gray-200 transition-colors"

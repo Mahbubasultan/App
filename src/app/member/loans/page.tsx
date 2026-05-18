@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { Plus, Eye, X } from 'lucide-react';
 import { SearchBar } from '@/components/ui/SearchBar';
 import { useSettings } from '@/context/SettingsContext';
@@ -31,20 +31,6 @@ export default function LoansPage() {
     description: '',
     guarantorId: '',
   });
-  const editorRef = useRef<HTMLDivElement | null>(null);
-
-  const applyFormat = (command: string) => {
-    document.execCommand(command, false);
-    if (editorRef.current) {
-      setFormData(prev => ({ ...prev, description: editorRef.current?.innerHTML || '' }));
-    }
-  };
-
-  const updateDescription = () => {
-    if (editorRef.current) {
-      setFormData(prev => ({ ...prev, description: editorRef.current.innerHTML }));
-    }
-  };
 
   const tabs = ['All', 'Pending', 'Approved', 'Rejected', 'Active'];
 
@@ -82,7 +68,6 @@ export default function LoansPage() {
     console.log('Submitting loan request:', formData);
     setIsRequestModalOpen(false);
     setFormData({ amount: 0, duration: 6, description: '', guarantorId: '' });
-    if (editorRef.current) editorRef.current.innerHTML = '';
   };
 
   const getStatusColor = (status: string) => {
@@ -106,7 +91,6 @@ export default function LoansPage() {
         <button
           onClick={() => {
             setFormData({ amount: 0, duration: 6, description: '', guarantorId: '' });
-            if (editorRef.current) editorRef.current.innerHTML = '';
             setIsRequestModalOpen(true);
             }}
             className="flex items-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-[#0B5D3B] text-white rounded-xl font-semibold hover:bg-[#094a2e] hover:shadow-lg transition-all duration-300 w-full sm:w-fit justify-center text-sm sm:text-base"
@@ -118,28 +102,29 @@ export default function LoansPage() {
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
           <div className="p-4 sm:p-6 border-b border-gray-100">
-            <div className="flex gap-2 mb-3 sm:mb-4 overflow-x-auto pb-2">
-              {tabs.map(tab => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`px-3 sm:px-4 py-1.5 sm:py-2 text-sm rounded-lg font-medium whitespace-nowrap transition-all ${
-                    activeTab === tab
-                      ? 'bg-[#0B5D3B] text-white shadow-sm'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
-
-            <div className="flex gap-2">
-              <SearchBar
-                value={searchQuery}
-                onChange={setSearchQuery}
-                placeholder={t('searchPlaceholder') || 'Search...'}
-              />
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div className="flex flex-wrap gap-2">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`px-3 sm:px-4 py-1.5 sm:py-2 text-sm rounded-lg font-medium whitespace-nowrap transition-all ${
+                      activeTab === tab
+                        ? 'bg-[#0B5D3B] text-white shadow-sm'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    {tab}
+                  </button>
+                ))}
+              </div>
+              <div className="w-full max-w-[320px]">
+                <SearchBar
+                  value={searchQuery}
+                  onChange={setSearchQuery}
+                  placeholder={t('searchPlaceholder') || 'Search...'}
+                />
+              </div>
             </div>
           </div>
 
@@ -254,53 +239,14 @@ export default function LoansPage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                <div className="border border-gray-300 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-green-500 bg-white">
-                  <div className="flex flex-wrap gap-2 px-3 py-2 bg-gray-50 border-b border-gray-200">
-                    <button
-                      type="button"
-                      onClick={() => applyFormat('bold')}
-                      className="px-3 py-1 rounded-lg text-sm font-medium bg-white text-gray-700 border border-gray-200 hover:bg-gray-100"
-                    >
-                      Bold
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => applyFormat('italic')}
-                      className="px-3 py-1 rounded-lg text-sm font-medium bg-white text-gray-700 border border-gray-200 hover:bg-gray-100"
-                    >
-                      Italic
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => applyFormat('underline')}
-                      className="px-3 py-1 rounded-lg text-sm font-medium bg-white text-gray-700 border border-gray-200 hover:bg-gray-100"
-                    >
-                      Underline
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => applyFormat('insertUnorderedList')}
-                      className="px-3 py-1 rounded-lg text-sm font-medium bg-white text-gray-700 border border-gray-200 hover:bg-gray-100"
-                    >
-                      Bullet List
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => applyFormat('insertOrderedList')}
-                      className="px-3 py-1 rounded-lg text-sm font-medium bg-white text-gray-700 border border-gray-200 hover:bg-gray-100"
-                    >
-                      Numbered List
-                    </button>
-                  </div>
-                  <div
-                    ref={editorRef}
-                    contentEditable
-                    suppressContentEditableWarning
-                    onInput={updateDescription}
-                    className="min-h-[140px] px-3 py-3 focus:outline-none"
-                    dangerouslySetInnerHTML={{ __html: formData.description }}
-                  />
-                </div>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  placeholder="Explain why you need this loan..."
+                  rows={5}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-transparent text-sm font-sans"
+                  style={{ fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif' }}
+                />
               </div>
 
               {needsGuarantor && (

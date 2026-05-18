@@ -16,9 +16,11 @@ import {
   getMimeTypeFromFileName,
 } from '@/lib/localStorageService';
 
-const mockShares = [
-  // Production-ready: Start with empty array, shares will be loaded from database
-];
+interface MemberShare {
+  id: string;
+  name: string;
+  memberEmail: string;
+}
 
 const initialDraft: SavingDraft = {
   shareId: '',
@@ -45,6 +47,7 @@ export default function MySavings() {
   const [viewImageFileName, setViewImageFileName] = useState<string>('');
   const [viewImageBase64, setViewImageBase64] = useState<string>('');
   const [addImagePreview, setAddImagePreview] = useState<string | null>(null);
+  const [availableShares, setAvailableShares] = useState<MemberShare[]>([]);
 
   const [userName, setUserName] = useState('Member');
 
@@ -91,6 +94,21 @@ export default function MySavings() {
     const user = getUserSession();
     if (user) {
       setUserName(user.name || 'Member');
+      const email = user.email;
+
+      fetch(`/api/member/shares?email=${encodeURIComponent(email)}`)
+        .then(async (res) => {
+          if (!res.ok) throw new Error('Failed to load shares');
+          return res.json();
+        })
+        .then((data) => {
+          if (Array.isArray(data.shares)) {
+            setAvailableShares(data.shares);
+          }
+        })
+        .catch(() => {
+          setStorageError('Unable to load your shares.');
+        });
     }
   }, []);
 
@@ -150,7 +168,7 @@ export default function MySavings() {
 
   const handleSubmit = async () => {
     try {
-      const share = mockShares.find(
+      const share = availableShares.find(
         (item) => item.id.toString() === formData.shareId
       );
 
@@ -422,10 +440,17 @@ export default function MySavings() {
                     <select
                       value={formData.shareId}
                       onChange={(e) => handleFormChange({ shareId: e.target.value })}
-                      className="w-full rounded-2xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900"
+                      className="w-full rounded-2xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-500"
                     >
-                      <option value="">Select share</option>
-                      {mockShares.map((share) => (
+                      <option value="" disabled={availableShares.length > 0}>
+                        {availableShares.length > 0 ? 'Select share' : 'Loading shares...'}
+                      </option>
+                      {availableShares.length === 0 && (
+                        <option value="" disabled>
+                          No shares available
+                        </option>
+                      )}
+                      {availableShares.map((share) => (
                         <option key={share.id} value={share.id}>
                           {share.name}
                         </option>
@@ -490,7 +515,8 @@ export default function MySavings() {
 
         {isViewModalOpen && selectedSaving && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
-            <div className="w-full max-w-3xl overflow-hidden rounded-3xl bg-white shadow-2xl">
+            <div className="w-full max-w-[700px] max-h-[90vh] overflow-hidden rounded-3xl bg-white shadow-2xl">
+              <div className="max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
                 <div>
                   <h2 className="text-xl font-bold text-gray-900">Saving Details</h2>
@@ -580,7 +606,7 @@ export default function MySavings() {
               <div className="flex flex-col gap-3 border-t border-gray-200 px-6 py-4 md:flex-row md:justify-end">
                 <button
                   onClick={closeViewModal}
-                  className="rounded-2xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+                  className="rounded-2xl bg-[#1b5e20] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#154b1b]"
                 >
                   Close
                 </button>
@@ -593,6 +619,7 @@ export default function MySavings() {
               </div>
             </div>
           </div>
+        </div>
         )}
       </div>
   );
