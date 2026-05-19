@@ -9,6 +9,15 @@ const mockShares = [
   // Production-ready: Start with empty array, shares will be loaded from database
 ];
 
+interface ShareRecord {
+  id: string;
+  name: string;
+  value: number;
+  totalContributed: number;
+  createdDate: string;
+  status: string;
+}
+
 export default function Shares() {
   const { t } = useSettings();
   const [searchQuery, setSearchQuery] = useState('');
@@ -20,6 +29,18 @@ export default function Shares() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [shares, setShares] = useState<ShareRecord[]>([]);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('memberShares');
+    if (saved) {
+      try {
+        setShares(JSON.parse(saved));
+      } catch (error) {
+        console.error('Failed to parse memberShares from localStorage', error);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -36,7 +57,7 @@ export default function Shares() {
     value: '',
   });
 
-  const filteredShares = mockShares.filter((share) => {
+  const filteredShares = shares.filter((share) => {
     const matchesSearch = share.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === 'All' || share.status === statusFilter;
     return matchesSearch && matchesStatus;
@@ -48,24 +69,66 @@ export default function Shares() {
     currentPage * itemsPerPage
   );
 
-  const handleEdit = (share: any) => {
+  const handleEdit = (share: ShareRecord) => {
     setSelectedShare(share);
-    setFormData({ name: share.name, value: share.value?.toString() || '' });
+    setFormData({ name: share.name, value: share.value.toString() });
     setIsEditMode(true);
     setIsAddModalOpen(true);
   };
 
-  const handleDelete = (id: number) => {
+  const saveShares = (updatedShares: ShareRecord[]) => {
+    setShares(updatedShares);
+    localStorage.setItem('memberShares', JSON.stringify(updatedShares));
+  };
+
+  const handleDelete = (id: string) => {
     if (confirm('Are you sure you want to delete this share?')) {
-      console.log('Deleting share:', id);
+      const updatedShares = shares.filter((share) => share.id !== id);
+      saveShares(updatedShares);
+      setSelectedShare(null);
+      setIsViewModalOpen(false);
     }
   };
 
   const handleSubmit = () => {
-    console.log('Submitting:', formData);
+    if (!formData.name.trim() || !formData.value.trim()) {
+      alert('Please enter a name and value for your share.');
+      return;
+    }
+
+    const shareValue = Number(formData.value);
+    if (Number.isNaN(shareValue) || shareValue <= 0) {
+      alert('Please enter a valid share value.');
+      return;
+    }
+
+    if (isEditMode && selectedShare) {
+      const updatedShares = shares.map((share) =>
+        share.id === selectedShare.id
+          ? {
+              ...share,
+              name: formData.name,
+              value: shareValue,
+            }
+          : share
+      );
+      saveShares(updatedShares);
+    } else {
+      const newShare: ShareRecord = {
+        id: `share-${Date.now()}`,
+        name: formData.name.trim(),
+        value: shareValue,
+        totalContributed: 0,
+        createdDate: new Date().toLocaleDateString(),
+        status: 'Pending',
+      };
+      saveShares([newShare, ...shares]);
+    }
+
     setIsAddModalOpen(false);
     setIsEditMode(false);
     setFormData({ name: '', value: '' });
+    setSelectedShare(null);
   };
 
   const getStatusColor = (status: string) => {
@@ -110,73 +173,84 @@ export default function Shares() {
             />
           </div>
 
-          <div className="overflow-x-auto -mx-4 sm:mx-0">
-            <div className="inline-block min-w-full align-middle">
-              <table className="min-w-full">
-                <thead>
-                  <tr className="border-b border-gray-200 bg-gray-50">
-                    <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">{t('shareName')}</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">{t('value')}</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">{t('contributed')}</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">{t('created')}</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">{t('status')}</th>
-                    <th className="text-center py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">{t('action')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {paginatedShares.map((share) => (
-                    <tr key={share.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                      <td className="py-3 px-4 font-medium text-gray-900 text-xs sm:text-sm">{share.name}</td>
-                      <td className="py-3 px-4 text-gray-900 text-xs sm:text-sm whitespace-nowrap">{share.value.toLocaleString()} RWF</td>
-                      <td className="py-3 px-4 text-gray-900 text-xs sm:text-sm whitespace-nowrap">{share.totalContributed.toLocaleString()} RWF</td>
-                      <td className="py-3 px-4 text-gray-600 text-xs sm:text-sm whitespace-nowrap">{share.createdDate}</td>
-                      <td className="py-3 px-4">
-                        <span className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(share.status)}`}>
-                          {share.status}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4">
-                        <div className="flex items-center justify-center">
-                          <button
-                            onClick={() => {
-                              setSelectedShare(share);
-                              setIsViewModalOpen(true);
-                            }}
-                            className="p-2 hover:bg-[#0B5D3B]/10 text-[#0B5D3B] rounded-lg transition-colors"
-                            title="View details"
-                          >
-                            <Eye size={16} className="sm:w-[18px] sm:h-[18px]" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+          {filteredShares.length === 0 ? (
+            <div className="p-10 text-center text-gray-500">
+              <p className="text-lg sm:text-xl font-semibold text-gray-900">No shares saved yet</p>
+              <p className="text-sm mt-2 max-w-xl mx-auto">
+                Create a new share entry to keep it saved in your account. Your data will stay in local storage.
+              </p>
             </div>
-          </div>
+          ) : (
+            <>
+              <div className="overflow-x-auto -mx-4 sm:mx-0">
+                <div className="inline-block min-w-full align-middle">
+                  <table className="min-w-full">
+                    <thead>
+                      <tr className="border-b border-gray-200 bg-gray-50">
+                        <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">{t('shareName')}</th>
+                        <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">{t('value')}</th>
+                        <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">{t('contributed')}</th>
+                        <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">{t('created')}</th>
+                        <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">{t('status')}</th>
+                        <th className="text-center py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">{t('action')}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {paginatedShares.map((share) => (
+                        <tr key={share.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                          <td className="py-3 px-4 font-medium text-gray-900 text-xs sm:text-sm">{share.name}</td>
+                          <td className="py-3 px-4 text-gray-900 text-xs sm:text-sm whitespace-nowrap">{share.value.toLocaleString()} RWF</td>
+                          <td className="py-3 px-4 text-gray-900 text-xs sm:text-sm whitespace-nowrap">{share.totalContributed.toLocaleString()} RWF</td>
+                          <td className="py-3 px-4 text-gray-600 text-xs sm:text-sm whitespace-nowrap">{share.createdDate}</td>
+                          <td className="py-3 px-4">
+                            <span className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(share.status)}`}>
+                              {share.status}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4">
+                            <div className="flex items-center justify-center">
+                              <button
+                                onClick={() => {
+                                  setSelectedShare(share);
+                                  setIsViewModalOpen(true);
+                                }}
+                                className="p-2 hover:bg-[#0B5D3B]/10 text-[#0B5D3B] rounded-lg transition-colors"
+                                title="View details"
+                              >
+                                <Eye size={16} className="sm:w-[18px] sm:h-[18px]" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
 
-          <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <p className="text-xs sm:text-sm text-gray-600 text-center sm:text-left">
-              Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, filteredShares.length)} of {filteredShares.length}
-            </p>
-            <div className="flex gap-2 justify-center">
-              <button
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                className="px-3 sm:px-4 py-1.5 sm:py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Previous
-              </button>
-              <button
-                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-                className="px-3 sm:px-4 py-1.5 sm:py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Next
-              </button>
-            </div>
-          </div>
+              <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <p className="text-xs sm:text-sm text-gray-600 text-center sm:text-left">
+                  Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, filteredShares.length)} of {filteredShares.length}
+                </p>
+                <div className="flex gap-2 justify-center">
+                  <button
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    className="px-3 sm:px-4 py-1.5 sm:py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Previous
+                  </button>
+                  <button
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    className="px-3 sm:px-4 py-1.5 sm:py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
 

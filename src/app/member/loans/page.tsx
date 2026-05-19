@@ -1,13 +1,26 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Plus, Eye, X } from 'lucide-react';
 import { SearchBar } from '@/components/ui/SearchBar';
+import { useToast } from '@/components/ui/Toast';
 import { useSettings } from '@/context/SettingsContext';
 
 const mockLoans = [
   // Production-ready: Start with empty array, loans will be loaded from database
 ];
+
+interface LoanRequest {
+  id: string;
+  amount: number;
+  duration: number;
+  description: string;
+  date: string;
+  status: string;
+  monthlyInstallment: number;
+  dueDate: string;
+  guarantor?: string;
+}
 
 const mockGuarantors = [
   // Production-ready: Start with empty array, guarantors will be loaded from database
@@ -21,9 +34,10 @@ export default function LoansPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [selectedLoan, setSelectedLoan] = useState<any>(null);
+  const [selectedLoan, setSelectedLoan] = useState<LoanRequest | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+  const { success } = useToast();
 
   const [formData, setFormData] = useState({
     amount: 0,
@@ -32,11 +46,26 @@ export default function LoansPage() {
     guarantorId: '',
   });
 
-  const tabs = ['All', 'Pending', 'Approved', 'Rejected', 'Active'];
+  const [loanRequests, setLoanRequests] = useState<LoanRequest[]>([]);
 
-  const filteredLoans = mockLoans.filter(loan => {
+  useEffect(() => {
+    const saved = localStorage.getItem('memberLoanRequests');
+    if (saved) {
+      try {
+        const parsed: LoanRequest[] = JSON.parse(saved);
+        setLoanRequests(parsed);
+      } catch (error) {
+        console.error('Failed to parse loan requests from localStorage', error);
+      }
+    }
+  }, []);
+
+  const tabs = ['All', 'Pending', 'Approved', 'Rejected', 'Active'];
+  const allLoans = [...mockLoans, ...loanRequests];
+
+  const filteredLoans = allLoans.filter((loan) => {
     const matchesTab = activeTab === 'All' || loan.status === activeTab;
-    const matchesSearch = loan.guarantor.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = String(loan.guarantor || '').toLowerCase().includes(searchQuery.toLowerCase());
     return matchesTab && matchesSearch;
   });
 
@@ -61,13 +90,31 @@ export default function LoansPage() {
   };
 
   const handleSubmit = () => {
-    if (!canRequest) {
+    if (!canRequest || formData.amount <= 0) {
       alert('Loan amount exceeds available coverage!');
       return;
     }
-    console.log('Submitting loan request:', formData);
+
+    const monthlyInstallment = Number(((formData.amount * 1.05) / formData.duration).toFixed(0));
+    const newRequest: LoanRequest = {
+      id: `loan-${Date.now()}`,
+      amount: formData.amount,
+      duration: formData.duration,
+      description: formData.description,
+      date: new Date().toLocaleDateString(),
+      status: 'Pending',
+      monthlyInstallment,
+      dueDate: new Date(Date.now() + formData.duration * 30 * 24 * 60 * 60 * 1000)
+        .toLocaleDateString(),
+      guarantor: selectedGuarantor?.name || 'N/A',
+    };
+
+    const updatedRequests = [newRequest, ...loanRequests];
+    setLoanRequests(updatedRequests);
+    localStorage.setItem('memberLoanRequests', JSON.stringify(updatedRequests));
     setIsRequestModalOpen(false);
     setFormData({ amount: 0, duration: 6, description: '', guarantorId: '' });
+    success('Loan request saved successfully');
   };
 
   const getStatusColor = (status: string) => {
@@ -128,73 +175,82 @@ export default function LoansPage() {
             </div>
           </div>
 
-          <div className="overflow-x-auto -mx-4 sm:mx-0">
-            <div className="inline-block min-w-full align-middle">
-              <table className="min-w-full">
-                <thead>
-                  <tr className="bg-gray-50 border-b border-gray-200">
-                    <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">{t('amount')}</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">{t('duration')}</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">{t('guarantor')}</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">{t('monthly')}</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">{t('status')}</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">{t('dueDate')}</th>
-                    <th className="text-center py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">{t('action')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {paginatedLoans.map((loan) => (
-                    <tr key={loan.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                      <td className="py-3 px-4 font-semibold text-[#0B5D3B] text-xs sm:text-sm whitespace-nowrap">{loan.amount.toLocaleString()} RWF</td>
-                      <td className="py-3 px-4 text-gray-900 text-xs sm:text-sm whitespace-nowrap">{loan.duration} months</td>
-                      <td className="py-3 px-4 text-gray-900 text-xs sm:text-sm">{loan.guarantor}</td>
-                      <td className="py-3 px-4 text-gray-900 text-xs sm:text-sm whitespace-nowrap">{loan.monthlyInstallment.toLocaleString()} RWF</td>
-                      <td className="py-3 px-4">
-                        <span className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(loan.status)}`}>
-                          {loan.status}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 text-gray-600 text-xs sm:text-sm whitespace-nowrap">{loan.dueDate || 'N/A'}</td>
-                      <td className="py-3 px-4 text-center">
-                        <button
-                          onClick={() => {
-                            setSelectedLoan(loan);
-                            setIsViewModalOpen(true);
-                          }}
-                          className="p-2 hover:bg-[#0B5D3B]/10 text-[#0B5D3B] rounded-lg transition-colors"
-                          title="View details"
-                        >
-                          <Eye size={16} className="sm:w-[18px] sm:h-[18px]" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+          {filteredLoans.length === 0 ? (
+            <div className="p-10 text-center text-gray-500">
+              <p className="text-lg sm:text-xl font-semibold text-gray-900">No loan requests yet</p>
+              <p className="text-sm mt-2 max-w-xl mx-auto">
+                Submit a loan request and it will appear in your loans list here.
+              </p>
             </div>
-          </div>
+          ) : (
+            <>
+              <div className="overflow-x-auto -mx-4 sm:mx-0">
+                <div className="inline-block min-w-full align-middle">
+                  <table className="min-w-full">
+                    <thead>
+                      <tr className="bg-gray-50 border-b border-gray-200">
+                        <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Amount</th>
+                        <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Duration</th>
+                        <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Description</th>
+                        <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Date</th>
+                        <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Status</th>
+                        <th className="text-center py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {paginatedLoans.map((loan) => (
+                        <tr key={loan.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                          <td className="py-3 px-4 font-semibold text-[#0B5D3B] text-xs sm:text-sm whitespace-nowrap">{loan.amount.toLocaleString()} RWF</td>
+                          <td className="py-3 px-4 text-gray-900 text-xs sm:text-sm whitespace-nowrap">{loan.duration} months</td>
+                          <td className="py-3 px-4 text-gray-900 text-xs sm:text-sm">{loan.description || 'No description'}</td>
+                          <td className="py-3 px-4 text-gray-600 text-xs sm:text-sm whitespace-nowrap">{loan.date}</td>
+                          <td className="py-3 px-4">
+                            <span className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(loan.status)}`}>
+                              {loan.status}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            <button
+                              onClick={() => {
+                                setSelectedLoan(loan);
+                                setIsViewModalOpen(true);
+                              }}
+                              className="p-2 hover:bg-[#0B5D3B]/10 text-[#0B5D3B] rounded-lg transition-colors"
+                              title="View details"
+                            >
+                              <Eye size={16} className="sm:w-[18px] sm:h-[18px]" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
 
-          <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <p className="text-xs sm:text-sm text-gray-600 text-center sm:text-left">
-              Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, filteredLoans.length)} of {filteredLoans.length}
-            </p>
-            <div className="flex gap-2 justify-center">
-              <button
-                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                className="px-3 sm:px-4 py-1.5 sm:py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Previous
-              </button>
-              <button
-                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-                className="px-3 sm:px-4 py-1.5 sm:py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Next
-              </button>
-            </div>
-          </div>
+              <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <p className="text-xs sm:text-sm text-gray-600 text-center sm:text-left">
+                  Showing {Math.min(((currentPage - 1) * itemsPerPage) + 1, filteredLoans.length)} to {Math.min(currentPage * itemsPerPage, filteredLoans.length)} of {filteredLoans.length}
+                </p>
+                <div className="flex gap-2 justify-center">
+                  <button
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    className="px-3 sm:px-4 py-1.5 sm:py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Previous
+                  </button>
+                  <button
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    className="px-3 sm:px-4 py-1.5 sm:py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
@@ -221,7 +277,6 @@ export default function LoansPage() {
                   className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
                   placeholder="Enter amount"
                 />
-                <p className="text-xs text-gray-500 mt-1">Your savings: {userSavings.toLocaleString()} RWF</p>
               </div>
 
               <div>
