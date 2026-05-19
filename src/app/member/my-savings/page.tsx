@@ -310,13 +310,13 @@ export default function MySavings() {
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
           <div className="p-4 sm:p-6 border-b border-gray-100">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <SearchBar
                 value={searchQuery}
                 onChange={setSearchQuery}
                 onSearch={() => setSearchQuery(searchQuery)}
                 placeholder="Search savings..."
-                className="flex-1 min-w-[240px] max-w-xl"
+                className="w-full max-w-[340px]"
               />
 
               <div className="relative w-full sm:w-[220px]" ref={dropdownRef}>

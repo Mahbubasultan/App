@@ -164,12 +164,13 @@ export default function Shares() {
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-          <div className="p-4 sm:p-6 border-b border-gray-100">
+          <div className="p-4 sm:p-6 border-b border-gray-100 flex items-center justify-start">
             <SearchBar
               value={searchQuery}
               onChange={setSearchQuery}
+              onSearch={() => setSearchQuery(searchQuery)}
               placeholder={t('searchPlaceholder') || 'Search...'}
-              className="max-w-[320px]"
+              className="w-full max-w-[340px]"
             />
           </div>
 
