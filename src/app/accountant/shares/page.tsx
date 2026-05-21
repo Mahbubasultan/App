@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Eye } from 'lucide-react';
 import { mockUsers } from '@/lib/mockData';
 import { AccountantTable, TableColumn } from '@/components/accountant/AccountantTable';
+import { SearchBar } from '@/components/ui/SearchBar';
 import { StatusBadge } from '@/components/accountant/StatusBadge';
 
 interface Share {
@@ -31,6 +32,8 @@ const generateSharesData = (): Share[] => {
 
 export default function SharesPage() {
   const [shares] = useState<Share[]>(generateSharesData());
+  const [searchInput, setSearchInput] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedShare, setSelectedShare] = useState<Share | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
@@ -81,6 +84,15 @@ export default function SharesPage() {
     },
   ];
 
+  const filteredShares = shares.filter((share) => {
+    if (searchQuery.trim() === '') return true;
+    const searchText = searchQuery.toLowerCase();
+    return (
+      share.memberName.toLowerCase().includes(searchText) ||
+      share.memberEmail.toLowerCase().includes(searchText)
+    );
+  });
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -91,11 +103,22 @@ export default function SharesPage() {
 
       {/* Table */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-5">
+          <SearchBar
+            value={searchInput}
+            onChange={setSearchInput}
+            onSearch={() => setSearchQuery(searchInput)}
+            placeholder="Search"
+            className="w-full max-w-[280px]"
+          />
+        </div>
+
         <AccountantTable
           columns={columns}
-          data={shares}
+          data={filteredShares}
           keyExtractor={(item) => item.id}
           rowsPerPage={10}
+          showSearch={false}
         />
       </div>
 

@@ -6,7 +6,8 @@ import { mockLoans } from '@/lib/mockData';
 import { AccountantTable, TableColumn } from '@/components/accountant/AccountantTable';
 import { StatusBadge } from '@/components/accountant/StatusBadge';
 import { ConfirmDialog } from '@/components/accountant/ConfirmDialog';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
+import { SearchBar } from '@/components/ui/SearchBar';
+import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 
 type Loan = typeof mockLoans[0];
 
@@ -19,6 +20,8 @@ const chartData = [
 
 export default function LoansPage() {
   const [loans, setLoans] = useState<Loan[]>(mockLoans);
+  const [searchInput, setSearchInput] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedLoan, setSelectedLoan] = useState<Loan | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState<{
@@ -142,6 +145,16 @@ export default function LoansPage() {
     },
   ];
 
+  const filteredLoans = loans.filter((loan) => {
+    if (searchQuery.trim() === '') return true;
+    const searchText = searchQuery.toLowerCase();
+    return (
+      loan.borrowerName.toLowerCase().includes(searchText) ||
+      loan.guarantorName.toLowerCase().includes(searchText) ||
+      loan.status.toLowerCase().includes(searchText)
+    );
+  });
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -187,11 +200,22 @@ export default function LoansPage() {
 
       {/* Table */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-5">
+          <SearchBar
+            value={searchInput}
+            onChange={setSearchInput}
+            onSearch={() => setSearchQuery(searchInput)}
+            placeholder="Search"
+            className="w-full max-w-[280px]"
+          />
+        </div>
+
         <AccountantTable
           columns={columns}
-          data={loans}
+          data={filteredLoans}
           keyExtractor={(item) => item.id}
           rowsPerPage={10}
+          showSearch={false}
         />
       </div>
 

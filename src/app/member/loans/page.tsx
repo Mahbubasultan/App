@@ -149,16 +149,15 @@ export default function LoansPage() {
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
           <div className="p-4 sm:p-6 border-b border-gray-100">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <SearchBar
                 value={searchQuery}
                 onChange={setSearchQuery}
                 onSearch={() => setSearchQuery(searchQuery)}
                 placeholder={t('searchPlaceholder') || 'Search...'}
                 className="w-full max-w-[340px]"
-                showButton={false}
               />
-              <div className="flex flex-wrap gap-2 lg:ml-auto">
+              <div className="flex flex-wrap gap-2">
                 {tabs.map((tab) => (
                   <button
                     key={tab}
@@ -172,13 +171,6 @@ export default function LoansPage() {
                     {tab}
                   </button>
                 ))}
-              </div>
-              <div className="w-full max-w-[320px]">
-                <SearchBar
-                  value={searchQuery}
-                  onChange={setSearchQuery}
-                  placeholder={t('searchPlaceholder') || 'Search...'}
-                />
               </div>
             </div>
           </div>

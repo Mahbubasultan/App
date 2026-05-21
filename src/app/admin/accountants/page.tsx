@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, Eye, X, Filter, UserCheck, Activity, Clock, CheckCircle } from 'lucide-react';
+import { Eye, X, Filter, UserCheck, Activity, Clock, CheckCircle } from 'lucide-react';
+import { SearchBar } from '@/components/ui/SearchBar';
 
 interface AccountantLog {
   id: string;
@@ -109,21 +110,13 @@ export default function AdminAccountants() {
           <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 overflow-hidden animate-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: '300ms' }}>
             {/* Filter Section */}
             <div className="p-4 sm:p-6 border-b border-gray-100">
-              <div className="flex flex-col sm:flex-row gap-3">
-                <div className="flex-1 flex gap-2">
-                  <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                    <input
-                      type="text"
-                      placeholder="Search by name or email..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#0B5D3B] focus:border-transparent transition-all"
-                    />
-                  </div>
-                  <button className="px-4 py-2 bg-[#0B5D3B] text-white rounded-xl font-medium hover:bg-[#094a2e] transition-all text-sm whitespace-nowrap active:scale-95">
-                    Search
-                  </button>
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                <div className="flex-1 min-w-0">
+                  <SearchBar
+                    value={searchQuery}
+                    onChange={setSearchQuery}
+                    placeholder="Search accountants by name or email..."
+                  />
                 </div>
 
                 <div className="relative">

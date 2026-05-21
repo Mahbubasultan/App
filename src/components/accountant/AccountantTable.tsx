@@ -20,6 +20,7 @@ interface TableProps<T extends Record<string, any>> {
   filters?: Record<string, string>;
   onFilterChange?: (filters: Record<string, string>) => void;
   loading?: boolean;
+  showSearch?: boolean;
 }
 
 export function AccountantTable<T extends Record<string, any>>({
@@ -31,6 +32,7 @@ export function AccountantTable<T extends Record<string, any>>({
   filters = {},
   onFilterChange,
   loading = false,
+  showSearch = true,
 }: TableProps<T>) {
   const [sortKey, setSortKey] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
@@ -114,17 +116,18 @@ export function AccountantTable<T extends Record<string, any>>({
 
   return (
     <div className="space-y-4">
-      {/* Search Bar */}
-      <div className="relative">
-        <Search className="absolute left-3 top-3 text-gray-400" size={18} />
-        <input
-          type="text"
-          placeholder="Search table..."
-          value={searchTerm}
-          onChange={(e) => handleSearch(e.target.value)}
-          className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0B5D3B]"
-        />
-      </div>
+      {showSearch && (
+        <div className="relative">
+          <Search className="absolute left-3 top-3 text-gray-400" size={18} />
+          <input
+            type="text"
+            placeholder="Search table..."
+            value={searchTerm}
+            onChange={(e) => handleSearch(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0B5D3B]"
+          />
+        </div>
+      )}
 
       {/* Table */}
       <div className="overflow-x-auto border border-gray-200 rounded-lg">

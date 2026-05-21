@@ -55,6 +55,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, onClose, onLogou
     { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
   ];
 
+  const roleLabel = role === 'member' ? 'Member Portal' : role === 'accountant' ? 'Accountant Portal' : 'Admin Portal';
   const links = role === 'member' ? memberLinks : role === 'accountant' ? accountantLinks : adminLinks;
 
   return (
@@ -69,32 +70,32 @@ export const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, onClose, onLogou
       
       <aside
         className={`
-          fixed lg:static inset-y-0 left-0 z-50 w-72 bg-primary
-          transform transition-transform duration-300 ease-in-out flex flex-col shadow-large
+          fixed lg:static inset-y-0 left-0 z-50 w-72 lg:w-64 bg-[#0B5D3B] text-white
+          transform transition-transform duration-300 ease-in-out flex flex-col shadow-2xl
           ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
       >
         {/* Logo */}
-        <div className="p-4 sm:p-6 border-b border-primary-light/20">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="flex items-center gap-2">
-                <Sparkles className="text-white w-5 h-5 sm:w-6 sm:h-6" />
-                <h1 className="text-xl sm:text-2xl font-bold text-white">ROSCA</h1>
+        <div className="p-4 sm:p-6 border-b border-white/10">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <Sparkles className="text-white w-5 h-5 sm:w-6 sm:h-6" />
+              <div>
+                <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">ROSCA</h1>
+                <p className="text-xs sm:text-sm text-white/70 mt-1 uppercase tracking-[0.24em]">{roleLabel}</p>
               </div>
-              <p className="text-xs sm:text-sm text-white/70 mt-1 capitalize">{role} Portal</p>
             </div>
-            <button 
-              onClick={onClose} 
+            <button
+              onClick={onClose}
               className="lg:hidden p-2 hover:bg-white/10 rounded-2xl transition-colors text-white"
             >
               <X size={20} />
             </button>
           </div>
         </div>
-        
+
         {/* Navigation */}
-        <nav className="flex-1 p-3 sm:p-4 space-y-1 sm:space-y-2 overflow-y-auto">
+        <nav className="flex-1 p-3 sm:p-4 space-y-2 overflow-y-auto">
           {links.map((link) => {
             const Icon = link.icon;
             const isActive = pathname === link.href;
@@ -104,9 +105,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, onClose, onLogou
                 href={link.href}
                 onClick={onClose}
                 className={`
-                  group flex items-center gap-3 px-3 sm:px-4 py-2 sm:py-3 rounded-xl sm:rounded-2xl transition-all duration-200
+                  group flex items-center gap-3 px-3 sm:px-4 py-3 rounded-2xl transition-all duration-200
                   ${isActive
-                    ? 'bg-white text-primary shadow-soft'
+                    ? 'bg-white/15 text-white shadow-[0_10px_30px_rgba(255,255,255,0.12)]'
                     : 'text-white/70 hover:bg-white/10 hover:text-white'
                   }
                 `}
@@ -114,7 +115,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, onClose, onLogou
                 <Icon size={18} className="flex-shrink-0 sm:w-5 sm:h-5" />
                 <span className="font-medium text-sm sm:text-base">{link.label}</span>
                 {isActive && (
-                  <div className="ml-auto w-2 h-2 rounded-full bg-primary animate-pulse" />
+                  <div className="ml-auto w-2 h-2 rounded-full bg-white animate-pulse" />
                 )}
               </Link>
             );

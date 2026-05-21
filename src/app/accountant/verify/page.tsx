@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { Search, Eye, X, Check, XCircle } from 'lucide-react';
+import { SearchBar } from '@/components/ui/SearchBar';
 
 type PaymentStatus = 'pending' | 'approved' | 'rejected';
 
@@ -175,17 +176,13 @@ export default function AccountantVerify() {
         </div>
 
         {/* Search Bar */}
-        <div className="flex flex-col sm:flex-row gap-3 animate-in slide-in-from-top-4 duration-500" style={{ animationDelay: '200ms' }}>
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-            <input
-              type="text"
-              placeholder="Search by name or transaction ID..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0B5D3B] focus:border-transparent transition-all"
-            />
-          </div>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between animate-in slide-in-from-top-4 duration-500" style={{ animationDelay: '200ms' }}>
+          <SearchBar
+            value={searchQuery}
+            onChange={setSearchQuery}
+            placeholder="Search"
+            className="w-full max-w-[280px]"
+          />
         </div>
 
         {/* Mobile Cards View */}

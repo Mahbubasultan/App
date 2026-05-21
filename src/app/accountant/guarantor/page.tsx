@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Search, Eye, X, Filter } from 'lucide-react';
+import { SearchBar } from '@/components/ui/SearchBar';
 import { ConfirmDialog } from '@/components/accountant/ConfirmDialog';
 
 const mockGuarantors = [
@@ -105,30 +106,19 @@ export default function AccountantGuarantor() {
 
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="p-4 sm:p-6 border-b border-gray-100">
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="flex-1 flex gap-2">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                <input
-                  type="text"
-                  placeholder="Search by guarantor or borrower..."
-                  value={searchInput}
-                  onChange={(e) => setSearchInput(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#0B5D3B] focus:border-transparent transition-all"
-                />
-              </div>
-              <button
-                onClick={() => setSearchQuery(searchInput)}
-                className="px-4 py-2 bg-[#0B5D3B] text-white rounded-xl font-medium hover:bg-[#094a2e] transition-all text-sm whitespace-nowrap"
-              >
-                Search
-              </button>
-            </div>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <SearchBar
+              value={searchInput}
+              onChange={setSearchInput}
+              onSearch={() => setSearchQuery(searchInput)}
+              placeholder="Search"
+              className="w-full max-w-[280px]"
+            />
 
             <div className="relative">
               <button
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
-                className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-xl bg-white hover:bg-gray-50 transition-all text-sm font-medium text-gray-700"
+                className="flex items-center justify-between gap-2 min-w-[170px] px-4 py-3 border border-gray-300 rounded-2xl bg-white shadow-sm hover:shadow-md transition-all duration-300 text-sm font-medium text-gray-700"
               >
                 <Filter size={18} />
                 <span>{statusFilter}</span>
@@ -137,7 +127,7 @@ export default function AccountantGuarantor() {
               {isFilterOpen && (
                 <>
                   <div className="fixed inset-0 z-10" onClick={() => setIsFilterOpen(false)} />
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-20 animate-in fade-in-0 zoom-in-95 duration-200">
+                  <div className="absolute right-0 mt-3 w-[220px] bg-white rounded-2xl shadow-xl border border-gray-200 py-2 z-20 transition-all duration-200 ease-out">
                     {['All', 'Approved', 'Pending', 'Rejected', 'On Hold'].map((status) => (
                       <button
                         key={status}
@@ -145,8 +135,8 @@ export default function AccountantGuarantor() {
                           setStatusFilter(status);
                           setIsFilterOpen(false);
                         }}
-                        className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 transition-colors ${
-                          statusFilter === status ? 'bg-[#0B5D3B]/10 text-[#0B5D3B] font-semibold' : 'text-gray-700'
+                        className={`w-full text-left px-4 py-3 text-sm rounded-xl transition-all duration-200 ${
+                          statusFilter === status ? 'bg-[#0B5D3B] text-white font-semibold' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
                         }`}
                       >
                         {status}

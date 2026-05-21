@@ -25,7 +25,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, role, userName, userIm
   };
 
   return (
-    <div className="flex min-h-screen bg-background-gray overflow-hidden">
+    <div className="flex min-h-screen bg-slate-50 text-slate-900 overflow-hidden">
       <Sidebar role={role} isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} onLogout={handleLogout} />
       
       <div className="flex-1 flex flex-col overflow-hidden">

@@ -4,9 +4,11 @@ import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Megaphone, Plus, Calendar, Users, Edit, Trash2 } from 'lucide-react';
+import { SearchBar } from '@/components/ui/SearchBar';
 import AnnouncementModal from '@/components/admin/AnnouncementModal';
 
 export default function AnnouncementsPage() {
+  const [searchQuery, setSearchQuery] = useState('');
   const [announcements, setAnnouncements] = useState([
     {
       id: 1,
@@ -62,21 +64,35 @@ export default function AnnouncementsPage() {
     setIsModalOpen(false);
   };
 
+  const filteredAnnouncements = announcements.filter((announcement) =>
+    announcement.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    announcement.message.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="space-y-4 sm:space-y-6 animate-in fade-in-0 duration-500">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 animate-in slide-in-from-top-4 duration-500">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between animate-in slide-in-from-top-4 duration-500">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Announcements</h1>
             <p className="text-xs sm:text-sm text-gray-600 mt-1">Create and manage group communications</p>
           </div>
-          <Button onClick={handleCreate} className="flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-start">
-            <Plus size={16} />
-            New Announcement
-          </Button>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <SearchBar
+              value={searchQuery}
+              onChange={setSearchQuery}
+              placeholder="Search announcements..."
+              showButton={false}
+              className="max-w-md"
+            />
+            <Button onClick={handleCreate} className="flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-start">
+              <Plus size={16} />
+              New Announcement
+            </Button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 animate-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: '100ms' }}>
-          {announcements.map((announcement) => (
+          {filteredAnnouncements.map((announcement) => (
             <Card key={announcement.id} hover>
               <CardContent>
                 <div className="flex items-start justify-between mb-3">
@@ -119,7 +135,7 @@ export default function AnnouncementsPage() {
           ))}
         </div>
 
-        {announcements.length === 0 && (
+        {filteredAnnouncements.length === 0 && (
           <Card>
             <CardContent>
               <div className="text-center py-8 sm:py-12">
