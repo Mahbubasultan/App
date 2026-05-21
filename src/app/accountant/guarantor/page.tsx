@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, Eye, X, Filter } from 'lucide-react';
+import { Eye, X } from 'lucide-react';
 import { SearchBar } from '@/components/ui/SearchBar';
 import { ConfirmDialog } from '@/components/accountant/ConfirmDialog';
 
@@ -12,9 +12,9 @@ const mockGuarantors = [
 export default function AccountantGuarantor() {
   const [searchInput, setSearchInput] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('All');
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [activeStatus, setActiveStatus] = useState('All');
   const [guarantors, setGuarantors] = useState(mockGuarantors);
+  const tabs = ['All', 'Approved', 'Pending', 'Rejected', 'On Hold'];
   const [selectedGuarantor, setSelectedGuarantor] = useState<any>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState<{
@@ -71,7 +71,7 @@ export default function AccountantGuarantor() {
       searchQuery === '' ||
       guarantor.guarantorName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       guarantor.borrowerName.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === 'All' || guarantor.status === statusFilter;
+    const matchesStatus = activeStatus === 'All' || guarantor.status === activeStatus;
     return matchesSearch && matchesStatus;
   });
 
@@ -106,46 +106,30 @@ export default function AccountantGuarantor() {
 
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="p-4 sm:p-6 border-b border-gray-100">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-wrap gap-2">
+              {tabs.map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveStatus(tab)}
+                  className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                    activeStatus === tab
+                      ? 'bg-[#0B5D3B] text-white shadow-sm'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
             <SearchBar
               value={searchInput}
               onChange={setSearchInput}
               onSearch={() => setSearchQuery(searchInput)}
-              placeholder="Search"
-              className="w-full max-w-[280px]"
+              onClear={() => setSearchQuery('')}
+              placeholder="Search by guarantor, borrower, or status..."
+              className="w-full max-w-[320px]"
             />
-
-            <div className="relative">
-              <button
-                onClick={() => setIsFilterOpen(!isFilterOpen)}
-                className="flex items-center justify-between gap-2 min-w-[170px] px-4 py-3 border border-gray-300 rounded-2xl bg-white shadow-sm hover:shadow-md transition-all duration-300 text-sm font-medium text-gray-700"
-              >
-                <Filter size={18} />
-                <span>{statusFilter}</span>
-              </button>
-              
-              {isFilterOpen && (
-                <>
-                  <div className="fixed inset-0 z-10" onClick={() => setIsFilterOpen(false)} />
-                  <div className="absolute right-0 mt-3 w-[220px] bg-white rounded-2xl shadow-xl border border-gray-200 py-2 z-20 transition-all duration-200 ease-out">
-                    {['All', 'Approved', 'Pending', 'Rejected', 'On Hold'].map((status) => (
-                      <button
-                        key={status}
-                        onClick={() => {
-                          setStatusFilter(status);
-                          setIsFilterOpen(false);
-                        }}
-                        className={`w-full text-left px-4 py-3 text-sm rounded-xl transition-all duration-200 ${
-                          statusFilter === status ? 'bg-[#0B5D3B] text-white font-semibold' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
-                        }`}
-                      >
-                        {status}
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
           </div>
         </div>
 

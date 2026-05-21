@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Plus, Eye, ChevronDown, X } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { Plus, Eye, X } from 'lucide-react';
 import { SearchBar } from '@/components/ui/SearchBar';
 import { useLocalSavings } from '@/hooks/useLocalSavings';
 import { getUserSession } from '@/lib/auth';
@@ -35,12 +35,12 @@ export default function MySavings() {
   const { records, addSaving, updateSaving, isLoading } = useLocalSavings();
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('All');
+  const [activeTab, setActiveTab] = useState('Overview');
+  const tabs = ['Overview', 'Transactions', 'History', 'Analytics'];
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedSaving, setSelectedSaving] = useState<SavingRecord | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [storageError, setStorageError] = useState<string | null>(null);
   const [viewError, setViewError] = useState<string | null>(null);
   const [viewImagePreview, setViewImagePreview] = useState<string | null>(null);
@@ -51,25 +51,8 @@ export default function MySavings() {
 
   const [userName, setUserName] = useState('Member');
 
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
   const [formData, setFormData] = useState<SavingDraft>(initialDraft);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setIsDropdownOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-
-    return () =>
-      document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   useEffect(() => {
     try {
@@ -114,16 +97,11 @@ export default function MySavings() {
 
   const filteredSavings = useMemo(() => {
     return records.filter((saving) => {
-      const matchesSearch = saving.shareName
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase());
-
-      const matchesStatus =
-        statusFilter === 'All' || saving.status === statusFilter;
-
-      return matchesSearch && matchesStatus;
+      const lowerSearch = searchQuery.toLowerCase();
+      return saving.shareName.toLowerCase().includes(lowerSearch) ||
+        saving.status.toLowerCase().includes(lowerSearch);
     });
-  }, [records, searchQuery, statusFilter]);
+  }, [records, searchQuery]);
 
   const totalPages = Math.ceil(filteredSavings.length / itemsPerPage);
 
@@ -286,8 +264,6 @@ export default function MySavings() {
     }
   };
 
-  const statusOptions = ['All', 'Approved', 'Pending', 'Rejected'];
-
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -310,52 +286,33 @@ export default function MySavings() {
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
           <div className="p-4 sm:p-6 border-b border-gray-100">
+            <div className="flex flex-col gap-4">
+            <div className="flex flex-wrap items-center gap-2">
+              {tabs.map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                    activeTab === tab
+                      ? 'bg-[#0B5D3B] text-white shadow-lg'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <SearchBar
                 value={searchQuery}
                 onChange={setSearchQuery}
                 onSearch={() => setSearchQuery(searchQuery)}
-                placeholder="Search savings..."
-                className="w-full max-w-[340px]"
+                onClear={() => setSearchQuery('')}
+                placeholder="Search by name, status, or amount..."
+                className="w-full max-w-[420px]"
               />
-
-              <div className="relative w-full sm:w-[220px]" ref={dropdownRef}>
-                <button
-                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="w-full px-4 py-2 text-sm border border-gray-300 rounded-xl bg-white flex items-center justify-between"
-                >
-                  <span>{statusFilter}</span>
-
-                  <ChevronDown
-                    size={18}
-                    className={`transition-transform ${
-                      isDropdownOpen ? 'rotate-180' : ''
-                    }`}
-                  />
-                </button>
-
-                {isDropdownOpen && (
-                  <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-xl z-20 overflow-hidden">
-                    {statusOptions.map((option) => (
-                      <button
-                        key={option}
-                        onClick={() => {
-                          setStatusFilter(option);
-                          setIsDropdownOpen(false);
-                        }}
-                        className={`w-full text-left px-4 py-2 text-sm ${
-                          statusFilter === option
-                            ? 'bg-[#0B5D3B] text-white'
-                            : 'text-gray-700 hover:bg-gray-50'
-                        }`}
-                      >
-                        {option}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
             </div>
+          </div>
           </div>
 
           <div className="overflow-x-auto">

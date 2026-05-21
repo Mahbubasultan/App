@@ -7,16 +7,8 @@ import { AccountantTable, TableColumn } from '@/components/accountant/Accountant
 import { StatusBadge } from '@/components/accountant/StatusBadge';
 import { ConfirmDialog } from '@/components/accountant/ConfirmDialog';
 import { SearchBar } from '@/components/ui/SearchBar';
-import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 
 type Loan = typeof mockLoans[0];
-
-const chartData = [
-  { month: 'Jan', accepted: 3, rejected: 1, onHold: 0 },
-  { month: 'Feb', accepted: 5, rejected: 1, onHold: 1 },
-  { month: 'Mar', accepted: 7, rejected: 2, onHold: 1 },
-  { month: 'Apr', accepted: 8, rejected: 2, onHold: 2 },
-];
 
 export default function LoansPage() {
   const [loans, setLoans] = useState<Loan[]>(mockLoans);
@@ -163,41 +155,6 @@ export default function LoansPage() {
         <p className="text-gray-600 mt-1">Manage member loans and guarantors</p>
       </div>
 
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">Loan Status Trend</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip />
-              <Line type="monotone" dataKey="accepted" stroke="#10B981" strokeWidth={2} name="Accepted" />
-              <Line type="monotone" dataKey="rejected" stroke="#EF4444" strokeWidth={2} name="Rejected" />
-              <Line type="monotone" dataKey="onHold" stroke="#F59E0B" strokeWidth={2} name="On Hold" />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">Loan Distribution</h3>
-          <div className="space-y-3">
-            {[
-              { label: 'Pending', value: loans.filter(l => l.status === 'pending').length, color: 'text-amber-600', bg: 'bg-amber-50' },
-              { label: 'Approved', value: loans.filter(l => l.status === 'approved').length, color: 'text-green-600', bg: 'bg-green-50' },
-              { label: 'Rejected', value: loans.filter(l => l.status === 'rejected').length, color: 'text-red-600', bg: 'bg-red-50' },
-              { label: 'On Hold', value: loans.filter(l => l.status === 'on_hold').length, color: 'text-blue-600', bg: 'bg-blue-50' },
-            ].map((item) => (
-              <div key={item.label} className={`${item.bg} rounded-lg p-4 flex items-center justify-between`}>
-                <p className="font-medium text-gray-900">{item.label}</p>
-                <p className={`text-2xl font-bold ${item.color}`}>{item.value}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
       {/* Table */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-5">
@@ -205,8 +162,9 @@ export default function LoansPage() {
             value={searchInput}
             onChange={setSearchInput}
             onSearch={() => setSearchQuery(searchInput)}
-            placeholder="Search"
-            className="w-full max-w-[280px]"
+            onClear={() => setSearchQuery('')}
+            placeholder="Search by name, guarantor, or status..."
+            className="w-full max-w-[320px]"
           />
         </div>
 

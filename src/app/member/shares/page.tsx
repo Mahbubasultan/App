@@ -5,8 +5,14 @@ import { Plus, Eye, X, Edit, Trash2 } from 'lucide-react';
 import { SearchBar } from '@/components/ui/SearchBar';
 import { useSettings } from '@/context/SettingsContext';
 
-const mockShares = [
-  // Production-ready: Start with empty array, shares will be loaded from database
+const defaultShares: ShareRecord[] = [
+  { id: 'SHR-1001', name: 'Jean Baptiste', value: 60000, totalContributed: 72000, createdDate: '2024-02-14', status: 'Approved' },
+  { id: 'SHR-1002', name: 'Marie Claire', value: 45000, totalContributed: 45000, createdDate: '2024-02-08', status: 'Pending' },
+  { id: 'SHR-1003', name: 'Eric Habimana', value: 90000, totalContributed: 150000, createdDate: '2024-01-30', status: 'Approved' },
+  { id: 'SHR-1004', name: 'Grace Umutoni', value: 30000, totalContributed: 30000, createdDate: '2024-03-05', status: 'Pending' },
+  { id: 'SHR-1005', name: 'Patrick Nkunda', value: 52000, totalContributed: 52000, createdDate: '2024-02-22', status: 'Approved' },
+  { id: 'SHR-1006', name: 'David Mugisha', value: 80000, totalContributed: 88000, createdDate: '2024-01-18', status: 'Approved' },
+  { id: 'SHR-1007', name: 'Grace Uwera', value: 35000, totalContributed: 35000, createdDate: '2024-03-12', status: 'Pending' },
 ];
 
 interface ShareRecord {
@@ -21,15 +27,13 @@ interface ShareRecord {
 export default function Shares() {
   const { t } = useSettings();
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('All');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [selectedShare, setSelectedShare] = useState<any>(null);
+  const [selectedShare, setSelectedShare] = useState<ShareRecord | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const [shares, setShares] = useState<ShareRecord[]>([]);
+  const [pageSize, setPageSize] = useState(10);
+  const [shares, setShares] = useState<ShareRecord[]>(defaultShares);
 
   useEffect(() => {
     const saved = localStorage.getItem('memberShares');
@@ -43,14 +47,8 @@ export default function Shares() {
   }, []);
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setStatusFilter('All');
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+    setCurrentPage(1);
+  }, [searchQuery, pageSize]);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -58,15 +56,18 @@ export default function Shares() {
   });
 
   const filteredShares = shares.filter((share) => {
-    const matchesSearch = share.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === 'All' || share.status === statusFilter;
-    return matchesSearch && matchesStatus;
+    const lowerSearch = searchQuery.toLowerCase();
+    return (
+      share.name.toLowerCase().includes(lowerSearch) ||
+      share.id.toLowerCase().includes(lowerSearch) ||
+      share.status.toLowerCase().includes(lowerSearch)
+    );
   });
 
-  const totalPages = Math.ceil(filteredShares.length / itemsPerPage);
+  const totalPages = Math.max(1, Math.ceil(filteredShares.length / pageSize));
   const paginatedShares = filteredShares.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
   );
 
   const handleEdit = (share: ShareRecord) => {
@@ -164,14 +165,29 @@ export default function Shares() {
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-          <div className="p-4 sm:p-6 border-b border-gray-100 flex items-center justify-start">
-            <SearchBar
-              value={searchQuery}
-              onChange={setSearchQuery}
-              onSearch={() => setSearchQuery(searchQuery)}
-              placeholder={t('searchPlaceholder') || 'Search...'}
-              className="w-full max-w-[340px]"
-            />
+          <div className="p-4 sm:p-6 border-b border-gray-100 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="w-full max-w-[420px]">
+              <SearchBar
+                value={searchQuery}
+                onChange={setSearchQuery}
+                onSearch={() => setSearchQuery(searchQuery)}
+                onClear={() => setSearchQuery('')}
+                placeholder="Search by name, ID, email, etc…"
+                className="w-full"
+              />
+            </div>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+              <div className="text-sm text-gray-600">Rows per page</div>
+              <select
+                value={pageSize}
+                onChange={(e) => setPageSize(Number(e.target.value))}
+                className="w-full sm:w-auto rounded-full border border-gray-300 bg-white px-4 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+              >
+                {[10, 25, 50].map((size) => (
+                  <option key={size} value={size}>{size}</option>
+                ))}
+              </select>
+            </div>
           </div>
 
           {filteredShares.length === 0 ? (
@@ -199,6 +215,7 @@ export default function Shares() {
                     <tbody>
                       {paginatedShares.map((share) => (
                         <tr key={share.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                          <td className="py-3 px-4 font-medium text-gray-900 text-xs sm:text-sm">{share.id}</td>
                           <td className="py-3 px-4 font-medium text-gray-900 text-xs sm:text-sm">{share.name}</td>
                           <td className="py-3 px-4 text-gray-900 text-xs sm:text-sm whitespace-nowrap">{share.value.toLocaleString()} RWF</td>
                           <td className="py-3 px-4 text-gray-900 text-xs sm:text-sm whitespace-nowrap">{share.totalContributed.toLocaleString()} RWF</td>
@@ -208,17 +225,31 @@ export default function Shares() {
                               {share.status}
                             </span>
                           </td>
-                          <td className="py-3 px-4">
-                            <div className="flex items-center justify-center">
+                          <td className="py-3 px-4 text-center">
+                            <div className="inline-flex items-center justify-center gap-2">
                               <button
                                 onClick={() => {
                                   setSelectedShare(share);
                                   setIsViewModalOpen(true);
                                 }}
-                                className="p-2 hover:bg-[#0B5D3B]/10 text-[#0B5D3B] rounded-lg transition-colors"
-                                title="View details"
+                                className="p-2 rounded-full bg-[#0B5D3B]/5 text-[#0B5D3B] hover:bg-[#0B5D3B]/10 transition-colors"
+                                title="View"
                               >
-                                <Eye size={16} className="sm:w-[18px] sm:h-[18px]" />
+                                <Eye size={16} />
+                              </button>
+                              <button
+                                onClick={() => handleEdit(share)}
+                                className="p-2 rounded-full bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors"
+                                title="Edit"
+                              >
+                                <Edit size={16} />
+                              </button>
+                              <button
+                                onClick={() => handleDelete(share.id)}
+                                className="p-2 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors"
+                                title="Delete"
+                              >
+                                <Trash2 size={16} />
                               </button>
                             </div>
                           </td>
@@ -231,9 +262,9 @@ export default function Shares() {
 
               <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <p className="text-xs sm:text-sm text-gray-600 text-center sm:text-left">
-                  Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, filteredShares.length)} of {filteredShares.length}
+                  Showing {filteredShares.length === 0 ? 0 : (currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, filteredShares.length)} of {filteredShares.length}
                 </p>
-                <div className="flex gap-2 justify-center">
+                <div className="flex flex-wrap gap-2 justify-center items-center">
                   <button
                     onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                     disabled={currentPage === 1}
@@ -241,6 +272,15 @@ export default function Shares() {
                   >
                     Previous
                   </button>
+                  {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`px-3 sm:px-4 py-1.5 sm:py-2 text-sm rounded-lg ${currentPage === page ? 'bg-[#0B5D3B] text-white' : 'border border-gray-300 hover:bg-gray-50'}`}
+                    >
+                      {page}
+                    </button>
+                  ))}
                   <button
                     onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                     disabled={currentPage === totalPages}

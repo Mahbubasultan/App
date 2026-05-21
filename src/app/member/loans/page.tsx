@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Plus, Eye, X } from 'lucide-react';
+import { Plus, Eye, X, Edit, Trash2 } from 'lucide-react';
 import { SearchBar } from '@/components/ui/SearchBar';
 import { useToast } from '@/components/ui/Toast';
 import { useSettings } from '@/context/SettingsContext';
@@ -35,6 +35,7 @@ export default function LoansPage() {
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedLoan, setSelectedLoan] = useState<LoanRequest | null>(null);
+  const [editLoan, setEditLoan] = useState<LoanRequest | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
   const { success } = useToast();
@@ -96,25 +97,29 @@ export default function LoansPage() {
     }
 
     const monthlyInstallment = Number(((formData.amount * 1.05) / formData.duration).toFixed(0));
-    const newRequest: LoanRequest = {
-      id: `loan-${Date.now()}`,
+    const baseLoan: LoanRequest = {
+      id: editLoan?.id || `loan-${Date.now()}`,
       amount: formData.amount,
       duration: formData.duration,
       description: formData.description,
-      date: new Date().toLocaleDateString(),
-      status: 'Pending',
+      date: editLoan?.date || new Date().toLocaleDateString(),
+      status: editLoan?.status || 'Pending',
       monthlyInstallment,
-      dueDate: new Date(Date.now() + formData.duration * 30 * 24 * 60 * 60 * 1000)
+      dueDate: editLoan?.dueDate || new Date(Date.now() + formData.duration * 30 * 24 * 60 * 60 * 1000)
         .toLocaleDateString(),
       guarantor: selectedGuarantor?.name || 'N/A',
     };
 
-    const updatedRequests = [newRequest, ...loanRequests];
+    const updatedRequests = editLoan
+      ? loanRequests.map((loan) => (loan.id === editLoan.id ? baseLoan : loan))
+      : [baseLoan, ...loanRequests];
+
     setLoanRequests(updatedRequests);
     localStorage.setItem('memberLoanRequests', JSON.stringify(updatedRequests));
     setIsRequestModalOpen(false);
+    setEditLoan(null);
     setFormData({ amount: 0, duration: 6, description: '', guarantorId: '' });
-    success('Loan request saved successfully');
+    success(editLoan ? 'Loan request updated successfully' : 'Loan request saved successfully');
   };
 
   const getStatusColor = (status: string) => {
@@ -210,16 +215,47 @@ export default function LoansPage() {
                             </span>
                           </td>
                           <td className="py-3 px-4 text-center">
-                            <button
-                              onClick={() => {
-                                setSelectedLoan(loan);
-                                setIsViewModalOpen(true);
-                              }}
-                              className="p-2 hover:bg-[#0B5D3B]/10 text-[#0B5D3B] rounded-lg transition-colors"
-                              title="View details"
-                            >
-                              <Eye size={16} className="sm:w-[18px] sm:h-[18px]" />
-                            </button>
+                            <div className="inline-flex items-center justify-center gap-2">
+                              <button
+                                onClick={() => {
+                                  setSelectedLoan(loan);
+                                  setIsViewModalOpen(true);
+                                }}
+                                className="p-2 rounded-full bg-[#0B5D3B]/5 text-[#0B5D3B] hover:bg-[#0B5D3B]/10 transition-colors"
+                                title="View"
+                              >
+                                <Eye size={16} />
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setEditLoan(loan);
+                                  setFormData({
+                                    amount: loan.amount,
+                                    duration: loan.duration,
+                                    description: loan.description,
+                                    guarantorId: '',
+                                  });
+                                  setIsRequestModalOpen(true);
+                                }}
+                                className="p-2 rounded-full bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors"
+                                title="Edit"
+                              >
+                                <Edit size={16} />
+                              </button>
+                              <button
+                                onClick={() => {
+                                  if (confirm('Delete this loan request?')) {
+                                    const updated = loanRequests.filter((item) => item.id !== loan.id);
+                                    setLoanRequests(updated);
+                                    localStorage.setItem('memberLoanRequests', JSON.stringify(updated));
+                                  }
+                                }}
+                                className="p-2 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors"
+                                title="Delete"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -259,7 +295,7 @@ export default function LoansPage() {
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in-0 duration-200">
           <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
             <div className="bg-[#0B5D3B] px-6 py-5 flex items-center justify-between sticky top-0">
-              <h2 className="text-xl font-bold text-white">Request Loan</h2>
+              <h2 className="text-xl font-bold text-white">{editLoan ? 'Edit Loan Request' : 'Request Loan'}</h2>
               <button
                 onClick={() => setIsRequestModalOpen(false)}
                 className="p-1.5 hover:bg-white/20 rounded-lg transition-colors"
