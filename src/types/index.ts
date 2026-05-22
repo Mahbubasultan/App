@@ -58,6 +58,7 @@ export interface Loan {
   monthlyPayment: number;
   totalRepayment: number;
   status: LoanStatus;
+  date?: string;
   guarantorAccepted: boolean;
   approvedBy?: string;
   approvedAt?: Date;

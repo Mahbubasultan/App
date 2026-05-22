@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Eye, X, Filter, UserCheck, Activity, Clock, CheckCircle } from 'lucide-react';
+import ActionCell from '@/components/ui/ActionCell';
 import { SearchBar } from '@/components/ui/SearchBar';
 
 interface AccountantLog {
@@ -180,15 +181,7 @@ export default function AdminAccountants() {
                         </span>
                       </td>
                       <td className="py-3 px-4 text-center">
-                        <button
-                          onClick={() => {
-                            setSelectedAccountant(accountant);
-                            setIsViewModalOpen(true);
-                          }}
-                          className="p-2 hover:bg-[#0B5D3B]/10 text-[#0B5D3B] rounded-lg transition-all active:scale-95"
-                        >
-                          <Eye size={16} />
-                        </button>
+                        <ActionCell onView={() => { setSelectedAccountant(accountant); setIsViewModalOpen(true); }} />
                       </td>
                     </tr>
                   ))}

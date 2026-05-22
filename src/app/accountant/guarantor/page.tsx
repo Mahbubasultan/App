@@ -1,70 +1,29 @@
 'use client';
 
 import { useState } from 'react';
-import { Eye, X } from 'lucide-react';
+import { Eye, Edit, Trash2, X } from 'lucide-react';
+import ActionCell from '@/components/ui/ActionCell';
+import GenericEditModal from '@/components/ui/GenericEditModal';
 import { SearchBar } from '@/components/ui/SearchBar';
 import { ConfirmDialog } from '@/components/accountant/ConfirmDialog';
+import { mockGuarantors } from '@/lib/mockData';
 
-const mockGuarantors = [
-  // Production-ready: Start with empty array, guarantors will be loaded from database
-];
+type Guarantor = typeof mockGuarantors[0];
 
 export default function AccountantGuarantor() {
   const [searchInput, setSearchInput] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeStatus, setActiveStatus] = useState('All');
-  const [guarantors, setGuarantors] = useState(mockGuarantors);
+  const [guarantors, setGuarantors] = useState<Guarantor[]>(mockGuarantors);
   const tabs = ['All', 'Approved', 'Pending', 'Rejected', 'On Hold'];
-  const [selectedGuarantor, setSelectedGuarantor] = useState<any>(null);
+  const [selectedGuarantor, setSelectedGuarantor] = useState<Guarantor | null>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [confirmDialog, setConfirmDialog] = useState<{
-    isOpen: boolean;
-    action: 'Approve' | 'Reject' | 'Hold' | null;
-    guarantor: typeof mockGuarantors[number] | null;
-  }>({ isOpen: false, action: null, guarantor: null });
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editFormData, setEditFormData] = useState<Partial<Guarantor> | null>(null);
+  const [deleteGuarantor, setDeleteGuarantor] = useState<Guarantor | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-
-  const handleGuarantorAction = (guarantor: typeof mockGuarantors[number], action: 'Approve' | 'Reject' | 'Hold') => {
-    setConfirmDialog({ isOpen: true, action, guarantor });
-  };
-
-  const confirmAction = async () => {
-    if (!confirmDialog.action || !confirmDialog.guarantor) return;
-
-    setIsProcessing(true);
-    await new Promise((resolve) => setTimeout(resolve, 500));
-
-    const statusMap: Record<'Approve' | 'Reject' | 'Hold', string> = {
-      Approve: 'Approved',
-      Reject: 'Rejected',
-      Hold: 'On Hold',
-    };
-
-    const updatedStatus = statusMap[confirmDialog.action];
-    const updatedGuarantor = {
-      ...confirmDialog.guarantor,
-      status: updatedStatus,
-    };
-
-    setGuarantors((current) =>
-      current.map((item) =>
-        item.id === confirmDialog.guarantor?.id ? updatedGuarantor : item
-      )
-    );
-
-    if (selectedGuarantor?.id === confirmDialog.guarantor.id) {
-      setSelectedGuarantor(updatedGuarantor);
-    }
-
-    setConfirmDialog({ isOpen: false, action: null, guarantor: null });
-    setIsProcessing(false);
-  };
-
-  const cancelAction = () => {
-    setConfirmDialog({ isOpen: false, action: null, guarantor: null });
-  };
 
   const filteredGuarantors = guarantors.filter(guarantor => {
     const matchesSearch = 
@@ -97,6 +56,23 @@ export default function AccountantGuarantor() {
     return 'text-red-600';
   };
 
+  const saveGuarantorChanges = () => {
+    if (selectedGuarantor && editFormData) {
+      setGuarantors((current) =>
+        current.map((item) =>
+          item.id === selectedGuarantor.id
+            ? ({ ...item, ...editFormData } as Guarantor)
+            : item
+        )
+      );
+      setSelectedGuarantor((prev) => (prev ? ({ ...prev, ...editFormData } as Guarantor) : prev));
+    }
+    setIsEditMode(false);
+    setEditFormData(null);
+    setIsViewModalOpen(false);
+    setIsEditModalOpen(false);
+  };
+
   return (
     <div className="space-y-4 sm:space-y-6">
       <div>
@@ -106,8 +82,22 @@ export default function AccountantGuarantor() {
 
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="p-4 sm:p-6 border-b border-gray-100">
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-wrap gap-2">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <SearchBar
+              value={searchInput}
+              onChange={(value) => {
+                setSearchInput(value);
+                setSearchQuery(value);
+              }}
+              onSearch={() => setSearchQuery(searchInput)}
+              onClear={() => {
+                setSearchInput('');
+                setSearchQuery('');
+              }}
+              placeholder="Search by guarantor or borrower..."
+              className="w-full lg:max-w-[420px]"
+            />
+            <div className="flex flex-wrap gap-2 justify-start lg:justify-end">
               {tabs.map((tab) => (
                 <button
                   key={tab}
@@ -122,14 +112,6 @@ export default function AccountantGuarantor() {
                 </button>
               ))}
             </div>
-            <SearchBar
-              value={searchInput}
-              onChange={setSearchInput}
-              onSearch={() => setSearchQuery(searchInput)}
-              onClear={() => setSearchQuery('')}
-              placeholder="Search by guarantor, borrower, or status..."
-              className="w-full max-w-[320px]"
-            />
           </div>
         </div>
 
@@ -157,41 +139,24 @@ export default function AccountantGuarantor() {
                       </span>
                     </td>
                     <td className="py-3 px-4 text-center">
-                      <div className="flex flex-col sm:flex-row items-center justify-center gap-2">
-                        <button
-                          onClick={() => {
-                            setSelectedGuarantor(guarantor);
-                            setIsViewModalOpen(true);
-                          }}
-                          className="p-2 hover:bg-[#0B5D3B]/10 text-[#0B5D3B] rounded-lg transition-colors"
-                          title="View details"
-                        >
-                          <Eye size={16} className="sm:w-[18px] sm:h-[18px]" />
-                        </button>
-                        {guarantor.status !== 'Approved' && guarantor.status !== 'Rejected' && (
-                          <div className="flex gap-1 flex-wrap justify-center">
-                            <button
-                              onClick={() => handleGuarantorAction(guarantor, 'Approve')}
-                              className="px-3 py-1 text-xs font-semibold text-white bg-green-600 rounded-full hover:bg-green-700 transition-colors"
-                            >
-                              Approve
-                            </button>
-                            <button
-                              onClick={() => handleGuarantorAction(guarantor, 'Reject')}
-                              className="px-3 py-1 text-xs font-semibold text-white bg-red-600 rounded-full hover:bg-red-700 transition-colors"
-                            >
-                              Reject
-                            </button>
-                            <button
-                              onClick={() => handleGuarantorAction(guarantor, 'Hold')}
-                              className="px-3 py-1 text-xs font-semibold text-white bg-amber-600 rounded-full hover:bg-amber-700 transition-colors"
-                            >
-                              Hold
-                            </button>
-                          </div>
-                        )}
-                      </div>
+                      <ActionCell
+                        onView={() => {
+                          setSelectedGuarantor(guarantor);
+                          setIsEditMode(false);
+                          setEditFormData(null);
+                          setIsViewModalOpen(true);
+                        }}
+                        onEdit={() => {
+                          setSelectedGuarantor(guarantor);
+                          setEditFormData(guarantor);
+                          setIsEditMode(true);
+                          setIsViewModalOpen(false);
+                          setIsEditModalOpen(true);
+                        }}
+                        onDelete={() => setDeleteGuarantor(guarantor)}
+                      />
                     </td>
+
                   </tr>
                 ))}
               </tbody>
@@ -199,11 +164,11 @@ export default function AccountantGuarantor() {
           </div>
         </div>
 
-        <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <p className="text-xs sm:text-sm text-gray-600 text-center sm:text-left">
             Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, filteredGuarantors.length)} of {filteredGuarantors.length}
           </p>
-          <div className="flex gap-2 justify-center">
+          <div className="flex gap-2 justify-center flex-wrap">
             <button
               onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
               disabled={currentPage === 1}
@@ -211,6 +176,19 @@ export default function AccountantGuarantor() {
             >
               Previous
             </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <button
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                className={`px-3 sm:px-4 py-1.5 sm:py-2 text-sm rounded-lg transition ${
+                  currentPage === page
+                    ? 'bg-[#0B5D3B] text-white font-semibold'
+                    : 'border border-gray-300 hover:bg-gray-50 text-gray-700'
+                }`}
+              >
+                {page}
+              </button>
+            ))}
             <button
               onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
@@ -233,93 +211,153 @@ export default function AccountantGuarantor() {
             </div>
 
             <div className="p-6 overflow-y-auto touch-pan-y flex-1">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Guarantor Information */}
-                <div className="col-span-full bg-gradient-to-r from-[#0B5D3B]/10 to-green-50 rounded-xl p-4 border border-[#0B5D3B]/20">
-                  <h3 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
-                    <div className="w-8 h-8 bg-[#0B5D3B] rounded-full flex items-center justify-center text-white font-bold">
-                      {selectedGuarantor.guarantorName.charAt(0)}
+              {isEditMode && editFormData ? (
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                      <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Guarantor Name</label>
+                      <input
+                        type="text"
+                        value={editFormData.guarantorName || ''}
+                        onChange={(e) => setEditFormData({ ...editFormData, guarantorName: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      />
                     </div>
-                    Guarantor Information
-                  </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                      <p className="text-xs text-gray-600 mb-1">Full Name</p>
-                      <p className="text-sm font-bold text-gray-900">{selectedGuarantor.guarantorName}</p>
+                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                      <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Guarantor Phone</label>
+                      <input
+                        type="text"
+                        value={editFormData.guarantorPhone || ''}
+                        onChange={(e) => setEditFormData({ ...editFormData, guarantorPhone: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      />
                     </div>
-                    <div>
-                      <p className="text-xs text-gray-600 mb-1">Phone Number</p>
-                      <p className="text-sm font-semibold text-gray-900">{selectedGuarantor.guarantorPhone}</p>
+                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                      <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Guarantor Email</label>
+                      <input
+                        type="email"
+                        value={editFormData.guarantorEmail || ''}
+                        onChange={(e) => setEditFormData({ ...editFormData, guarantorEmail: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      />
                     </div>
-                    <div className="sm:col-span-2">
-                      <p className="text-xs text-gray-600 mb-1">Email Address</p>
-                      <p className="text-sm font-semibold text-gray-900">{selectedGuarantor.guarantorEmail}</p>
+                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                      <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Borrower Name</label>
+                      <input
+                        type="text"
+                        value={editFormData.borrowerName || ''}
+                        onChange={(e) => setEditFormData({ ...editFormData, borrowerName: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      />
+                    </div>
+                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                      <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Borrower Phone</label>
+                      <input
+                        type="text"
+                        value={editFormData.borrowerPhone || ''}
+                        onChange={(e) => setEditFormData({ ...editFormData, borrowerPhone: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      />
+                    </div>
+                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                      <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Borrower Email</label>
+                      <input
+                        type="email"
+                        value={editFormData.borrowerEmail || ''}
+                        onChange={(e) => setEditFormData({ ...editFormData, borrowerEmail: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      />
+                    </div>
+                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-200 md:col-span-2">
+                      <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Status</label>
+                      <select
+                        value={editFormData.status || ''}
+                        onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      >
+                        <option value="Approved">Approved</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Rejected">Rejected</option>
+                        <option value="On Hold">On Hold</option>
+                      </select>
                     </div>
                   </div>
-                </div>
 
-                {/* Borrower Information */}
-                <div className="col-span-full bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-4 border border-blue-200">
-                  <h3 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
-                    <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">
-                      {selectedGuarantor.borrowerName.charAt(0)}
-                    </div>
-                    Borrower Information
-                  </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                      <p className="text-xs text-gray-600 mb-1">Full Name</p>
-                      <p className="text-sm font-bold text-gray-900">{selectedGuarantor.borrowerName}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-600 mb-1">Phone Number</p>
-                      <p className="text-sm font-semibold text-gray-900">{selectedGuarantor.borrowerPhone}</p>
-                    </div>
-                    <div className="sm:col-span-2">
-                      <p className="text-xs text-gray-600 mb-1">Email Address</p>
-                      <p className="text-sm font-semibold text-gray-900">{selectedGuarantor.borrowerEmail}</p>
-                    </div>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <button
+                      onClick={saveGuarantorChanges}
+                      className="flex-1 bg-[#0B5D3B] text-white rounded-xl py-3 font-semibold hover:bg-[#094a2e] transition-colors"
+                    >
+                      Save Changes
+                    </button>
+                    <button
+                      onClick={() => {
+                        setIsEditMode(false);
+                        setEditFormData(null);
+                      }}
+                      className="flex-1 bg-gray-200 text-gray-700 rounded-xl py-3 font-semibold hover:bg-gray-300 transition-colors"
+                    >
+                      Cancel
+                    </button>
                   </div>
                 </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="col-span-full bg-gray-50 rounded-xl p-4 border border-gray-200">
+                    <h3 className="text-sm font-bold text-gray-900 mb-3">Guarantor Information</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <p className="text-xs text-gray-600 mb-1">Full Name</p>
+                        <p className="text-sm font-bold text-gray-900">{selectedGuarantor.guarantorName}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-600 mb-1">Phone Number</p>
+                        <p className="text-sm font-semibold text-gray-900">{selectedGuarantor.guarantorPhone}</p>
+                      </div>
+                      <div className="sm:col-span-2">
+                        <p className="text-xs text-gray-600 mb-1">Email Address</p>
+                        <p className="text-sm font-semibold text-gray-900">{selectedGuarantor.guarantorEmail}</p>
+                      </div>
+                    </div>
+                  </div>
 
-                {/* Loan Details */}
-                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                  <p className="text-xs font-semibold text-gray-600 mb-1">Loan Amount</p>
-                  <p className="text-base font-bold text-[#0B5D3B]">{selectedGuarantor.loanAmount.toLocaleString()} RWF</p>
+                  <div className="col-span-full bg-gray-50 rounded-xl p-4 border border-gray-200">
+                    <h3 className="text-sm font-bold text-gray-900 mb-3">Borrower Information</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <p className="text-xs text-gray-600 mb-1">Full Name</p>
+                        <p className="text-sm font-bold text-gray-900">{selectedGuarantor.borrowerName}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-600 mb-1">Phone Number</p>
+                        <p className="text-sm font-semibold text-gray-900">{selectedGuarantor.borrowerPhone}</p>
+                      </div>
+                      <div className="sm:col-span-2">
+                        <p className="text-xs text-gray-600 mb-1">Email Address</p>
+                        <p className="text-sm font-semibold text-gray-900">{selectedGuarantor.borrowerEmail}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="col-span-full bg-gray-50 rounded-xl p-4 border border-gray-200">
+                    <p className="text-xs font-semibold text-gray-600 mb-1">Status</p>
+                    <span className={`inline-block px-3 py-1.5 rounded-full text-xs font-medium ${getStatusColor(selectedGuarantor.status)}`}>
+                      {selectedGuarantor.status}
+                    </span>
+                  </div>
                 </div>
-                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                  <p className="text-xs font-semibold text-gray-600 mb-1">Coverage</p>
-                  <p className={`text-base font-bold ${getCoverageColor(selectedGuarantor.coverage)}`}>
-                    {selectedGuarantor.coverage} {parseFloat(selectedGuarantor.coverage) >= 100 ? '✓' : '✗'}
-                  </p>
-                </div>
-                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                  <p className="text-xs font-semibold text-gray-600 mb-1">Guarantor Savings</p>
-                  <p className="text-base font-bold text-green-600">{selectedGuarantor.guarantorSavings.toLocaleString()} RWF</p>
-                </div>
-                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                  <p className="text-xs font-semibold text-gray-600 mb-1">Borrower Savings</p>
-                  <p className="text-base font-bold text-blue-600">{selectedGuarantor.borrowerSavings.toLocaleString()} RWF</p>
-                </div>
-                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                  <p className="text-xs font-semibold text-gray-600 mb-1">Combined Savings</p>
-                  <p className="text-base font-bold text-purple-600">{selectedGuarantor.combinedSavings.toLocaleString()} RWF</p>
-                </div>
-                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                  <p className="text-xs font-semibold text-gray-600 mb-1">Date</p>
-                  <p className="text-base font-bold text-gray-900">{selectedGuarantor.date}</p>
-                </div>
-                <div className="col-span-full bg-gray-50 rounded-xl p-4 border border-gray-200">
-                  <p className="text-xs font-semibold text-gray-600 mb-1">Status</p>
-                  <span className={`inline-block px-3 py-1.5 rounded-full text-xs font-medium ${getStatusColor(selectedGuarantor.status)}`}>
-                    {selectedGuarantor.status}
-                  </span>
-                </div>
-              </div>
+              )}
             </div>
 
             <div className="p-6 border-t border-gray-200 flex-shrink-0">
-              <button onClick={() => setIsViewModalOpen(false)} className="w-full px-4 py-3 bg-[#0B5D3B] text-white rounded-xl font-semibold hover:bg-[#094a2e] transition-all">
+              <button
+                onClick={() => {
+                  setIsViewModalOpen(false);
+                  setIsEditMode(false);
+                  setEditFormData(null);
+                }}
+                className="w-full px-4 py-3 bg-[#0B5D3B] text-white rounded-xl font-semibold hover:bg-[#094a2e] transition-all"
+              >
                 Close
               </button>
             </div>
@@ -327,15 +365,101 @@ export default function AccountantGuarantor() {
         </div>
       )}
 
+      {/* Edit Modal (standardized) */}
+      <GenericEditModal
+        title="Edit Guarantor"
+        isOpen={isEditModalOpen}
+        onClose={() => { setIsEditModalOpen(false); setIsEditMode(false); setEditFormData(null); }}
+        onSave={saveGuarantorChanges}
+        saveLabel="Save Changes"
+        maxWidth="max-w-2xl"
+      >
+        {editFormData && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+              <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Guarantor Name</label>
+              <input
+                type="text"
+                value={editFormData.guarantorName || ''}
+                onChange={(e) => setEditFormData({ ...editFormData, guarantorName: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+              />
+            </div>
+            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+              <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Guarantor Phone</label>
+              <input
+                type="text"
+                value={editFormData.guarantorPhone || ''}
+                onChange={(e) => setEditFormData({ ...editFormData, guarantorPhone: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+              />
+            </div>
+            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+              <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Guarantor Email</label>
+              <input
+                type="email"
+                value={editFormData.guarantorEmail || ''}
+                onChange={(e) => setEditFormData({ ...editFormData, guarantorEmail: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+              />
+            </div>
+            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+              <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Borrower Name</label>
+              <input
+                type="text"
+                value={editFormData.borrowerName || ''}
+                onChange={(e) => setEditFormData({ ...editFormData, borrowerName: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+              />
+            </div>
+            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+              <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Borrower Phone</label>
+              <input
+                type="text"
+                value={editFormData.borrowerPhone || ''}
+                onChange={(e) => setEditFormData({ ...editFormData, borrowerPhone: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+              />
+            </div>
+            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+              <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Borrower Email</label>
+              <input
+                type="email"
+                value={editFormData.borrowerEmail || ''}
+                onChange={(e) => setEditFormData({ ...editFormData, borrowerEmail: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+              />
+            </div>
+            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200 md:col-span-2">
+              <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Status</label>
+              <select
+                value={editFormData.status || ''}
+                onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+              >
+                <option value="Approved">Approved</option>
+                <option value="Pending">Pending</option>
+                <option value="Rejected">Rejected</option>
+                <option value="On Hold">On Hold</option>
+              </select>
+            </div>
+          </div>
+        )}
+      </GenericEditModal>
+
       <ConfirmDialog
-        isOpen={confirmDialog.isOpen}
-        title={`${confirmDialog.action} Guarantor`}
-        message={`Are you sure you want to ${confirmDialog.action?.toLowerCase()} this guarantor request?`}
-        confirmText={confirmDialog.action === 'Reject' ? 'Reject' : confirmDialog.action === 'Hold' ? 'Hold' : 'Approve'}
-        variant={confirmDialog.action === 'Reject' ? 'danger' : confirmDialog.action === 'Hold' ? 'warning' : 'default'}
-        onConfirm={confirmAction}
-        onCancel={cancelAction}
-        isLoading={isProcessing}
+        isOpen={Boolean(deleteGuarantor)}
+        title="Delete Guarantor"
+        message={`Are you sure you want to delete the guarantor request for ${deleteGuarantor?.guarantorName}?`}
+        confirmText="Delete"
+        variant="danger"
+        onConfirm={() => {
+          if (deleteGuarantor) {
+            setGuarantors((current) => current.filter((item) => item.id !== deleteGuarantor.id));
+          }
+          setDeleteGuarantor(null);
+        }}
+        onCancel={() => setDeleteGuarantor(null)}
       />
     </div>
   );

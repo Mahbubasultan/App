@@ -1,6 +1,7 @@
 'use client';
 
 import { Eye } from 'lucide-react';
+import ActionCell from '@/components/ui/ActionCell';
 import { Loan } from '@/types';
 
 interface LoanTableProps {
@@ -134,14 +135,8 @@ export const LoanTable: React.FC<LoanTableProps> = ({ loans, onView, onAction })
                     {loan.createdAt.toLocaleDateString()}
                   </span>
                 </td>
-                <td className="px-4 sm:px-5 py-3 sm:py-4">
-                  <button
-                    onClick={() => onView(loan)}
-                    className="p-2 hover:bg-green-50 text-green-600 rounded-xl transition-colors"
-                    title="View details"
-                  >
-                    <Eye size={16} />
-                  </button>
+                <td className="px-4 sm:px-5 py-3 sm:py-4 text-center">
+                  <ActionCell onView={() => onView(loan)} />
                 </td>
               </tr>
             ))}

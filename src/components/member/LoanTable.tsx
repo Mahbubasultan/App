@@ -3,6 +3,7 @@
 import { Badge } from '@/components/ui/Badge';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import { Eye, Calendar, DollarSign, User, CheckCircle, Clock } from 'lucide-react';
+import ActionCell from '@/components/ui/ActionCell';
 import { Loan } from '@/types';
 
 interface LoanTableProps {
@@ -132,13 +133,7 @@ export const LoanTable: React.FC<LoanTableProps> = ({ loans, onViewDetails }) =>
                   <span className="text-sm text-text-gray">{formatDate(loan.createdAt)}</span>
                 </td>
                 <td className="py-4 px-4 text-center">
-                  <button
-                    onClick={() => onViewDetails(loan)}
-                    className="inline-flex items-center gap-2 px-3 py-2 bg-primary/10 text-primary rounded-lg hover:bg-primary hover:text-white transition-all duration-300 active:scale-95"
-                  >
-                    <Eye size={16} />
-                    <span className="text-sm font-medium">View</span>
-                  </button>
+                  <ActionCell onView={() => onViewDetails(loan)} />
                 </td>
               </tr>
             ))}

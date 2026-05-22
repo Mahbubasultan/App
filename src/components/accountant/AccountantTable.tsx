@@ -8,6 +8,7 @@ export interface TableColumn<T> {
   label: string;
   sortable?: boolean;
   filterable?: boolean;
+  align?: 'left' | 'center' | 'right';
   render?: (value: any, row: T) => React.ReactNode;
 }
 
@@ -137,7 +138,7 @@ export function AccountantTable<T extends Record<string, any>>({
               {columns.map((col) => (
                 <th
                   key={String(col.key)}
-                  className="px-4 py-3 text-left text-sm font-semibold text-gray-900"
+                  className={`px-4 py-3 text-${col.align ? col.align : 'left'} text-sm font-semibold text-gray-900`}
                 >
                   <button
                     onClick={() => col.sortable && handleSort(String(col.key))}
@@ -177,7 +178,7 @@ export function AccountantTable<T extends Record<string, any>>({
                   className={`border-b border-gray-200 ${onRowClick ? 'hover:bg-gray-50 cursor-pointer' : ''}`}
                 >
                   {columns.map((col) => (
-                    <td key={String(col.key)} className="px-4 py-3 text-sm text-gray-700">
+                    <td key={String(col.key)} className={`px-4 py-3 text-sm text-gray-700 text-${col.align ? col.align : 'left'}`}>
                       {col.render
                         ? col.render(item[String(col.key)], item)
                         : String(item[String(col.key)] || '-')}

@@ -17,16 +17,8 @@ const chartData = [
 const loanStats = [
   { name: 'Active', value: 8, color: '#0B5D3B' },
   { name: 'Pending', value: 4, color: '#F59E0B' },
-  { name: 'Repaid', value: 12, color: '#10B981' },
+  { name: 'Repaid', value: 12, color: '#2563EB' },
   { name: 'Overdue', value: 2, color: '#EF4444' },
-];
-
-const memberContributions = [
-  { name: 'Jean Baptiste', amount: 250000 },
-  { name: 'Marie Claire', amount: 360000 },
-  { name: 'Patrick Nkunda', amount: 500000 },
-  { name: 'Eric Habimana', amount: 280000 },
-  { name: 'Grace Uwera', amount: 190000 },
 ];
 
 // Calculate summary stats
@@ -44,7 +36,7 @@ export default function AccountantDashboard() {
       title: 'Total Savings',
       value: `${(summaryData.totalSavings / 1000000).toFixed(2)}M RWF`,
       icon: Wallet,
-      color: 'from-blue-500 to-blue-600',
+      iconColor: 'bg-emerald-100 text-emerald-700',
       route: '/accountant/savings',
       trend: '+12.5%',
     },
@@ -52,7 +44,7 @@ export default function AccountantDashboard() {
       title: 'Total Shares',
       value: summaryData.totalShares.toLocaleString(),
       icon: Layers,
-      color: 'from-purple-500 to-purple-600',
+      iconColor: 'bg-blue-100 text-blue-700',
       route: '/accountant/shares',
       trend: '+8.3%',
     },
@@ -60,7 +52,7 @@ export default function AccountantDashboard() {
       title: 'Total Loans',
       value: `${(summaryData.totalLoans / 1000000).toFixed(2)}M RWF`,
       icon: Banknote,
-      color: 'from-orange-500 to-orange-600',
+      iconColor: 'bg-orange-100 text-orange-700',
       route: '/accountant/loans',
       trend: '+15.7%',
     },
@@ -93,8 +85,8 @@ export default function AccountantDashboard() {
                     <span className="text-green-600 font-semibold">{card.trend}</span>
                   </div>
                 </div>
-                <div className={`bg-gradient-to-br ${card.color} p-3 rounded-xl`}>
-                  <Icon size={24} className="text-white" />
+                <div className={`${card.iconColor} p-3 rounded-xl`}>
+                  <Icon size={24} />
                 </div>
               </div>
             </div>
@@ -114,7 +106,8 @@ export default function AccountantDashboard() {
               <YAxis />
               <Tooltip formatter={(value: number) => value.toLocaleString()} />
               <Legend />
-              <Line type="monotone" dataKey="savings" stroke="#3B82F6" strokeWidth={2} name="Savings (RWF)" />
+              <Line type="monotone" dataKey="savings" stroke="#0B5D3B" strokeWidth={2} name="Savings (RWF)" />
+              <Line type="monotone" dataKey="shares" stroke="#2563EB" strokeWidth={2} name="Shares" />
               <Line type="monotone" dataKey="loans" stroke="#F59E0B" strokeWidth={2} name="Loans (RWF)" />
             </LineChart>
           </ResponsiveContainer>
@@ -156,23 +149,6 @@ export default function AccountantDashboard() {
         </div>
       </div>
 
-      {/* Top Members Bar Chart */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-        <h3 className="text-lg font-bold text-gray-900 mb-4">Top Member Contributions</h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart
-            data={memberContributions}
-            layout="vertical"
-            margin={{ top: 5, right: 20, left: 120, bottom: 5 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-            <XAxis type="number" />
-            <YAxis dataKey="name" type="category" width={110} />
-            <Tooltip formatter={(value: number) => `${value.toLocaleString()} RWF`} />
-            <Bar dataKey="amount" fill="#0B5D3B" radius={[0, 8, 8, 0]} />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
     </div>
   );
 }

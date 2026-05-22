@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Eye, X, Filter, Ban, Lock, Unlock, UserX, UserCheck, Mail, Phone } from 'lucide-react';
+import ActionCell from '@/components/ui/ActionCell';
 import { SearchBar } from '@/components/ui/SearchBar';
 
 interface User {
@@ -233,18 +234,9 @@ export default function AdminUserManagement() {
                       {user.status}
                     </span>
                   </td>
-                  <td className="py-3 px-4">
-                    <div className="flex items-center justify-center gap-1">
-                      <button
-                        onClick={() => {
-                          setSelectedUser(user);
-                          setIsViewModalOpen(true);
-                        }}
-                        className="p-1.5 hover:bg-blue-50 text-blue-600 rounded-lg transition-all active:scale-95"
-                        title="View"
-                      >
-                        <Eye size={16} />
-                      </button>
+                      <td className="py-3 px-4 text-center">
+                        <div className="flex items-center justify-center gap-2">
+                          <ActionCell onView={() => { setSelectedUser(user); setIsViewModalOpen(true); }} />
                       {user.status === 'active' && (
                         <>
                           <button

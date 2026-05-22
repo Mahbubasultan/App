@@ -1,8 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, Filter, Eye, X } from 'lucide-react';
+import { Eye, Edit, Trash2, X } from 'lucide-react';
 import { SearchBar } from '@/components/ui/SearchBar';
+import { ConfirmDialog } from '@/components/accountant/ConfirmDialog';
+import ActionCell from '@/components/ui/ActionCell';
+import GenericEditModal from '@/components/ui/GenericEditModal';
 
 const mockSavings = [
   { id: 1, memberName: 'Jean Baptiste', shareName: 'Emergency Fund', amount: 50000, date: '2024-01-15', status: 'Approved', phone: '+250788123456', email: 'jean@email.com', transactionId: 'TXN001', shares: 25 },
@@ -17,20 +20,31 @@ const mockSavings = [
 export default function AccountantSavings() {
   const [searchInput, setSearchInput] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('All');
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('Overview');
+  const tabs = ['Overview', 'Transactions', 'History', 'Analytics'];
+  const [savings, setSavings] = useState(mockSavings);
   const [selectedSaving, setSelectedSaving] = useState<any>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editFormData, setEditFormData] = useState<any>(null);
+  const [deleteSaving, setDeleteSaving] = useState<any>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  const filteredSavings = mockSavings.filter(saving => {
-    const matchesSearch = 
+  const filteredSavings = savings.filter(saving => {
+    const lowerSearch = searchQuery.toLowerCase();
+    const matchesSearch =
       searchQuery === '' ||
-      saving.memberName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      saving.shareName.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === 'All' || saving.status === statusFilter;
-    return matchesSearch && matchesStatus;
+      saving.memberName.toLowerCase().includes(lowerSearch) ||
+      saving.shareName.toLowerCase().includes(lowerSearch) ||
+      saving.status.toLowerCase().includes(lowerSearch);
+    const matchesTab =
+      activeTab === 'Overview' ||
+      activeTab === 'Transactions' ||
+      (activeTab === 'History' && saving.status === 'Rejected') ||
+      activeTab === 'Analytics';
+    return matchesSearch && matchesTab;
   });
 
   const totalPages = Math.ceil(filteredSavings.length / itemsPerPage);
@@ -38,6 +52,18 @@ export default function AccountantSavings() {
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
+
+  const saveSavingChanges = () => {
+    if (!editFormData) return;
+    setSavings((current) =>
+      current.map((item) => (item.id === editFormData.id ? editFormData : item))
+    );
+    setSelectedSaving(editFormData);
+    setIsEditMode(false);
+    setEditFormData(null);
+    setIsViewModalOpen(false);
+    setIsEditModalOpen(false);
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -58,48 +84,36 @@ export default function AccountantSavings() {
 
       {/* Content Card */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-        {/* Filter Section */}
         <div className="p-4 sm:p-6 border-b border-gray-100">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <SearchBar
               value={searchInput}
-              onChange={setSearchInput}
+              onChange={(value) => {
+                setSearchInput(value);
+                setSearchQuery(value);
+              }}
               onSearch={() => setSearchQuery(searchInput)}
-              placeholder="Search"
-              className="w-full max-w-[280px]"
+              onClear={() => {
+                setSearchInput('');
+                setSearchQuery('');
+              }}
+              placeholder="Search savings by member, share, or status..."
+              className="w-full lg:max-w-[420px]"
             />
-
-            {/* Filter */}
-            <div className="relative">
-              <button
-                onClick={() => setIsFilterOpen(!isFilterOpen)}
-                className="flex items-center justify-between gap-2 min-w-[170px] px-4 py-3 border border-gray-300 rounded-2xl bg-white shadow-sm hover:shadow-md transition-all duration-300 text-sm font-medium text-gray-700"
-              >
-                <Filter size={18} />
-                <span>{statusFilter}</span>
-              </button>
-              
-              {isFilterOpen && (
-                <>
-                  <div className="fixed inset-0 z-10" onClick={() => setIsFilterOpen(false)} />
-                  <div className="absolute right-0 mt-3 w-[220px] bg-white rounded-2xl shadow-xl border border-gray-200 py-2 z-20 transition-all duration-200 ease-out">
-                    {['All', 'Approved', 'Pending', 'Rejected'].map((status) => (
-                      <button
-                        key={status}
-                        onClick={() => {
-                          setStatusFilter(status);
-                          setIsFilterOpen(false);
-                        }}
-                        className={`w-full text-left px-4 py-3 text-sm rounded-xl transition-all duration-200 ${
-                          statusFilter === status ? 'bg-[#0B5D3B] text-white font-semibold' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
-                        }`}
-                      >
-                        {status}
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
+            <div className="flex flex-wrap gap-2 justify-start lg:justify-end">
+              {tabs.map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                    activeTab === tab
+                      ? 'bg-[#0B5D3B] text-white shadow-sm'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
             </div>
           </div>
         </div>
@@ -127,16 +141,22 @@ export default function AccountantSavings() {
                       </span>
                     </td>
                     <td className="py-3 px-4 text-center">
-                      <button
-                        onClick={() => {
+                      <ActionCell
+                        onView={() => {
                           setSelectedSaving(saving);
+                          setEditFormData(null);
+                          setIsEditMode(false);
                           setIsViewModalOpen(true);
                         }}
-                        className="p-2 hover:bg-[#0B5D3B]/10 text-[#0B5D3B] rounded-lg transition-colors"
-                        title="View details"
-                      >
-                        <Eye size={16} className="sm:w-[18px] sm:h-[18px]" />
-                      </button>
+                        onEdit={() => {
+                          setSelectedSaving(saving);
+                          setEditFormData(saving);
+                          setIsEditMode(true);
+                          setIsViewModalOpen(false);
+                          setIsEditModalOpen(true);
+                        }}
+                        onDelete={() => setDeleteSaving(saving)}
+                      />
                     </td>
                   </tr>
                 ))}
@@ -146,11 +166,11 @@ export default function AccountantSavings() {
         </div>
 
         {/* Pagination */}
-        <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <p className="text-xs sm:text-sm text-gray-600 text-center sm:text-left">
             Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, filteredSavings.length)} of {filteredSavings.length}
           </p>
-          <div className="flex gap-2 justify-center">
+          <div className="flex gap-2 justify-center flex-wrap">
             <button
               onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
               disabled={currentPage === 1}
@@ -158,6 +178,19 @@ export default function AccountantSavings() {
             >
               Previous
             </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <button
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                className={`px-3 sm:px-4 py-1.5 sm:py-2 text-sm rounded-lg transition ${
+                  currentPage === page
+                    ? 'bg-[#0B5D3B] text-white font-semibold'
+                    : 'border border-gray-300 hover:bg-gray-50 text-gray-700'
+                }`}
+              >
+                {page}
+              </button>
+            ))}
             <button
               onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
@@ -184,59 +217,180 @@ export default function AccountantSavings() {
             </div>
 
             <div className="p-6 overflow-y-auto touch-pan-y flex-1">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Member Information */}
-                <div className="col-span-full bg-gradient-to-r from-[#0B5D3B]/10 to-blue-50 rounded-xl p-4 border border-[#0B5D3B]/20">
-                  <h3 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
-                    <div className="w-8 h-8 bg-[#0B5D3B] rounded-full flex items-center justify-center text-white font-bold">
-                      {selectedSaving.memberName.charAt(0)}
+              {isEditMode && editFormData ? (
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                      <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Member Name</label>
+                      <input
+                        type="text"
+                        value={editFormData.memberName}
+                        onChange={(e) => setEditFormData({ ...editFormData, memberName: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      />
                     </div>
-                    Member Information
-                  </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                      <p className="text-xs text-gray-600 mb-1">Full Name</p>
-                      <p className="text-sm font-bold text-gray-900">{selectedSaving.memberName}</p>
+                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                      <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Share Name</label>
+                      <input
+                        type="text"
+                        value={editFormData.shareName}
+                        onChange={(e) => setEditFormData({ ...editFormData, shareName: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      />
                     </div>
-                    <div>
-                      <p className="text-xs text-gray-600 mb-1">Phone Number</p>
-                      <p className="text-sm font-semibold text-gray-900">{selectedSaving.phone}</p>
+                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                      <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Amount</label>
+                      <input
+                        type="number"
+                        value={editFormData.amount}
+                        onChange={(e) => setEditFormData({ ...editFormData, amount: Number(e.target.value) })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      />
                     </div>
-                    <div className="sm:col-span-2">
-                      <p className="text-xs text-gray-600 mb-1">Email Address</p>
-                      <p className="text-sm font-semibold text-gray-900">{selectedSaving.email}</p>
+                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                      <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Status</label>
+                      <select
+                        value={editFormData.status}
+                        onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      >
+                        <option value="Approved">Approved</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Rejected">Rejected</option>
+                      </select>
+                    </div>
+                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-200 md:col-span-2">
+                      <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Transaction ID</label>
+                      <input
+                        type="text"
+                        value={editFormData.transactionId}
+                        onChange={(e) => setEditFormData({ ...editFormData, transactionId: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      />
                     </div>
                   </div>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <button
+                      onClick={saveSavingChanges}
+                      className="flex-1 bg-[#0B5D3B] text-white rounded-xl py-3 font-semibold hover:bg-[#094a2e] transition-colors"
+                    >
+                      Save Changes
+                    </button>
+                    <button
+                      onClick={() => {
+                        setIsEditMode(false);
+                        setEditFormData(null);
+                      }}
+                      className="flex-1 bg-gray-200 text-gray-700 rounded-xl py-3 font-semibold hover:bg-gray-300 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
                 </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Member Information */}
+                  <div className="col-span-full bg-gray-50 rounded-xl p-4 border border-gray-200">
+                    <h3 className="text-sm font-bold text-gray-900 mb-3">Member Information</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <p className="text-xs text-gray-600 mb-1">Full Name</p>
+                        <p className="text-sm font-bold text-gray-900">{selectedSaving.memberName}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-600 mb-1">Phone Number</p>
+                        <p className="text-sm font-semibold text-gray-900">{selectedSaving.phone}</p>
+                      </div>
+                      <div className="sm:col-span-2">
+                        <p className="text-xs text-gray-600 mb-1">Email Address</p>
+                        <p className="text-sm font-semibold text-gray-900">{selectedSaving.email}</p>
+                      </div>
+                    </div>
+                  </div>
 
-                {/* Savings Details */}
-                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                  <p className="text-xs font-semibold text-gray-600 mb-1">Share Name</p>
-                  <p className="text-base font-bold text-gray-900">{selectedSaving.shareName}</p>
+                  {/* Savings Details */}
+                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                    <p className="text-xs font-semibold text-gray-600 mb-1">Share Name</p>
+                    <p className="text-base font-bold text-gray-900">{selectedSaving.shareName}</p>
+                  </div>
+                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                    <p className="text-xs font-semibold text-gray-600 mb-1">Amount</p>
+                    <p className="text-base font-bold text-[#0B5D3B]">{selectedSaving.amount.toLocaleString()} RWF</p>
+                  </div>
+                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                    <p className="text-xs font-semibold text-gray-600 mb-1">Shares Earned</p>
+                    <p className="text-base font-bold text-gray-900">{selectedSaving.shares}</p>
+                  </div>
+                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                    <p className="text-xs font-semibold text-gray-600 mb-1">Transaction ID</p>
+                    <p className="text-base font-bold text-gray-900">{selectedSaving.transactionId}</p>
+                  </div>
+                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                    <p className="text-xs font-semibold text-gray-600 mb-1">Date</p>
+                    <p className="text-base font-bold text-gray-900">{selectedSaving.date}</p>
+                  </div>
+                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                    <p className="text-xs font-semibold text-gray-600 mb-1">Status</p>
+                    <span className={`inline-block px-3 py-1.5 rounded-full text-xs font-medium ${getStatusColor(selectedSaving.status)}`}>
+                      {selectedSaving.status}
+                    </span>
+                  </div>
                 </div>
-                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                  <p className="text-xs font-semibold text-gray-600 mb-1">Amount</p>
-                  <p className="text-base font-bold text-[#0B5D3B]">{selectedSaving.amount.toLocaleString()} RWF</p>
-                </div>
-                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                  <p className="text-xs font-semibold text-gray-600 mb-1">Shares Earned</p>
-                  <p className="text-base font-bold text-blue-600">{selectedSaving.shares}</p>
-                </div>
-                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                  <p className="text-xs font-semibold text-gray-600 mb-1">Transaction ID</p>
-                  <p className="text-base font-bold text-gray-900">{selectedSaving.transactionId}</p>
-                </div>
-                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                  <p className="text-xs font-semibold text-gray-600 mb-1">Date</p>
-                  <p className="text-base font-bold text-gray-900">{selectedSaving.date}</p>
-                </div>
-                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                  <p className="text-xs font-semibold text-gray-600 mb-1">Status</p>
-                  <span className={`inline-block px-3 py-1.5 rounded-full text-xs font-medium ${getStatusColor(selectedSaving.status)}`}>
-                    {selectedSaving.status}
-                  </span>
-                </div>
-              </div>
+              )}
+
+                {/* Standard Edit Modal for savings */}
+                <GenericEditModal
+                  title="Edit Saving"
+                  isOpen={isEditModalOpen}
+                  onClose={() => { setIsEditModalOpen(false); setIsEditMode(false); setEditFormData(null); }}
+                  onSave={saveSavingChanges}
+                  saveLabel="Save Changes"
+                  maxWidth="max-w-2xl"
+                >
+                  {editFormData && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                        <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Member Name</label>
+                        <input
+                          type="text"
+                          value={editFormData.memberName}
+                          onChange={(e) => setEditFormData({ ...editFormData, memberName: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        />
+                      </div>
+                      <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                        <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Share Name</label>
+                        <input
+                          type="text"
+                          value={editFormData.shareName}
+                          onChange={(e) => setEditFormData({ ...editFormData, shareName: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        />
+                      </div>
+                      <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                        <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Amount</label>
+                        <input
+                          type="number"
+                          value={editFormData.amount}
+                          onChange={(e) => setEditFormData({ ...editFormData, amount: Number(e.target.value) })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        />
+                      </div>
+                      <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                        <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Status</label>
+                        <select
+                          value={editFormData.status}
+                          onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        >
+                          <option value="Approved">Approved</option>
+                          <option value="Pending">Pending</option>
+                          <option value="Rejected">Rejected</option>
+                        </select>
+                      </div>
+                    </div>
+                  )}
+                </GenericEditModal>
             </div>
 
             <div className="p-6 border-t border-gray-200 flex-shrink-0">
@@ -250,6 +404,21 @@ export default function AccountantSavings() {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        isOpen={Boolean(deleteSaving)}
+        title="Delete Saving"
+        message={`Are you sure you want to delete the savings entry for ${deleteSaving?.memberName}?`}
+        confirmText="Delete"
+        variant="danger"
+        onConfirm={() => {
+          if (deleteSaving) {
+            setSavings((current) => current.filter((item) => item.id !== deleteSaving.id));
+          }
+          setDeleteSaving(null);
+        }}
+        onCancel={() => setDeleteSaving(null)}
+      />
     </div>
   );
 }

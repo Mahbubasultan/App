@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { CheckCircle, XCircle, Clock, Eye } from 'lucide-react';
+import { Eye, Edit, Trash2, X } from 'lucide-react';
+import ActionCell from '@/components/ui/ActionCell';
+import GenericEditModal from '@/components/ui/GenericEditModal';
 import { mockLoans } from '@/lib/mockData';
-import { AccountantTable, TableColumn } from '@/components/accountant/AccountantTable';
 import { StatusBadge } from '@/components/accountant/StatusBadge';
 import { ConfirmDialog } from '@/components/accountant/ConfirmDialog';
 import { SearchBar } from '@/components/ui/SearchBar';
@@ -15,127 +16,13 @@ export default function LoansPage() {
   const [searchInput, setSearchInput] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLoan, setSelectedLoan] = useState<Loan | null>(null);
+  const [loanForm, setLoanForm] = useState<Loan | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
-  const [confirmDialog, setConfirmDialog] = useState<{
-    isOpen: boolean;
-    action: 'accept' | 'reject' | 'hold' | null;
-    loan: Loan | null;
-  }>({ isOpen: false, action: null, loan: null });
-  const [isProcessing, setIsProcessing] = useState(false);
-
-  const handleAction = (loan: Loan, action: 'accept' | 'reject' | 'hold') => {
-    setConfirmDialog({ isOpen: true, action, loan });
-  };
-
-  const confirmAction = async () => {
-    if (!confirmDialog.action || !confirmDialog.loan) return;
-
-    setIsProcessing(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    const statusMap = {
-      accept: 'approved',
-      reject: 'rejected',
-      hold: 'on_hold',
-    };
-
-    setLoans(loans.map(loan =>
-      loan.id === confirmDialog.loan.id ? { ...loan, status: statusMap[confirmDialog.action] as any } : loan
-    ));
-
-    if (selectedLoan?.id === confirmDialog.loan.id) {
-      setSelectedLoan({
-        ...selectedLoan,
-        status: statusMap[confirmDialog.action] as any,
-      });
-    }
-
-    setConfirmDialog({ isOpen: false, action: null, loan: null });
-    setIsProcessing(false);
-  };
-
-  const columns: TableColumn<Loan>[] = [
-    {
-      key: 'borrowerName',
-      label: 'Member Name',
-      sortable: true,
-    },
-    {
-      key: 'amount',
-      label: 'Loan Amount',
-      sortable: true,
-      render: (value) => `${(value / 1000).toFixed(0)}K RWF`,
-    },
-    {
-      key: 'duration',
-      label: 'Duration',
-      sortable: true,
-      render: (value) => `${value} months`,
-    },
-    {
-      key: 'guarantorName',
-      label: 'Guarantor',
-      sortable: true,
-    },
-    {
-      key: 'status',
-      label: 'Status',
-      render: (value) => <StatusBadge status={value} />,
-    },
-    {
-      key: 'id',
-      label: 'Actions',
-      render: (_, row) => (
-        row.status === 'pending' ? (
-          <div className="flex gap-2">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleAction(row, 'accept');
-              }}
-              className="p-1 text-green-600 hover:bg-green-50 rounded transition-colors"
-              title="Accept"
-            >
-              <CheckCircle size={18} />
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleAction(row, 'reject');
-              }}
-              className="p-1 text-red-600 hover:bg-red-50 rounded transition-colors"
-              title="Reject"
-            >
-              <XCircle size={18} />
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleAction(row, 'hold');
-              }}
-              className="p-1 text-amber-600 hover:bg-amber-50 rounded transition-colors"
-              title="Hold"
-            >
-              <Clock size={18} />
-            </button>
-          </div>
-        ) : (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setSelectedLoan(row);
-              setIsDetailOpen(true);
-            }}
-            className="flex items-center gap-2 px-3 py-1 text-[#0B5D3B] hover:bg-[#0B5D3B]/10 rounded-lg transition-colors"
-          >
-            <Eye size={16} />
-            View
-          </button>
-        )
-      ),
-    },
-  ];
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [deleteLoan, setDeleteLoan] = useState<Loan | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const filteredLoans = loans.filter((loan) => {
     if (searchQuery.trim() === '') return true;
@@ -146,6 +33,35 @@ export default function LoansPage() {
       loan.status.toLowerCase().includes(searchText)
     );
   });
+
+  const totalPages = Math.ceil(filteredLoans.length / itemsPerPage);
+  const paginatedLoans = filteredLoans.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'approved':
+        return 'bg-emerald-100 text-emerald-700 border border-emerald-200';
+      case 'pending':
+        return 'bg-amber-100 text-amber-700 border border-amber-200';
+      case 'rejected':
+        return 'bg-rose-100 text-rose-700 border border-rose-200';
+      default:
+        return 'bg-gray-100 text-gray-700 border border-gray-200';
+    }
+  };
+
+  const saveLoanChanges = () => {
+    if (!loanForm) return;
+    setLoans((current) => current.map((item) => (item.id === loanForm.id ? loanForm : item)));
+    setSelectedLoan(loanForm);
+    setIsEditMode(false);
+    setLoanForm(null);
+    setIsDetailOpen(false);
+    setIsEditModalOpen(false);
+  };
 
   return (
     <div className="space-y-6">
@@ -160,96 +76,304 @@ export default function LoansPage() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-5">
           <SearchBar
             value={searchInput}
-            onChange={setSearchInput}
+            onChange={(value) => {
+              setSearchInput(value);
+              setSearchQuery(value);
+            }}
             onSearch={() => setSearchQuery(searchInput)}
-            onClear={() => setSearchQuery('')}
+            onClear={() => {
+              setSearchInput('');
+              setSearchQuery('');
+            }}
             placeholder="Search by name, guarantor, or status..."
             className="w-full max-w-[320px]"
           />
         </div>
 
-        <AccountantTable
-          columns={columns}
-          data={filteredLoans}
-          keyExtractor={(item) => item.id}
-          rowsPerPage={10}
-          showSearch={false}
-        />
+        <div className="overflow-x-auto -mx-6 sm:mx-0">
+          <div className="inline-block min-w-full align-middle">
+            <table className="min-w-full">
+              <thead>
+                <tr className="bg-gray-50 border-b border-gray-200">
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Member Name</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Loan Amount</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Guarantor</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Status</th>
+                  <th className="text-center py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paginatedLoans.map((loan) => (
+                  <tr key={loan.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                    <td className="py-3 px-4 font-medium text-gray-900 text-xs sm:text-sm">{loan.borrowerName}</td>
+                    <td className="py-3 px-4 text-[#0B5D3B] font-semibold text-xs sm:text-sm whitespace-nowrap">{(loan.amount / 1000).toFixed(0)}K RWF</td>
+                    <td className="py-3 px-4 text-gray-900 text-xs sm:text-sm">{loan.guarantorName}</td>
+                    <td className="py-3 px-4">
+                      <span className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(loan.status)}`}>
+                        {loan.status.charAt(0).toUpperCase() + loan.status.slice(1)}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-center">
+                      <ActionCell
+                        onView={() => {
+                          setSelectedLoan(loan);
+                          setIsEditMode(false);
+                          setLoanForm(null);
+                          setIsDetailOpen(true);
+                        }}
+                        onEdit={() => {
+                          setSelectedLoan(loan);
+                          setLoanForm(loan);
+                          setIsEditMode(true);
+                          setIsDetailOpen(false);
+                          setIsEditModalOpen(true);
+                        }}
+                        onDelete={() => setDeleteLoan(loan)}
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Pagination */}
+        <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <p className="text-xs sm:text-sm text-gray-600 text-center sm:text-left">
+            Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, filteredLoans.length)} of {filteredLoans.length}
+          </p>
+          <div className="flex gap-2 justify-center flex-wrap">
+            <button
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="px-3 sm:px-4 py-1.5 sm:py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Previous
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <button
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                className={`px-3 sm:px-4 py-1.5 sm:py-2 text-sm rounded-lg transition ${
+                  currentPage === page
+                    ? 'bg-[#0B5D3B] text-white font-semibold'
+                    : 'border border-gray-300 hover:bg-gray-50 text-gray-700'
+                }`}
+              >
+                {page}
+              </button>
+            ))}
+            <button
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="px-3 sm:px-4 py-1.5 sm:py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Next
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Detail Modal */}
       {isDetailOpen && selectedLoan && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-[#0B5D3B] px-6 py-4 flex items-center justify-between">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in-0 duration-200">
+          <div className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col">
+            <div className="bg-[#0B5D3B] px-6 py-4 flex items-center justify-between flex-shrink-0">
               <h2 className="text-xl font-bold text-white">Loan Details</h2>
               <button
                 onClick={() => setIsDetailOpen(false)}
-                className="text-white hover:bg-white/20 p-2 rounded-lg transition-colors"
+                className="p-2 hover:bg-white/20 rounded-lg transition-colors"
               >
-                ✕
+                <X size={20} className="text-white" />
               </button>
             </div>
 
-            <div className="p-6 space-y-6">
-              {/* Borrower & Guarantor Info */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="rounded-lg bg-gray-50 p-4">
-                  <p className="text-xs uppercase tracking-wider text-gray-600 mb-1">Borrower</p>
-                  <p className="text-lg font-semibold text-gray-900">{selectedLoan.borrowerName}</p>
-                </div>
-                <div className="rounded-lg bg-gray-50 p-4">
-                  <p className="text-xs uppercase tracking-wider text-gray-600 mb-1">Guarantor</p>
-                  <p className="text-lg font-semibold text-gray-900">{selectedLoan.guarantorName}</p>
-                </div>
-              </div>
+            <div className="p-6 overflow-y-auto touch-pan-y flex-1">
+              {isEditMode && loanForm ? (
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                      <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Borrower Name</label>
+                      <input
+                        type="text"
+                        value={loanForm.borrowerName}
+                        onChange={(e) => setLoanForm({ ...loanForm, borrowerName: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      />
+                    </div>
+                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                      <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Guarantor Name</label>
+                      <input
+                        type="text"
+                        value={loanForm.guarantorName}
+                        onChange={(e) => setLoanForm({ ...loanForm, guarantorName: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      />
+                    </div>
+                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                      <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Loan Amount</label>
+                      <input
+                        type="number"
+                        value={loanForm.amount}
+                        onChange={(e) => setLoanForm({ ...loanForm, amount: Number(e.target.value) })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      />
+                    </div>
+                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                      <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Duration (months)</label>
+                      <input
+                        type="number"
+                        value={loanForm.duration}
+                        onChange={(e) => setLoanForm({ ...loanForm, duration: Number(e.target.value) })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      />
+                    </div>
+                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                      <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Monthly Payment</label>
+                      <input
+                        type="number"
+                        value={loanForm.monthlyPayment}
+                        onChange={(e) => setLoanForm({ ...loanForm, monthlyPayment: Number(e.target.value) })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      />
+                    </div>
+                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                      <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Total Repayment</label>
+                      <input
+                        type="number"
+                        value={loanForm.totalRepayment}
+                        onChange={(e) => setLoanForm({ ...loanForm, totalRepayment: Number(e.target.value) })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      />
+                    </div>
+                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-200 md:col-span-2">
+                      <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Status</label>
+                      <select
+                        value={loanForm.status}
+                        onChange={(e) => setLoanForm({ ...loanForm, status: e.target.value as Loan['status'] })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      >
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                      </select>
+                    </div>
+                  </div>
 
-              {/* Savings Coverage */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="rounded-lg bg-blue-50 p-4">
-                  <p className="text-xs uppercase tracking-wider text-blue-600 mb-1">Borrower Savings</p>
-                  <p className="text-lg font-bold text-blue-700">{(selectedLoan.borrowerSavings / 1000).toFixed(0)}K RWF</p>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <button
+                      onClick={saveLoanChanges}
+                      className="flex-1 bg-[#0B5D3B] text-white rounded-xl py-3 font-semibold hover:bg-[#094a2e] transition-colors"
+                    >
+                      Save Changes
+                    </button>
+                    <button
+                      onClick={() => {
+                        setIsEditMode(false);
+                        setLoanForm(null);
+                      }}
+                      className="flex-1 bg-gray-200 text-gray-700 rounded-xl py-3 font-semibold hover:bg-gray-300 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
                 </div>
-                <div className="rounded-lg bg-green-50 p-4">
-                  <p className="text-xs uppercase tracking-wider text-green-600 mb-1">Guarantor Savings</p>
-                  <p className="text-lg font-bold text-green-700">{(selectedLoan.guarantorSavings / 1000).toFixed(0)}K RWF</p>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                    <p className="text-xs font-semibold text-gray-600 mb-1">Borrower Name</p>
+                    <p className="text-base font-bold text-gray-900">{selectedLoan.borrowerName}</p>
+                  </div>
+                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                    <p className="text-xs font-semibold text-gray-600 mb-1">Guarantor Name</p>
+                    <p className="text-base font-bold text-gray-900">{selectedLoan.guarantorName}</p>
+                  </div>
+                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                    <p className="text-xs font-semibold text-gray-600 mb-1">Loan Amount</p>
+                    <p className="text-lg font-bold text-[#0B5D3B]">{(selectedLoan.amount / 1000).toFixed(0)}K RWF</p>
+                  </div>
+                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                    <p className="text-xs font-semibold text-gray-600 mb-1">Monthly Payment</p>
+                    <p className="text-lg font-bold text-[#0B5D3B]">{(selectedLoan.monthlyPayment / 1000).toFixed(0)}K RWF</p>
+                  </div>
+                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                    <p className="text-xs font-semibold text-gray-600 mb-1">Duration</p>
+                    <p className="text-base font-bold text-gray-900">{selectedLoan.duration} months</p>
+                  </div>
+                  <div className="col-span-full bg-gray-50 rounded-xl p-4 border border-gray-200">
+                    <p className="text-xs font-semibold text-gray-600 mb-1">Total Repayment</p>
+                    <p className="text-xl font-bold text-gray-900">{(selectedLoan.totalRepayment / 1000).toFixed(0)}K RWF</p>
+                  </div>
+                  <div className="col-span-full">
+                    <p className="text-xs font-semibold text-gray-600 mb-2">Status</p>
+                    <span className={`inline-block px-3 py-1.5 rounded-full text-xs font-medium ${getStatusColor(selectedLoan.status)}`}>
+                      {selectedLoan.status.charAt(0).toUpperCase() + selectedLoan.status.slice(1)}
+                    </span>
+                  </div>
                 </div>
-              </div>
+              )}
 
-              {/* Loan Details */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="rounded-lg bg-gray-50 p-4">
-                  <p className="text-xs uppercase tracking-wider text-gray-600 mb-1">Loan Amount</p>
-                  <p className="text-xl font-bold text-gray-900">{(selectedLoan.amount / 1000).toFixed(0)}K RWF</p>
-                </div>
-                <div className="rounded-lg bg-gray-50 p-4">
-                  <p className="text-xs uppercase tracking-wider text-gray-600 mb-1">Duration</p>
-                  <p className="text-xl font-bold text-gray-900">{selectedLoan.duration} months</p>
-                </div>
-              </div>
+                {/* Standard Edit Modal for loans */}
+                <GenericEditModal
+                  title="Edit Loan"
+                  isOpen={isEditModalOpen}
+                  onClose={() => { setIsEditModalOpen(false); setIsEditMode(false); setLoanForm(null); }}
+                  onSave={saveLoanChanges}
+                  saveLabel="Save Changes"
+                  maxWidth="max-w-2xl"
+                >
+                  {loanForm && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                        <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Borrower Name</label>
+                        <input
+                          type="text"
+                          value={loanForm.borrowerName}
+                          onChange={(e) => setLoanForm({ ...loanForm, borrowerName: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        />
+                      </div>
+                      <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                        <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Guarantor Name</label>
+                        <input
+                          type="text"
+                          value={loanForm.guarantorName}
+                          onChange={(e) => setLoanForm({ ...loanForm, guarantorName: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        />
+                      </div>
+                      <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                        <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Loan Amount</label>
+                        <input
+                          type="number"
+                          value={loanForm.amount}
+                          onChange={(e) => setLoanForm({ ...loanForm, amount: Number(e.target.value) })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        />
+                      </div>
+                      <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                        <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Duration (months)</label>
+                        <input
+                          type="number"
+                          value={loanForm.duration}
+                          onChange={(e) => setLoanForm({ ...loanForm, duration: Number(e.target.value) })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </GenericEditModal>
+            </div>
 
-              {/* Payment & Status */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="rounded-lg bg-gray-50 p-4">
-                  <p className="text-xs uppercase tracking-wider text-gray-600 mb-1">Monthly Payment</p>
-                  <p className="text-lg font-bold text-gray-900">{(selectedLoan.monthlyPayment / 1000).toFixed(0)}K RWF</p>
-                </div>
-                <div className="rounded-lg bg-gray-50 p-4">
-                  <p className="text-xs uppercase tracking-wider text-gray-600 mb-1">Status</p>
-                  <StatusBadge status={selectedLoan.status} />
-                </div>
-              </div>
-
-              {/* Total Repayment */}
-              <div className="rounded-lg bg-purple-50 p-4">
-                <p className="text-xs uppercase tracking-wider text-purple-600 mb-1">Total Repayment</p>
-                <p className="text-2xl font-bold text-purple-700">{(selectedLoan.totalRepayment / 1000).toFixed(0)}K RWF</p>
-              </div>
-
-              {/* Close Button */}
+            <div className="p-6 border-t border-gray-200 flex-shrink-0">
               <button
-                onClick={() => setIsDetailOpen(false)}
-                className="w-full bg-[#0B5D3B] text-white font-semibold py-3 rounded-lg hover:bg-[#094a2e] transition-colors"
+                onClick={() => {
+                  setIsDetailOpen(false);
+                  setIsEditMode(false);
+                  setLoanForm(null);
+                }}
+                className="w-full px-4 py-3 bg-[#0B5D3B] text-white rounded-xl font-semibold hover:bg-[#094a2e] transition-all"
               >
                 Close
               </button>
@@ -258,16 +382,19 @@ export default function LoansPage() {
         </div>
       )}
 
-      {/* Confirmation Dialog */}
       <ConfirmDialog
-        isOpen={confirmDialog.isOpen}
-        title={confirmDialog.action === 'accept' ? 'Accept Loan' : confirmDialog.action === 'reject' ? 'Reject Loan' : 'Put Loan On Hold'}
-        message={`Are you sure you want to ${confirmDialog.action} this loan from ${confirmDialog.loan?.borrowerName}?`}
-        confirmText={confirmDialog.action?.charAt(0).toUpperCase() + confirmDialog.action?.slice(1)}
-        variant={confirmDialog.action === 'reject' ? 'danger' : confirmDialog.action === 'hold' ? 'warning' : 'default'}
-        onConfirm={confirmAction}
-        onCancel={() => setConfirmDialog({ isOpen: false, action: null, loan: null })}
-        isLoading={isProcessing}
+        isOpen={Boolean(deleteLoan)}
+        title="Delete Loan"
+        message={deleteLoan ? `Are you sure you want to delete the loan for ${deleteLoan.borrowerName}?` : ''}
+        confirmText="Delete"
+        variant="danger"
+        onConfirm={() => {
+          if (deleteLoan) {
+            setLoans((current) => current.filter((item) => item.id !== deleteLoan.id));
+          }
+          setDeleteLoan(null);
+        }}
+        onCancel={() => setDeleteLoan(null)}
       />
     </div>
   );

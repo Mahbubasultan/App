@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { Plus, Eye, X } from 'lucide-react';
+import { Plus, Eye, X, Edit, Trash2 } from 'lucide-react';
+import ActionCell from '@/components/ui/ActionCell';
 import { SearchBar } from '@/components/ui/SearchBar';
 import { useLocalSavings } from '@/hooks/useLocalSavings';
 import { getUserSession } from '@/lib/auth';
@@ -52,7 +53,6 @@ export default function MySavings() {
   const [userName, setUserName] = useState('Member');
 
   const [formData, setFormData] = useState<SavingDraft>(initialDraft);
-
 
   useEffect(() => {
     try {
@@ -193,52 +193,6 @@ export default function MySavings() {
     }
   }, [selectedSaving]);
 
-  const handleViewFileChange = async (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    if (!selectedSaving) return;
-
-    if (e.target.files && e.target.files[0]) {
-      try {
-        const file = e.target.files[0];
-        const base64 = await fileToBase64(file);
-        const preview = base64ToDataUrl(
-          base64,
-          getMimeTypeFromFileName(file.name)
-        );
-
-        setViewImagePreview(preview);
-        setViewImageBase64(base64);
-        setViewImageFileName(file.name);
-        setViewError(null);
-      } catch {
-        setViewError('Unable to process image preview.');
-      }
-    }
-  };
-
-  const handleSaveProof = async () => {
-    if (!selectedSaving) return;
-    if (!viewImageBase64) {
-      setViewError('Please select an image to attach.');
-      return;
-    }
-
-    try {
-      const updated = await updateSaving(selectedSaving.id, {
-        screenshot: viewImageBase64,
-        screenshotFileName: viewImageFileName,
-      });
-
-      if (updated) {
-        setSelectedSaving(updated);
-        setViewError(null);
-      }
-    } catch {
-      setViewError('Unable to save proof image.');
-    }
-  };
-
   const closeViewModal = () => {
     setIsViewModalOpen(false);
     setSelectedSaving(null);
@@ -252,13 +206,10 @@ export default function MySavings() {
     switch (status) {
       case 'Approved':
         return 'bg-emerald-100 text-emerald-700';
-
       case 'Pending':
         return 'bg-amber-100 text-amber-700';
-
       case 'Rejected':
         return 'bg-rose-100 text-rose-700';
-
       default:
         return 'bg-slate-100 text-slate-700';
     }
@@ -268,25 +219,33 @@ export default function MySavings() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-            My Savings
-            </h1>
-            <p className="mt-2 text-sm text-gray-600 max-w-2xl">
-              Track your savings contributions and manage proof images for each record.
-            </p>
-          </div>
-          <button
-            onClick={() => setIsAddModalOpen(true)}
-            className="inline-flex items-center gap-2 rounded-2xl bg-[#0B5D3B] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#094a2e]"
-          >
-            <Plus size={18} />
-            Add Saving
-          </button>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">My Savings</h1>
+          <p className="mt-2 text-sm text-gray-600 max-w-2xl">
+            Track your savings contributions and manage proof images for each record.
+          </p>
         </div>
+        <button
+          onClick={() => setIsAddModalOpen(true)}
+          className="inline-flex items-center gap-2 rounded-2xl bg-[#0B5D3B] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#094a2e]"
+        >
+          <Plus size={18} />
+          Add Saving
+        </button>
+      </div>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-          <div className="p-4 sm:p-6 border-b border-gray-100">
-            <div className="flex flex-col gap-4">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="p-4 sm:p-6 border-b border-gray-100">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="w-full max-w-[420px]">
+              <SearchBar
+                value={searchQuery}
+                onChange={setSearchQuery}
+                onSearch={() => setSearchQuery(searchQuery)}
+                onClear={() => setSearchQuery('')}
+                placeholder="Search by name, status, or amount..."
+                className="w-full"
+              />
+            </div>
             <div className="flex flex-wrap items-center gap-2">
               {tabs.map((tab) => (
                 <button
@@ -302,282 +261,225 @@ export default function MySavings() {
                 </button>
               ))}
             </div>
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <SearchBar
-                value={searchQuery}
-                onChange={setSearchQuery}
-                onSearch={() => setSearchQuery(searchQuery)}
-                onClear={() => setSearchQuery('')}
-                placeholder="Search by name, status, or amount..."
-                className="w-full max-w-[420px]"
-              />
-            </div>
-          </div>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="min-w-full">
-              <thead>
-                <tr className="bg-gray-50 border-b border-gray-200">
-                  <th className="text-left py-3 px-4">Share Name</th>
-                  <th className="text-left py-3 px-4">Amount</th>
-                  <th className="text-left py-3 px-4">Date</th>
-                  <th className="text-left py-3 px-4">Status</th>
-                  <th className="text-center py-3 px-4">Action</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {paginatedSavings.map((saving) => (
-                  <tr
-                    key={saving.id}
-                    className="border-b border-gray-100"
-                  >
-                    <td className="py-3 px-4">{saving.shareName}</td>
-
-                    <td className="py-3 px-4 text-[#0B5D3B] font-semibold">
-                      {saving.amount.toLocaleString()} RWF
-                    </td>
-
-                    <td className="py-3 px-4">{saving.date}</td>
-
-                    <td className="py-3 px-4">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                          saving.status
-                        )}`}
-                      >
-                        {saving.status}
-                      </span>
-                    </td>
-
-                    <td className="py-3 px-4 text-center">
-                      <button
-                        onClick={() => {
-                          setSelectedSaving(saving);
-                          setIsViewModalOpen(true);
-                        }}
-                        className="inline-flex items-center justify-center p-2 text-[#0B5D3B]"
-                      >
-                        <Eye size={16} />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
           </div>
         </div>
 
-        {storageError && (
-          <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-red-700">
-            {storageError}
-          </div>
-        )}
-
-        {isAddModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
-            <div className="w-full max-w-2xl overflow-hidden rounded-3xl bg-white shadow-2xl">
-              <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-                <div>
-                  <h2 className="text-xl font-bold text-gray-900">Add New Saving</h2>
-                  <p className="text-sm text-gray-600">Add a savings record and upload proof image if available.</p>
-                </div>
-                <button
-                  onClick={() => setIsAddModalOpen(false)}
-                  className="rounded-full p-2 text-gray-500 hover:bg-gray-100"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-              <div className="px-6 py-6 space-y-6">
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Share</label>
-                    <select
-                      value={formData.shareId}
-                      onChange={(e) => handleFormChange({ shareId: e.target.value })}
-                      className="w-full rounded-2xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-500"
-                    >
-                      <option value="" disabled={availableShares.length > 0}>
-                        {availableShares.length > 0 ? 'Select share' : 'Loading shares...'}
-                      </option>
-                      {availableShares.length === 0 && (
-                        <option value="" disabled>
-                          No shares available
-                        </option>
-                      )}
-                      {availableShares.map((share) => (
-                        <option key={share.id} value={share.id}>
-                          {share.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Amount</label>
-                    <input
-                      type="number"
-                      value={formData.amount}
-                      onChange={(e) => handleFormChange({ amount: Number(e.target.value) })}
-                      className="w-full rounded-2xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900"
-                      placeholder="Enter amount"
+        <div className="overflow-x-auto">
+          <table className="min-w-full">
+            <thead>
+              <tr className="bg-gray-50 border-b border-gray-200">
+                <th className="text-left py-3 px-4">Share Name</th>
+                <th className="text-left py-3 px-4">Amount</th>
+                <th className="text-left py-3 px-4">Status</th>
+                <th className="text-center py-3 px-4">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paginatedSavings.map((saving) => (
+                <tr key={saving.id} className="border-b border-gray-100">
+                  <td className="py-3 px-4">{saving.shareName}</td>
+                  <td className="py-3 px-4 text-[#0B5D3B] font-semibold">
+                    {saving.amount.toLocaleString()} RWF
+                  </td>
+                  <td className="py-3 px-4">
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(saving.status)}`}>
+                      {saving.status}
+                    </span>
+                  </td>
+                  <td className="py-3 px-4 text-center">
+                    <ActionCell
+                      onView={() => {
+                        setSelectedSaving(saving);
+                        setIsViewModalOpen(true);
+                      }}
+                      onEdit={() => {
+                        setSelectedSaving(saving);
+                        setIsAddModalOpen(true);
+                      }}
+                      onDelete={() => {
+                        if (confirm('Are you sure you want to delete this saving?')) {
+                          // Handle delete
+                        }
+                      }}
                     />
-                  </div>
-                </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Proof Image (optional)</label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    className="w-full rounded-2xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900"
-                  />
-                  {formData.screenshotFileName && (
-                    <p className="mt-3 text-sm text-gray-600">Selected file: {formData.screenshotFileName}</p>
-                  )}
-                  {addImagePreview && (
-                    <div className="mt-4">
-                      <p className="text-sm font-medium text-gray-700 mb-2">Preview:</p>
-                      <img
-                        src={addImagePreview}
-                        alt="Proof preview"
-                        className="max-w-full h-auto max-h-48 rounded-lg border border-gray-200"
-                      />
-                    </div>
-                  )}
-                </div>
-              </div>
-              <div className="flex flex-col gap-3 border-t border-gray-200 px-6 py-4 md:flex-row md:justify-end">
+        {totalPages > 1 && (
+          <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <p className="text-xs sm:text-sm text-gray-600 text-center sm:text-left">
+              Showing {filteredSavings.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filteredSavings.length)} of {filteredSavings.length}
+            </p>
+            <div className="flex flex-wrap gap-1.5 justify-center items-center">
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Prev
+              </button>
+              {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
                 <button
-                  onClick={() => {
-                    setIsAddModalOpen(false);
-                    setAddImagePreview(null);
-                  }}
-                  className="rounded-2xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm rounded-lg min-w-[32px] ${currentPage === page ? 'bg-[#0B5D3B] text-white' : 'border border-gray-300 hover:bg-gray-50'}`}
                 >
-                  Cancel
+                  {page}
                 </button>
-                <button
-                  onClick={handleSubmit}
-                  className="rounded-2xl bg-[#0B5D3B] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#094a2e]"
-                >
-                  Save Saving
-                </button>
-              </div>
+              ))}
+              <button
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Next
+              </button>
             </div>
           </div>
         )}
+      </div>
 
-        {isViewModalOpen && selectedSaving && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
-            <div className="w-full max-w-[700px] max-h-[90vh] overflow-hidden rounded-3xl bg-white shadow-2xl">
-              <div className="max-h-[90vh] overflow-y-auto">
+      {storageError && (
+        <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-red-700">
+          {storageError}
+        </div>
+      )}
+
+      {isAddModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-2xl overflow-hidden rounded-3xl bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">Add New Saving</h2>
+                <p className="text-sm text-gray-600">Add a savings record and upload proof image if available.</p>
+              </div>
+              <button onClick={() => setIsAddModalOpen(false)} className="rounded-full p-2 text-gray-500 hover:bg-gray-100">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="px-6 py-6 space-y-6">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Share</label>
+                  <select
+                    value={formData.shareId}
+                    onChange={(e) => handleFormChange({ shareId: e.target.value })}
+                    className="w-full rounded-2xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-500"
+                  >
+                    <option value="" disabled={availableShares.length > 0}>
+                      {availableShares.length > 0 ? 'Select share' : 'Loading shares...'}
+                    </option>
+                    {availableShares.length === 0 && (
+                      <option value="" disabled>No shares available</option>
+                    )}
+                    {availableShares.map((share) => (
+                      <option key={share.id} value={share.id}>{share.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Amount</label>
+                  <input
+                    type="number"
+                    value={formData.amount}
+                    onChange={(e) => handleFormChange({ amount: Number(e.target.value) })}
+                    className="w-full rounded-2xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900"
+                    placeholder="Enter amount"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Proof Image (optional)</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="w-full rounded-2xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900"
+                />
+                {formData.screenshotFileName && (
+                  <p className="mt-3 text-sm text-gray-600">Selected file: {formData.screenshotFileName}</p>
+                )}
+                {addImagePreview && (
+                  <div className="mt-4">
+                    <p className="text-sm font-medium text-gray-700 mb-2">Preview:</p>
+                    <img src={addImagePreview} alt="Proof preview" className="max-w-full h-auto max-h-48 rounded-lg border border-gray-200" />
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="flex flex-col gap-3 border-t border-gray-200 px-6 py-4 md:flex-row md:justify-end">
+              <button
+                onClick={() => { setIsAddModalOpen(false); setAddImagePreview(null); }}
+                className="rounded-2xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button onClick={handleSubmit} className="rounded-2xl bg-[#0B5D3B] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#094a2e]">
+                Save Saving
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isViewModalOpen && selectedSaving && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md sm:max-w-lg max-h-[90vh] overflow-hidden rounded-3xl bg-white shadow-2xl">
+            <div className="max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
                 <div>
                   <h2 className="text-xl font-bold text-gray-900">Saving Details</h2>
-                  <p className="text-sm text-gray-600">Review and attach proof image for this saving.</p>
                 </div>
-                <button
-                  onClick={closeViewModal}
-                  className="rounded-full p-2 text-gray-500 hover:bg-gray-100"
-                >
+                <button onClick={closeViewModal} className="rounded-full p-2 text-gray-500 hover:bg-gray-100">
                   <X size={20} />
                 </button>
               </div>
-
-              <div className="space-y-6 px-6 py-6">
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="rounded-2xl bg-gray-50 p-4">
-                    <p className="text-xs uppercase tracking-[0.16em] text-gray-500 mb-3">Member</p>
-                    <p className="text-sm text-gray-900">{userName}</p>
+              <div className="space-y-4 px-6 py-6">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-gray-50 rounded-xl p-3 sm:p-4">
+                    <p className="text-xs font-semibold text-gray-500 mb-1">Share</p>
+                    <p className="text-sm font-semibold text-gray-900">{selectedSaving.shareName}</p>
                   </div>
-                  <div className="rounded-2xl bg-gray-50 p-4">
-                    <p className="text-xs uppercase tracking-[0.16em] text-gray-500 mb-3">Share</p>
-                    <p className="text-sm text-gray-900">{selectedSaving.shareName}</p>
+                  <div className="bg-gray-50 rounded-xl p-3 sm:p-4">
+                    <p className="text-xs font-semibold text-gray-500 mb-1">Amount</p>
+                    <p className="text-sm font-semibold text-[#0B5D3B]">{selectedSaving.amount.toLocaleString()} RWF</p>
                   </div>
-                  <div className="rounded-2xl bg-gray-50 p-4">
-                    <p className="text-xs uppercase tracking-[0.16em] text-gray-500 mb-3">Amount</p>
-                    <p className="text-sm text-gray-900">{selectedSaving.amount.toLocaleString()} RWF</p>
-                  </div>
-                  <div className="rounded-2xl bg-gray-50 p-4">
-                    <p className="text-xs uppercase tracking-[0.16em] text-gray-500 mb-3">Status</p>
-                    <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${getStatusColor(selectedSaving.status)}`}>
+                  <div className="bg-gray-50 rounded-xl p-3 sm:p-4">
+                    <p className="text-xs font-semibold text-gray-500 mb-1">Status</p>
+                    <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatusColor(selectedSaving.status)}`}>
                       {selectedSaving.status}
                     </span>
                   </div>
-                  <div className="rounded-2xl bg-gray-50 p-4">
-                    <p className="text-xs uppercase tracking-[0.16em] text-gray-500 mb-3">Date</p>
-                    <p className="text-sm text-gray-900">{selectedSaving.date}</p>
-                  </div>
-                  <div className="rounded-2xl bg-gray-50 p-4">
-                    <p className="text-xs uppercase tracking-[0.16em] text-gray-500 mb-3">Updated</p>
-                    <p className="text-sm text-gray-900">{new Date(selectedSaving.updatedAt).toLocaleString()}</p>
+                  <div className="bg-gray-50 rounded-xl p-3 sm:p-4">
+                    <p className="text-xs font-semibold text-gray-500 mb-1">Date</p>
+                    <p className="text-sm font-semibold text-gray-900">{selectedSaving.date}</p>
                   </div>
                 </div>
 
-                <div className="rounded-3xl border border-gray-200 p-5">
-                  <div className="flex items-center justify-between gap-3 mb-4">
-                    <div>
-                      <h3 className="text-base font-semibold text-gray-900">Proof Image</h3>
-                      <p className="text-sm text-gray-500">Upload an image from your computer and preview it before saving.</p>
-                    </div>
+                {viewImagePreview && (
+                  <div className="rounded-2xl border border-gray-200 p-4">
+                    <p className="text-sm font-semibold text-gray-700 mb-3">Proof Image</p>
+                    <img 
+                      src={viewImagePreview} 
+                      alt="Proof preview" 
+                      className="w-full h-auto max-h-64 object-contain rounded-xl"
+                    />
                   </div>
-
-                  <div className="grid gap-4 md:grid-cols-[1fr_270px]">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Upload image</label>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleViewFileChange}
-                        className="w-full rounded-2xl border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900"
-                      />
-                      {viewImageFileName && (
-                        <p className="mt-3 text-sm text-gray-600">Selected file: {viewImageFileName}</p>
-                      )}
-                      {viewError && (
-                        <p className="mt-3 text-sm text-red-600">{viewError}</p>
-                      )}
-                    </div>
-
-                    <div className="rounded-3xl border border-dashed border-gray-300 bg-gray-50 p-4 text-center">
-                      <p className="text-sm font-medium text-gray-700 mb-3">Preview</p>
-                      {viewImagePreview ? (
-                        <img
-                          src={viewImagePreview}
-                          alt="Proof preview"
-                          className="mx-auto h-48 w-full max-w-xs rounded-3xl object-contain"
-                        />
-                      ) : (
-                        <div className="flex h-48 items-center justify-center rounded-3xl bg-white text-sm text-gray-500">
-                          No preview available
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
+                )}
               </div>
-
-              <div className="flex flex-col gap-3 border-t border-gray-200 px-6 py-4 md:flex-row md:justify-end">
-                <button
-                  onClick={closeViewModal}
-                  className="rounded-2xl bg-[#1b5e20] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#154b1b]"
-                >
+              <div className="flex border-t border-gray-200 px-6 py-4">
+                <button onClick={closeViewModal} className="w-full px-5 py-3 bg-[#0B5D3B] text-white rounded-2xl font-semibold hover:bg-[#094a2e] transition-colors text-sm">
                   Close
-                </button>
-                <button
-                  onClick={handleSaveProof}
-                  className="rounded-2xl bg-[#0B5D3B] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#094a2e]"
-                >
-                  Save Proof Image
                 </button>
               </div>
             </div>
           </div>
         </div>
-        )}
-      </div>
+      )}
+    </div>
   );
 }
