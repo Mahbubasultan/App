@@ -19,7 +19,14 @@ interface User {
 }
 
 const mockUsers: User[] = [
-  // Production-ready: Start with empty array, users will be loaded from database
+  { id: '1', name: 'Jean Baptiste', email: 'jean.baptiste@rosca.com', phone: '+250788123456', role: 'member', status: 'active', totalSavings: 250000, shares: 125, joinedDate: '2023-01-15', lastActive: '2 hours ago' },
+  { id: '2', name: 'Marie Claire', email: 'marie.claire@rosca.com', phone: '+250788234567', role: 'member', status: 'active', totalSavings: 380000, shares: 190, joinedDate: '2023-02-20', lastActive: '1 day ago' },
+  { id: '3', name: 'Eric Habimana', email: 'eric.habimana@rosca.com', phone: '+250788345678', role: 'accountant', status: 'active', totalSavings: 120000, shares: 60, joinedDate: '2023-03-10', lastActive: '30 min ago' },
+  { id: '4', name: 'Patrick Nkunda', email: 'patrick.nkunda@rosca.com', phone: '+250788456789', role: 'member', status: 'restricted', totalSavings: 150000, shares: 75, joinedDate: '2023-04-05', lastActive: '3 days ago' },
+  { id: '5', name: 'Grace Uwera', email: 'grace.uwera@rosca.com', phone: '+250788567890', role: 'member', status: 'active', totalSavings: 420000, shares: 210, joinedDate: '2023-05-12', lastActive: '5 hours ago' },
+  { id: '6', name: 'Admin User', email: 'admin@rosca.com', phone: '+250788000000', role: 'admin', status: 'active', totalSavings: 0, shares: 0, joinedDate: '2023-01-01', lastActive: 'Just now' },
+  { id: '7', name: 'David Mugisha', email: 'david.mugisha@rosca.com', phone: '+250788678901', role: 'member', status: 'blocked', totalSavings: 50000, shares: 25, joinedDate: '2023-06-18', lastActive: '1 week ago' },
+  { id: '8', name: 'Susan Mwangi', email: 'susan.mwangi@rosca.com', phone: '+250788789012', role: 'member', status: 'active', totalSavings: 280000, shares: 140, joinedDate: '2023-07-22', lastActive: '2 days ago' },
 ];
 
 export default function AdminUserManagement() {

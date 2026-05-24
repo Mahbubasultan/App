@@ -50,7 +50,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, onClose, onLogou
     { href: '/admin/loans', label: 'Loans', icon: DollarSign },
     { href: '/admin/guarantor', label: 'Guarantors', icon: UserCheck },
     { href: '/admin/accountants', label: 'Accountants', icon: Users },
-    { href: '/admin/user-management', label: 'User Management', icon: Users },
+    { href: '/admin/users', label: 'User Management', icon: Users },
     { href: '/admin/announcements', label: 'Announcements', icon: Megaphone },
     { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
   ];

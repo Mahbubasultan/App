@@ -1,11 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Eye, Edit, Trash2, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import ActionCell from '@/components/ui/ActionCell';
 import GenericEditModal from '@/components/ui/GenericEditModal';
 import { mockLoans } from '@/lib/mockData';
-import { StatusBadge } from '@/components/accountant/StatusBadge';
 import { ConfirmDialog } from '@/components/accountant/ConfirmDialog';
 import { SearchBar } from '@/components/ui/SearchBar';
 
@@ -15,10 +14,11 @@ export default function LoansPage() {
   const [loans, setLoans] = useState<Loan[]>(mockLoans);
   const [searchInput, setSearchInput] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState('Overview');
+  const tabs = ['Overview', 'Pending', 'Approved', 'Rejected'];
   const [selectedLoan, setSelectedLoan] = useState<Loan | null>(null);
   const [loanForm, setLoanForm] = useState<Loan | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
-  const [isEditMode, setIsEditMode] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [deleteLoan, setDeleteLoan] = useState<Loan | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -57,7 +57,6 @@ export default function LoansPage() {
     if (!loanForm) return;
     setLoans((current) => current.map((item) => (item.id === loanForm.id ? loanForm : item)));
     setSelectedLoan(loanForm);
-    setIsEditMode(false);
     setLoanForm(null);
     setIsDetailOpen(false);
     setIsEditModalOpen(false);
@@ -65,15 +64,13 @@ export default function LoansPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Loans Management</h1>
         <p className="text-gray-600 mt-1">Manage member loans and guarantors</p>
       </div>
 
-      {/* Table */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-5">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between mb-5">
           <SearchBar
             value={searchInput}
             onChange={(value) => {
@@ -88,6 +85,21 @@ export default function LoansPage() {
             placeholder="Search by name, guarantor, or status..."
             className="w-full max-w-[320px]"
           />
+          <div className="flex flex-wrap gap-2">
+            {tabs.map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                  activeTab === tab
+                    ? 'bg-[#0B5D3B] text-white shadow-sm'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="overflow-x-auto -mx-6 sm:mx-0">
@@ -114,22 +126,19 @@ export default function LoansPage() {
                       </span>
                     </td>
                     <td className="py-3 px-4 text-center">
-                      <ActionCell
-                        onView={() => {
-                          setSelectedLoan(loan);
-                          setIsEditMode(false);
-                          setLoanForm(null);
-                          setIsDetailOpen(true);
-                        }}
-                        onEdit={() => {
-                          setSelectedLoan(loan);
-                          setLoanForm(loan);
-                          setIsEditMode(true);
-                          setIsDetailOpen(false);
-                          setIsEditModalOpen(true);
-                        }}
-                        onDelete={() => setDeleteLoan(loan)}
-                      />
+                      <div className="flex justify-center">
+                        <ActionCell
+                          onView={() => {
+                            setSelectedLoan(loan);
+                            setIsDetailOpen(true);
+                          }}
+                          onEdit={() => {
+                            setLoanForm(loan);
+                            setIsEditModalOpen(true);
+                          }}
+                          onDelete={() => setDeleteLoan(loan)}
+                        />
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -138,7 +147,6 @@ export default function LoansPage() {
           </div>
         </div>
 
-        {/* Pagination */}
         <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <p className="text-xs sm:text-sm text-gray-600 text-center sm:text-left">
             Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, filteredLoans.length)} of {filteredLoans.length}
@@ -177,8 +185,8 @@ export default function LoansPage() {
 
       {/* Detail Modal */}
       {isDetailOpen && selectedLoan && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in-0 duration-200">
-          <div className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
             <div className="bg-[#0B5D3B] px-6 py-4 flex items-center justify-between flex-shrink-0">
               <h2 className="text-xl font-bold text-white">Loan Details</h2>
               <button
@@ -190,187 +198,44 @@ export default function LoansPage() {
             </div>
 
             <div className="p-6 overflow-y-auto touch-pan-y flex-1">
-              {isEditMode && loanForm ? (
-                <div className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                      <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Borrower Name</label>
-                      <input
-                        type="text"
-                        value={loanForm.borrowerName}
-                        onChange={(e) => setLoanForm({ ...loanForm, borrowerName: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                      />
-                    </div>
-                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                      <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Guarantor Name</label>
-                      <input
-                        type="text"
-                        value={loanForm.guarantorName}
-                        onChange={(e) => setLoanForm({ ...loanForm, guarantorName: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                      />
-                    </div>
-                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                      <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Loan Amount</label>
-                      <input
-                        type="number"
-                        value={loanForm.amount}
-                        onChange={(e) => setLoanForm({ ...loanForm, amount: Number(e.target.value) })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                      />
-                    </div>
-                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                      <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Duration (months)</label>
-                      <input
-                        type="number"
-                        value={loanForm.duration}
-                        onChange={(e) => setLoanForm({ ...loanForm, duration: Number(e.target.value) })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                      />
-                    </div>
-                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                      <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Monthly Payment</label>
-                      <input
-                        type="number"
-                        value={loanForm.monthlyPayment}
-                        onChange={(e) => setLoanForm({ ...loanForm, monthlyPayment: Number(e.target.value) })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                      />
-                    </div>
-                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                      <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Total Repayment</label>
-                      <input
-                        type="number"
-                        value={loanForm.totalRepayment}
-                        onChange={(e) => setLoanForm({ ...loanForm, totalRepayment: Number(e.target.value) })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                      />
-                    </div>
-                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-200 md:col-span-2">
-                      <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Status</label>
-                      <select
-                        value={loanForm.status}
-                        onChange={(e) => setLoanForm({ ...loanForm, status: e.target.value as Loan['status'] })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                      >
-                        <option value="pending">Pending</option>
-                        <option value="approved">Approved</option>
-                        <option value="rejected">Rejected</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <button
-                      onClick={saveLoanChanges}
-                      className="flex-1 bg-[#0B5D3B] text-white rounded-xl py-3 font-semibold hover:bg-[#094a2e] transition-colors"
-                    >
-                      Save Changes
-                    </button>
-                    <button
-                      onClick={() => {
-                        setIsEditMode(false);
-                        setLoanForm(null);
-                      }}
-                      className="flex-1 bg-gray-200 text-gray-700 rounded-xl py-3 font-semibold hover:bg-gray-300 transition-colors"
-                    >
-                      Cancel
-                    </button>
-                  </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                  <p className="text-xs font-semibold text-gray-600 mb-1">Borrower Name</p>
+                  <p className="text-base font-bold text-gray-900">{selectedLoan.borrowerName}</p>
                 </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                    <p className="text-xs font-semibold text-gray-600 mb-1">Borrower Name</p>
-                    <p className="text-base font-bold text-gray-900">{selectedLoan.borrowerName}</p>
-                  </div>
-                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                    <p className="text-xs font-semibold text-gray-600 mb-1">Guarantor Name</p>
-                    <p className="text-base font-bold text-gray-900">{selectedLoan.guarantorName}</p>
-                  </div>
-                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                    <p className="text-xs font-semibold text-gray-600 mb-1">Loan Amount</p>
-                    <p className="text-lg font-bold text-[#0B5D3B]">{(selectedLoan.amount / 1000).toFixed(0)}K RWF</p>
-                  </div>
-                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                    <p className="text-xs font-semibold text-gray-600 mb-1">Monthly Payment</p>
-                    <p className="text-lg font-bold text-[#0B5D3B]">{(selectedLoan.monthlyPayment / 1000).toFixed(0)}K RWF</p>
-                  </div>
-                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                    <p className="text-xs font-semibold text-gray-600 mb-1">Duration</p>
-                    <p className="text-base font-bold text-gray-900">{selectedLoan.duration} months</p>
-                  </div>
-                  <div className="col-span-full bg-gray-50 rounded-xl p-4 border border-gray-200">
-                    <p className="text-xs font-semibold text-gray-600 mb-1">Total Repayment</p>
-                    <p className="text-xl font-bold text-gray-900">{(selectedLoan.totalRepayment / 1000).toFixed(0)}K RWF</p>
-                  </div>
-                  <div className="col-span-full">
-                    <p className="text-xs font-semibold text-gray-600 mb-2">Status</p>
-                    <span className={`inline-block px-3 py-1.5 rounded-full text-xs font-medium ${getStatusColor(selectedLoan.status)}`}>
-                      {selectedLoan.status.charAt(0).toUpperCase() + selectedLoan.status.slice(1)}
-                    </span>
-                  </div>
+                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                  <p className="text-xs font-semibold text-gray-600 mb-1">Guarantor Name</p>
+                  <p className="text-base font-bold text-gray-900">{selectedLoan.guarantorName}</p>
                 </div>
-              )}
-
-                {/* Standard Edit Modal for loans */}
-                <GenericEditModal
-                  title="Edit Loan"
-                  isOpen={isEditModalOpen}
-                  onClose={() => { setIsEditModalOpen(false); setIsEditMode(false); setLoanForm(null); }}
-                  onSave={saveLoanChanges}
-                  saveLabel="Save Changes"
-                  maxWidth="max-w-2xl"
-                >
-                  {loanForm && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                        <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Borrower Name</label>
-                        <input
-                          type="text"
-                          value={loanForm.borrowerName}
-                          onChange={(e) => setLoanForm({ ...loanForm, borrowerName: e.target.value })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                        />
-                      </div>
-                      <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                        <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Guarantor Name</label>
-                        <input
-                          type="text"
-                          value={loanForm.guarantorName}
-                          onChange={(e) => setLoanForm({ ...loanForm, guarantorName: e.target.value })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                        />
-                      </div>
-                      <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                        <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Loan Amount</label>
-                        <input
-                          type="number"
-                          value={loanForm.amount}
-                          onChange={(e) => setLoanForm({ ...loanForm, amount: Number(e.target.value) })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                        />
-                      </div>
-                      <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                        <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Duration (months)</label>
-                        <input
-                          type="number"
-                          value={loanForm.duration}
-                          onChange={(e) => setLoanForm({ ...loanForm, duration: Number(e.target.value) })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                        />
-                      </div>
-                    </div>
-                  )}
-                </GenericEditModal>
+                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                  <p className="text-xs font-semibold text-gray-600 mb-1">Loan Amount</p>
+                  <p className="text-lg font-bold text-[#0B5D3B]">{(selectedLoan.amount / 1000).toFixed(0)}K RWF</p>
+                </div>
+                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                  <p className="text-xs font-semibold text-gray-600 mb-1">Monthly Payment</p>
+                  <p className="text-lg font-bold text-[#0B5D3B]">{(selectedLoan.monthlyPayment / 1000).toFixed(0)}K RWF</p>
+                </div>
+                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                  <p className="text-xs font-semibold text-gray-600 mb-1">Duration</p>
+                  <p className="text-base font-bold text-gray-900">{selectedLoan.duration} months</p>
+                </div>
+                <div className="col-span-full bg-gray-50 rounded-xl p-4 border border-gray-200">
+                  <p className="text-xs font-semibold text-gray-600 mb-1">Total Repayment</p>
+                  <p className="text-xl font-bold text-gray-900">{(selectedLoan.totalRepayment / 1000).toFixed(0)}K RWF</p>
+                </div>
+                <div className="col-span-full">
+                  <p className="text-xs font-semibold text-gray-600 mb-2">Status</p>
+                  <span className={`inline-block px-3 py-1.5 rounded-full text-xs font-medium ${getStatusColor(selectedLoan.status)}`}>
+                    {selectedLoan.status.charAt(0).toUpperCase() + selectedLoan.status.slice(1)}
+                  </span>
+                </div>
+              </div>
             </div>
 
             <div className="p-6 border-t border-gray-200 flex-shrink-0">
               <button
                 onClick={() => {
                   setIsDetailOpen(false);
-                  setIsEditMode(false);
                   setLoanForm(null);
                 }}
                 className="w-full px-4 py-3 bg-[#0B5D3B] text-white rounded-xl font-semibold hover:bg-[#094a2e] transition-all"
@@ -381,6 +246,87 @@ export default function LoansPage() {
           </div>
         </div>
       )}
+
+      {/* Edit Modal */}
+      <GenericEditModal
+        title="Edit Loan"
+        isOpen={isEditModalOpen}
+        onClose={() => { setIsEditModalOpen(false); setLoanForm(null); }}
+        onSave={saveLoanChanges}
+        saveLabel="Save Changes"
+        maxWidth="max-w-2xl"
+      >
+        {loanForm && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+              <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Borrower Name</label>
+              <input
+                type="text"
+                value={loanForm.borrowerName}
+                onChange={(e) => setLoanForm({ ...loanForm, borrowerName: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+              />
+            </div>
+            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+              <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Guarantor Name</label>
+              <input
+                type="text"
+                value={loanForm.guarantorName}
+                onChange={(e) => setLoanForm({ ...loanForm, guarantorName: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+              />
+            </div>
+            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+              <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Loan Amount</label>
+              <input
+                type="number"
+                value={loanForm.amount}
+                onChange={(e) => setLoanForm({ ...loanForm, amount: Number(e.target.value) })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+              />
+            </div>
+            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+              <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Duration (months)</label>
+              <input
+                type="number"
+                value={loanForm.duration}
+                onChange={(e) => setLoanForm({ ...loanForm, duration: Number(e.target.value) })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+              />
+            </div>
+            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+              <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Monthly Payment</label>
+              <input
+                type="number"
+                value={loanForm.monthlyPayment}
+                onChange={(e) => setLoanForm({ ...loanForm, monthlyPayment: Number(e.target.value) })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+              />
+            </div>
+            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+              <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Total Repayment</label>
+              <input
+                type="number"
+                value={loanForm.totalRepayment}
+                onChange={(e) => setLoanForm({ ...loanForm, totalRepayment: Number(e.target.value) })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+              />
+            </div>
+            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200 md:col-span-2">
+              <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Status</label>
+              <select
+                value={loanForm.status}
+                onChange={(e) => setLoanForm({ ...loanForm, status: e.target.value as Loan['status'] })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+              >
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+              </select>
+            </div>
+          </div>
+        )}
+      </GenericEditModal>
 
       <ConfirmDialog
         isOpen={Boolean(deleteLoan)}

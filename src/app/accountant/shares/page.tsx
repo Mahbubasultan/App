@@ -38,6 +38,8 @@ export default function SharesPage() {
   const [shares, setShares] = useState<Share[]>(mockShares);
   const [searchInput, setSearchInput] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState('Overview');
+  const tabs = ['Overview', 'Transactions', 'History', 'Analytics'];
   const [selectedShare, setSelectedShare] = useState<Share | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -67,11 +69,13 @@ export default function SharesPage() {
       label: 'Action',
       align: 'center',
       render: (_, row) => (
-        <ActionCell
-          onView={() => { setSelectedShare(row); setIsDetailOpen(true); setIsEditMode(false); }}
-          onEdit={() => { setSelectedShare(row); setEditFormData(row); setIsDetailOpen(false); setIsEditModalOpen(true); }}
-          onDelete={() => setDeleteShare(row)}
-        />
+        <div className="flex justify-center">
+          <ActionCell
+            onView={() => { setSelectedShare(row); setIsDetailOpen(true); setIsEditMode(false); }}
+            onEdit={() => { setSelectedShare(row); setEditFormData(row); setIsDetailOpen(false); setIsEditModalOpen(true); }}
+            onDelete={() => setDeleteShare(row)}
+          />
+        </div>
       ),
     },
   ];
@@ -95,7 +99,7 @@ export default function SharesPage() {
 
       {/* Table */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-5">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between mb-5">
           <SearchBar
             value={searchInput}
             onChange={(value) => {
@@ -106,6 +110,21 @@ export default function SharesPage() {
             placeholder="Search"
             className="w-full max-w-[280px]"
           />
+          <div className="flex flex-wrap gap-2">
+            {tabs.map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                  activeTab === tab
+                    ? 'bg-[#0B5D3B] text-white shadow-sm'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
         </div>
 
         <AccountantTable
@@ -238,15 +257,16 @@ export default function SharesPage() {
                     </div>
                   </div>
 
-                  <button
-                    onClick={() => {
-                      setIsEditMode(true);
-                      setEditFormData(selectedShare);
-                    }}
-                    className="w-full bg-[#0B5D3B] text-white font-semibold py-3 rounded-lg hover:bg-[#094a2e] transition-colors"
-                  >
-                    Edit Share
-                  </button>
+                  {/* Image Placeholder */}
+                  <div className="rounded-xl border-2 border-dashed border-gray-300 p-6 text-center">
+                    <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center">
+                      <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <p className="text-sm font-medium text-gray-700">Payment Proof</p>
+                    <p className="text-xs text-gray-500 mt-1">No image uploaded</p>
+                  </div>
                 </>
               )}
 
@@ -256,7 +276,7 @@ export default function SharesPage() {
                   setIsEditMode(false);
                   setEditFormData(null);
                 }}
-                className="w-full bg-gray-200 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-300 transition-colors"
+                className="w-full bg-[#0B5D3B] text-white font-semibold py-3 rounded-lg hover:bg-[#094a2e] transition-colors"
               >
                 Close
               </button>
