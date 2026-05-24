@@ -67,7 +67,14 @@ export default function LoansPage() {
 
   const filteredLoans = allLoans.filter((loan) => {
     const matchesTab = activeTab === 'All' || loan.status === activeTab;
-    const matchesSearch = String(loan.guarantor || '').toLowerCase().includes(searchQuery.toLowerCase());
+    const lowerSearch = searchQuery.toLowerCase();
+    const amountText = [loan.amount.toString(), loan.amount.toLocaleString()];
+    const matchesSearch =
+      searchQuery === '' ||
+      String(loan.guarantor || '').toLowerCase().includes(lowerSearch) ||
+      loan.status.toLowerCase().includes(lowerSearch) ||
+      loan.description.toLowerCase().includes(lowerSearch) ||
+      amountText.some((value) => value.toLowerCase().includes(lowerSearch));
     return matchesTab && matchesSearch;
   });
 
@@ -197,8 +204,8 @@ export default function LoansPage() {
                   <table className="min-w-full">
                     <thead>
                       <tr className="bg-gray-50 border-b border-gray-200">
+                        <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Name</th>
                         <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Amount</th>
-                        <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Duration</th>
                         <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Status</th>
                         <th className="text-center py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Action</th>
                       </tr>
@@ -206,8 +213,11 @@ export default function LoansPage() {
                     <tbody>
                       {paginatedLoans.map((loan) => (
                         <tr key={loan.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                          <td className="py-3 px-4">
+                            <p className="font-medium text-gray-900 text-xs sm:text-sm">Loan Request</p>
+                            <p className="text-xs text-gray-500">{loan.duration} months</p>
+                          </td>
                           <td className="py-3 px-4 font-semibold text-[#0B5D3B] text-xs sm:text-sm whitespace-nowrap">{loan.amount.toLocaleString()} RWF</td>
-                          <td className="py-3 px-4 text-gray-900 text-xs sm:text-sm whitespace-nowrap">{loan.duration} months</td>
                           <td className="py-3 px-4">
                             <span className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(loan.status)}`}>
                               {loan.status}

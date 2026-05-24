@@ -1,9 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
-import { Megaphone, Plus, Calendar, Users, Edit, Trash2 } from 'lucide-react';
+import { Plus, Edit, Trash2 } from 'lucide-react';
 import { SearchBar } from '@/components/ui/SearchBar';
 import AnnouncementModal from '@/components/admin/AnnouncementModal';
 
@@ -71,85 +69,94 @@ export default function AnnouncementsPage() {
 
   return (
     <div className="space-y-4 sm:space-y-6 animate-in fade-in-0 duration-500">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between animate-in slide-in-from-top-4 duration-500">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between animate-in slide-in-from-top-4 duration-500">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Announcements</h1>
             <p className="text-xs sm:text-sm text-gray-600 mt-1">Create and manage group communications</p>
           </div>
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <SearchBar
-              value={searchQuery}
-              onChange={setSearchQuery}
-              placeholder="Search announcements..."
-              showButton={false}
-              className="max-w-md"
-            />
-            <Button onClick={handleCreate} className="flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-start">
-              <Plus size={16} />
+          <button
+            onClick={handleCreate}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#0B5D3B] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#094a2e] sm:w-auto"
+          >
+            <Plus size={16} />
               New Announcement
-            </Button>
+          </button>
+        </div>
+
+        <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 overflow-hidden animate-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: '100ms' }}>
+          <div className="p-4 sm:p-6 border-b border-gray-100">
+            <div className="w-full lg:max-w-[420px]">
+              <SearchBar
+                value={searchQuery}
+                onChange={setSearchQuery}
+                placeholder="Search announcements..."
+                showButton={false}
+                className="w-full"
+              />
+            </div>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="min-w-full">
+              <thead>
+                <tr className="bg-gray-50 border-b border-gray-200">
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm">Name</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm">Amount</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm">Status</th>
+                  <th className="text-center py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredAnnouncements.map((announcement) => (
+                  <tr key={announcement.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                    <td className="py-3 px-4">
+                      <p className="font-medium text-gray-900 text-xs sm:text-sm">{announcement.title}</p>
+                      <p className="mt-1 max-w-xl truncate text-xs text-gray-500">{announcement.message}</p>
+                    </td>
+                    <td className="py-3 px-4 text-xs sm:text-sm">
+                      <p className="font-semibold text-[#0B5D3B]">{new Date(announcement.date).toLocaleDateString()}</p>
+                      <p className="text-xs text-gray-500">{announcement.audience}</p>
+                    </td>
+                    <td className="py-3 px-4">
+                      <span className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium border ${
+                        announcement.status === 'Published'
+                          ? 'bg-emerald-100 text-emerald-700 border-emerald-200'
+                          : 'bg-amber-100 text-amber-700 border-amber-200'
+                      }`}>
+                        {announcement.status}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-center">
+                      <div className="flex items-center justify-center gap-2">
+                        <button
+                          onClick={() => handleEdit(announcement)}
+                          className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                          title="Edit"
+                        >
+                          <Edit size={16} />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(announcement.id)}
+                          className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition"
+                          title="Delete"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {filteredAnnouncements.length === 0 && (
+                  <tr>
+                    <td colSpan={4} className="px-6 py-12 text-center text-sm text-gray-500">
+                      No announcements found.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 animate-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: '100ms' }}>
-          {filteredAnnouncements.map((announcement) => (
-            <Card key={announcement.id} hover>
-              <CardContent>
-                <div className="flex items-start justify-between mb-3">
-                  <Megaphone size={20} className="text-primary-500 mt-1" />
-                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                    announcement.status === 'Published'
-                      ? 'bg-success-100 text-success-700'
-                      : 'bg-warning-100 text-warning-700'
-                  }`}>
-                    {announcement.status}
-                  </span>
-                </div>
-
-                <h3 className="font-semibold text-gray-900 mb-2">{announcement.title}</h3>
-                <p className="text-sm text-gray-600 mb-4 line-clamp-3">{announcement.message}</p>
-
-                <div className="space-y-2 text-xs text-gray-500">
-                  <div className="flex items-center gap-2">
-                    <Calendar size={14} />
-                    <span>{new Date(announcement.date).toLocaleDateString()}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Users size={14} />
-                    <span>{announcement.audience}</span>
-                  </div>
-                </div>
-
-                <div className="mt-4 pt-4 border-t border-gray-200 flex gap-2">
-                  <Button variant="outline" size="sm" className="flex-1" onClick={() => handleEdit(announcement)}>
-                    <Edit size={14} className="mr-1" />
-                    Edit
-                  </Button>
-                  <Button variant="outline" size="sm" className="flex-1" onClick={() => handleDelete(announcement.id)}>
-                    <Trash2 size={14} className="mr-1" />
-                    Delete
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {filteredAnnouncements.length === 0 && (
-          <Card>
-            <CardContent>
-              <div className="text-center py-8 sm:py-12">
-                <Megaphone size={40} className="text-gray-400 mx-auto mb-4 sm:w-12 sm:h-12" />
-                <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">No Announcements Yet</h3>
-                <p className="text-xs sm:text-sm text-gray-500 mb-4 sm:mb-6">Create your first announcement to communicate with group members.</p>
-                <Button onClick={handleCreate} className="w-full sm:w-auto">
-                  <Plus size={16} className="mr-2" />
-                  Create Announcement
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
 
         <AnnouncementModal
           isOpen={isModalOpen}

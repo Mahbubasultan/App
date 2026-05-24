@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Eye, Edit, Trash2 } from 'lucide-react';
+import { X } from 'lucide-react';
 import { AccountantTable, TableColumn } from '@/components/accountant/AccountantTable';
 import { ConfirmDialog } from '@/components/accountant/ConfirmDialog';
 import { SearchBar } from '@/components/ui/SearchBar';
@@ -38,8 +38,8 @@ export default function SharesPage() {
   const [shares, setShares] = useState<Share[]>(mockShares);
   const [searchInput, setSearchInput] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState('Overview');
-  const tabs = ['Overview', 'Transactions', 'History', 'Analytics'];
+  const [activeTab, setActiveTab] = useState('All');
+  const tabs = ['All', 'Pending', 'Approved'];
   const [selectedShare, setSelectedShare] = useState<Share | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -50,12 +50,12 @@ export default function SharesPage() {
   const columns: TableColumn<Share>[] = [
     {
       key: 'memberName',
-      label: 'Member Name',
+      label: 'Name',
       sortable: true,
     },
     {
       key: 'shares',
-      label: 'Share Amount',
+      label: 'Amount',
       sortable: true,
       render: (value) => `${value.toLocaleString()} shares`,
     },
@@ -81,12 +81,20 @@ export default function SharesPage() {
   ];
 
   const filteredShares = shares.filter((share) => {
-    if (searchQuery.trim() === '') return true;
     const searchText = searchQuery.toLowerCase();
-    return (
+    const amountText = [
+      share.shares.toString(),
+      share.shares.toLocaleString(),
+      share.value.toString(),
+      share.value.toLocaleString(),
+    ];
+    const matchesStatus = activeTab === 'All' || share.status === activeTab.toLowerCase();
+    const matchesSearch = searchQuery.trim() === '' ||
       share.memberName.toLowerCase().includes(searchText) ||
-      share.memberEmail.toLowerCase().includes(searchText)
-    );
+      share.memberEmail.toLowerCase().includes(searchText) ||
+      share.status.toLowerCase().includes(searchText) ||
+      amountText.some((value) => value.toLowerCase().includes(searchText));
+    return matchesStatus && matchesSearch;
   });
 
   return (
@@ -150,7 +158,7 @@ export default function SharesPage() {
                 }}
                 className="text-white hover:bg-white/20 p-2 rounded-lg transition-colors"
               >
-                ✕
+                <X size={20} />
               </button>
             </div>
 

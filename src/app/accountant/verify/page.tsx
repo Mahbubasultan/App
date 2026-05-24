@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { Search, Eye, X, Check, XCircle } from 'lucide-react';
+import { Eye, X, Check, XCircle } from 'lucide-react';
 import { SearchBar } from '@/components/ui/SearchBar';
 
 type PaymentStatus = 'pending' | 'approved' | 'rejected';
@@ -101,23 +101,23 @@ const MOCK_PAYMENTS: Payment[] = [
 
 export default function AccountantVerify() {
   const [payments, setPayments] = useState<Payment[]>(MOCK_PAYMENTS);
-  const [activeTab, setActiveTab] = useState<'all' | PaymentStatus>('all');
+  const [activeTab, setActiveTab] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
 
-  const tabs = [
-    { id: 'all', label: 'All', count: payments.length },
-    { id: 'pending', label: 'Pending', count: payments.filter(p => p.status === 'pending').length },
-    { id: 'approved', label: 'Approved', count: payments.filter(p => p.status === 'approved').length },
-    { id: 'rejected', label: 'Rejected', count: payments.filter(p => p.status === 'rejected').length },
-  ];
+  const tabs = ['All', 'Pending', 'Approved', 'Rejected'];
 
   const filteredPayments = payments.filter(payment => {
-    const matchesTab = activeTab === 'all' || payment.status === activeTab;
-    const matchesSearch = 
-      payment.memberName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      payment.transactionId.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesTab && matchesSearch;
+    const lowerSearch = searchQuery.toLowerCase();
+    const amountText = [payment.amount.toString(), payment.amount.toLocaleString()];
+
+    const matchesStatus = activeTab === 'All' || payment.status === activeTab.toLowerCase();
+    const matchesSearch = searchQuery.trim() === '' ||
+      payment.memberName.toLowerCase().includes(lowerSearch) ||
+      payment.transactionId.toLowerCase().includes(lowerSearch) ||
+      payment.status.toLowerCase().includes(lowerSearch) ||
+      amountText.some((value) => value.toLowerCase().includes(lowerSearch));
+    return matchesStatus && matchesSearch;
   });
 
   const handleApprove = (id: string) => {
@@ -156,21 +156,16 @@ export default function AccountantVerify() {
         <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide animate-in slide-in-from-top-4 duration-500" style={{ animationDelay: '100ms' }}>
           {tabs.map((tab, index) => (
             <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
+              key={tab}
+              onClick={() => setActiveTab(tab)}
               className={`flex items-center gap-2 px-3 sm:px-5 py-2 rounded-lg font-semibold text-xs sm:text-sm whitespace-nowrap transition-all duration-300 hover:scale-105 ${
-                activeTab === tab.id
+                activeTab === tab
                   ? 'bg-[#0B5D3B] text-white shadow-lg'
                   : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
               }`}
               style={{ animationDelay: `${index * 50}ms` }}
             >
-              {tab.label}
-              <span className={`px-1.5 sm:px-2 py-0.5 rounded-full text-xs ${
-                activeTab === tab.id ? 'bg-white/20' : 'bg-gray-100'
-              }`}>
-                {tab.count}
-              </span>
+              {tab}
             </button>
           ))}
         </div>
@@ -225,10 +220,8 @@ export default function AccountantVerify() {
             <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Member</th>
+                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Name</th>
                   <th className="px-4 lg:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Amount</th>
-                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider hidden md:table-cell">Transaction ID</th>
-                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider hidden lg:table-cell">Date</th>
                   <th className="px-4 lg:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
                   <th className="px-4 lg:px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Action</th>
                 </tr>
@@ -236,7 +229,7 @@ export default function AccountantVerify() {
               <tbody className="divide-y divide-gray-200">
                 {filteredPayments.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
+                    <td colSpan={4} className="px-6 py-12 text-center text-gray-500">
                       No payments found
                     </td>
                   </tr>
@@ -248,12 +241,6 @@ export default function AccountantVerify() {
                       </td>
                       <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-semibold text-[#0B5D3B]">{payment.amount.toLocaleString()} RWF</div>
-                      </td>
-                      <td className="px-4 lg:px-6 py-4 whitespace-nowrap hidden md:table-cell">
-                        <div className="text-sm text-gray-600">{payment.transactionId}</div>
-                      </td>
-                      <td className="px-4 lg:px-6 py-4 whitespace-nowrap hidden lg:table-cell">
-                        <div className="text-sm text-gray-600">{payment.date}</div>
                       </td>
                       <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
                         {getStatusBadge(payment.status)}

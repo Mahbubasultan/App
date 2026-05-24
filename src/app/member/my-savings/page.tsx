@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { Plus, Eye, X, Edit, Trash2 } from 'lucide-react';
+import Image from 'next/image';
+import { Plus, X } from 'lucide-react';
 import ActionCell from '@/components/ui/ActionCell';
 import { SearchBar } from '@/components/ui/SearchBar';
 import { useLocalSavings } from '@/hooks/useLocalSavings';
@@ -19,8 +20,7 @@ import {
 
 interface MemberShare {
   id: string;
-  name: string;
-  memberEmail: string;
+  name: string; 
 }
 
 const initialDraft: SavingDraft = {
@@ -33,14 +33,15 @@ const initialDraft: SavingDraft = {
 const itemsPerPage = 5;
 
 export default function MySavings() {
-  const { records, addSaving, updateSaving, isLoading } = useLocalSavings();
+  const { records, addSaving, updateSaving, deleteSaving, isLoading } = useLocalSavings();
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState('Overview');
-  const tabs = ['Overview', 'Transactions', 'History', 'Analytics'];
+  const [activeTab, setActiveTab] = useState('All');
+  const tabs = ['All', 'Pending', 'Approved', 'Rejected'];
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedSaving, setSelectedSaving] = useState<SavingRecord | null>(null);
+  const [editingSaving, setEditingSaving] = useState<SavingRecord | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [storageError, setStorageError] = useState<string | null>(null);
   const [viewError, setViewError] = useState<string | null>(null);
@@ -98,10 +99,20 @@ export default function MySavings() {
   const filteredSavings = useMemo(() => {
     return records.filter((saving) => {
       const lowerSearch = searchQuery.toLowerCase();
-      return saving.shareName.toLowerCase().includes(lowerSearch) ||
-        saving.status.toLowerCase().includes(lowerSearch);
+      const amountText = [saving.amount.toString(), saving.amount.toLocaleString()];
+      const matchesStatus = activeTab === 'All' || saving.status === activeTab;
+      const matchesSearch =
+        searchQuery === '' ||
+        saving.shareName.toLowerCase().includes(lowerSearch) ||
+        saving.status.toLowerCase().includes(lowerSearch) ||
+        amountText.some((value) => value.toLowerCase().includes(lowerSearch));
+      return matchesStatus && matchesSearch;
     });
-  }, [records, searchQuery]);
+  }, [records, searchQuery, activeTab]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, activeTab]);
 
   const totalPages = Math.ceil(filteredSavings.length / itemsPerPage);
 
@@ -117,7 +128,9 @@ export default function MySavings() {
     };
 
     setFormData(nextDraft);
-    saveSavingDraft(nextDraft);
+    if (!editingSaving) {
+      saveSavingDraft(nextDraft);
+    }
   };
 
   const handleFileChange = async (
@@ -149,28 +162,80 @@ export default function MySavings() {
       const share = availableShares.find(
         (item) => item.id.toString() === formData.shareId
       );
+      const isCurrentEditedShare = editingSaving && formData.shareId === `current-${editingSaving.id}`;
+      const shareName = share?.name || (isCurrentEditedShare ? editingSaving.shareName : '');
 
-      if (!share) {
+      if (!shareName) {
         setStorageError('Please select a share.');
         return;
       }
 
-      await addSaving({
-        shareName: share.name,
-        amount: formData.amount,
-        screenshot: formData.screenshot || '',
-        screenshotFileName: formData.screenshotFileName,
-        date: new Date().toISOString().split('T')[0],
-        status: 'Pending',
-      });
+      if (editingSaving) {
+        await updateSaving(editingSaving.id, {
+          shareName,
+          amount: formData.amount,
+          screenshot: formData.screenshot || '',
+          screenshotFileName: formData.screenshotFileName,
+        });
+      } else {
+        await addSaving({
+          shareName,
+          amount: formData.amount,
+          screenshot: formData.screenshot || '',
+          screenshotFileName: formData.screenshotFileName,
+          date: new Date().toISOString().split('T')[0],
+          status: 'Pending',
+        });
+      }
 
       clearSavingDraft();
       setFormData(initialDraft);
       setIsAddModalOpen(false);
+      setEditingSaving(null);
       setStorageError(null);
       setAddImagePreview(null);
     } catch {
       setStorageError('Unable to save record.');
+    }
+  };
+
+  const openAddModal = () => {
+    clearSavingDraft();
+    setEditingSaving(null);
+    setSelectedSaving(null);
+    setFormData(initialDraft);
+    setAddImagePreview(null);
+    setStorageError(null);
+    setIsAddModalOpen(true);
+  };
+
+  const openEditModal = (saving: SavingRecord) => {
+    const matchingShare = availableShares.find((share) => share.name === saving.shareName);
+    setEditingSaving(saving);
+    setSelectedSaving(saving);
+    setFormData({
+      shareId: matchingShare?.id.toString() || `current-${saving.id}`,
+      amount: saving.amount,
+      screenshot: saving.screenshot || null,
+      screenshotFileName: saving.screenshotFileName || '',
+    });
+    setAddImagePreview(
+      saving.screenshot
+        ? base64ToDataUrl(saving.screenshot, getMimeTypeFromFileName(saving.screenshotFileName || ''))
+        : null
+    );
+    setStorageError(null);
+    setIsAddModalOpen(true);
+  };
+
+  const closeFormModal = () => {
+    setIsAddModalOpen(false);
+    setEditingSaving(null);
+    setSelectedSaving(null);
+    setFormData(initialDraft);
+    setAddImagePreview(null);
+    if (!editingSaving) {
+      clearSavingDraft();
     }
   };
 
@@ -225,7 +290,7 @@ export default function MySavings() {
           </p>
         </div>
         <button
-          onClick={() => setIsAddModalOpen(true)}
+          onClick={openAddModal}
           className="inline-flex items-center gap-2 rounded-2xl bg-[#0B5D3B] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#094a2e]"
         >
           <Plus size={18} />
@@ -268,7 +333,7 @@ export default function MySavings() {
           <table className="min-w-full">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="text-left py-3 px-4">Share Name</th>
+                <th className="text-left py-3 px-4">Name</th>
                 <th className="text-left py-3 px-4">Amount</th>
                 <th className="text-left py-3 px-4">Status</th>
                 <th className="text-center py-3 px-4">Action</th>
@@ -293,12 +358,11 @@ export default function MySavings() {
                         setIsViewModalOpen(true);
                       }}
                       onEdit={() => {
-                        setSelectedSaving(saving);
-                        setIsAddModalOpen(true);
+                        openEditModal(saving);
                       }}
-                      onDelete={() => {
+                      onDelete={async () => {
                         if (confirm('Are you sure you want to delete this saving?')) {
-                          // Handle delete
+                          await deleteSaving(saving.id);
                         }
                       }}
                     />
@@ -354,10 +418,10 @@ export default function MySavings() {
           <div className="w-full max-w-2xl overflow-hidden rounded-3xl bg-white shadow-2xl">
             <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
               <div>
-                <h2 className="text-xl font-bold text-gray-900">Add New Saving</h2>
-                <p className="text-sm text-gray-600">Add a savings record and upload proof image if available.</p>
+                <h2 className="text-xl font-bold text-gray-900">{editingSaving ? 'Edit Saving' : 'Add New Saving'}</h2>
+                <p className="text-sm text-gray-600">{editingSaving ? 'Update your savings record and proof image.' : 'Add a savings record and upload proof image if available.'}</p>
               </div>
-              <button onClick={() => setIsAddModalOpen(false)} className="rounded-full p-2 text-gray-500 hover:bg-gray-100">
+              <button onClick={closeFormModal} className="rounded-full p-2 text-gray-500 hover:bg-gray-100">
                 <X size={20} />
               </button>
             </div>
@@ -373,6 +437,9 @@ export default function MySavings() {
                     <option value="" disabled={availableShares.length > 0}>
                       {availableShares.length > 0 ? 'Select share' : 'Loading shares...'}
                     </option>
+                    {editingSaving && !availableShares.some((share) => share.id.toString() === formData.shareId) && (
+                      <option value={`current-${editingSaving.id}`}>{editingSaving.shareName}</option>
+                    )}
                     {availableShares.length === 0 && (
                       <option value="" disabled>No shares available</option>
                     )}
@@ -406,20 +473,28 @@ export default function MySavings() {
                 {addImagePreview && (
                   <div className="mt-4">
                     <p className="text-sm font-medium text-gray-700 mb-2">Preview:</p>
-                    <img src={addImagePreview} alt="Proof preview" className="max-w-full h-auto max-h-48 rounded-lg border border-gray-200" />
+                    <div className="relative h-48 w-full overflow-hidden rounded-lg border border-gray-200">
+                      <Image
+                        src={addImagePreview}
+                        alt="Proof preview"
+                        fill
+                        unoptimized
+                        className="object-contain"
+                      />
+                    </div>
                   </div>
                 )}
               </div>
             </div>
             <div className="flex flex-col gap-3 border-t border-gray-200 px-6 py-4 md:flex-row md:justify-end">
               <button
-                onClick={() => { setIsAddModalOpen(false); setAddImagePreview(null); }}
+                onClick={closeFormModal}
                 className="rounded-2xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
               >
                 Cancel
               </button>
               <button onClick={handleSubmit} className="rounded-2xl bg-[#0B5D3B] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#094a2e]">
-                Save Saving
+                {editingSaving ? 'Update Saving' : 'Save Saving'}
               </button>
             </div>
           </div>
@@ -463,11 +538,15 @@ export default function MySavings() {
                 {viewImagePreview && (
                   <div className="rounded-2xl border border-gray-200 p-4">
                     <p className="text-sm font-semibold text-gray-700 mb-3">Proof Image</p>
-                    <img 
-                      src={viewImagePreview} 
-                      alt="Proof preview" 
-                      className="w-full h-auto max-h-64 object-contain rounded-xl"
-                    />
+                    <div className="relative h-64 w-full overflow-hidden rounded-xl">
+                      <Image
+                        src={viewImagePreview}
+                        alt="Proof preview"
+                        fill
+                        unoptimized
+                        className="object-contain"
+                      />
+                    </div>
                   </div>
                 )}
               </div>

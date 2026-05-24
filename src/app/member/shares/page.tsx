@@ -29,6 +29,7 @@ interface ShareRecord {
 export default function Shares() {
   const { t } = useSettings();
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState('All');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -36,6 +37,7 @@ export default function Shares() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [shares, setShares] = useState<ShareRecord[]>(defaultShares);
+  const tabs = ['All', 'Pending', 'Approved', 'Rejected'];
 
   useEffect(() => {
     const saved = localStorage.getItem('memberShares');
@@ -50,7 +52,7 @@ export default function Shares() {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, pageSize]);
+  }, [searchQuery, activeTab, pageSize]);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -59,11 +61,15 @@ export default function Shares() {
 
   const filteredShares = shares.filter((share) => {
     const lowerSearch = searchQuery.toLowerCase();
-    return (
+    const amountText = [share.totalContributed.toString(), share.totalContributed.toLocaleString(), share.value.toString(), share.value.toLocaleString()];
+    const matchesStatus = activeTab === 'All' || share.status === activeTab;
+    const matchesSearch = searchQuery === '' || (
       share.name.toLowerCase().includes(lowerSearch) ||
       share.id.toLowerCase().includes(lowerSearch) ||
-      share.status.toLowerCase().includes(lowerSearch)
+      share.status.toLowerCase().includes(lowerSearch) ||
+      amountText.some((value) => value.toLowerCase().includes(lowerSearch))
     );
+    return matchesStatus && matchesSearch;
   });
 
   const totalPages = Math.max(1, Math.ceil(filteredShares.length / pageSize));
@@ -179,6 +185,21 @@ export default function Shares() {
                   className="w-full"
                 />
               </div>
+              <div className="flex flex-wrap items-center gap-2">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                      activeTab === tab
+                        ? 'bg-[#0B5D3B] text-white shadow-lg'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    {tab}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -196,8 +217,8 @@ export default function Shares() {
                   <table className="min-w-full">
                     <thead>
                       <tr className="border-b border-gray-200 bg-gray-50">
-                        <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Share Name</th>
-                        <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Contribution</th>
+                        <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Name</th>
+                        <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Amount</th>
                         <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Status</th>
                         <th className="text-center py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Action</th>
                       </tr>

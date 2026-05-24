@@ -14,8 +14,8 @@ export default function LoansPage() {
   const [loans, setLoans] = useState<Loan[]>(mockLoans);
   const [searchInput, setSearchInput] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState('Overview');
-  const tabs = ['Overview', 'Pending', 'Approved', 'Rejected'];
+  const [activeTab, setActiveTab] = useState('All');
+  const tabs = ['All', 'Pending', 'Approved', 'Rejected'];
   const [selectedLoan, setSelectedLoan] = useState<Loan | null>(null);
   const [loanForm, setLoanForm] = useState<Loan | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
@@ -25,13 +25,19 @@ export default function LoansPage() {
   const itemsPerPage = 10;
 
   const filteredLoans = loans.filter((loan) => {
-    if (searchQuery.trim() === '') return true;
     const searchText = searchQuery.toLowerCase();
-    return (
+    const amountText = [
+      loan.amount.toString(),
+      loan.amount.toLocaleString(),
+      `${(loan.amount / 1000).toFixed(0)}k`,
+    ];
+    const matchesStatus = activeTab === 'All' || loan.status === activeTab.toLowerCase();
+    const matchesSearch = searchQuery.trim() === '' ||
       loan.borrowerName.toLowerCase().includes(searchText) ||
       loan.guarantorName.toLowerCase().includes(searchText) ||
-      loan.status.toLowerCase().includes(searchText)
-    );
+      loan.status.toLowerCase().includes(searchText) ||
+      amountText.some((value) => value.toLowerCase().includes(searchText));
+    return matchesStatus && matchesSearch;
   });
 
   const totalPages = Math.ceil(filteredLoans.length / itemsPerPage);
@@ -107,9 +113,8 @@ export default function LoansPage() {
             <table className="min-w-full">
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-200">
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Member Name</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Loan Amount</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Guarantor</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Name</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Amount</th>
                   <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Status</th>
                   <th className="text-center py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Action</th>
                 </tr>
@@ -117,9 +122,11 @@ export default function LoansPage() {
               <tbody>
                 {paginatedLoans.map((loan) => (
                   <tr key={loan.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                    <td className="py-3 px-4 font-medium text-gray-900 text-xs sm:text-sm">{loan.borrowerName}</td>
+                    <td className="py-3 px-4">
+                      <p className="font-medium text-gray-900 text-xs sm:text-sm">{loan.borrowerName}</p>
+                      <p className="text-xs text-gray-500">Guarantor: {loan.guarantorName}</p>
+                    </td>
                     <td className="py-3 px-4 text-[#0B5D3B] font-semibold text-xs sm:text-sm whitespace-nowrap">{(loan.amount / 1000).toFixed(0)}K RWF</td>
-                    <td className="py-3 px-4 text-gray-900 text-xs sm:text-sm">{loan.guarantorName}</td>
                     <td className="py-3 px-4">
                       <span className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(loan.status)}`}>
                         {loan.status.charAt(0).toUpperCase() + loan.status.slice(1)}

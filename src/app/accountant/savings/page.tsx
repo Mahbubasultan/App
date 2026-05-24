@@ -22,8 +22,8 @@ type Saving = typeof mockSavings[0];
 export default function AccountantSavings() {
   const [searchInput, setSearchInput] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState('Overview');
-  const tabs = ['Overview', 'Transactions', 'History', 'Analytics'];
+  const [activeTab, setActiveTab] = useState('All');
+  const tabs = ['All', 'Pending', 'Approved', 'Rejected'];
   const [savings, setSavings] = useState<Saving[]>(mockSavings);
   const [selectedSaving, setSelectedSaving] = useState<Saving | null>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
@@ -35,12 +35,15 @@ export default function AccountantSavings() {
 
   const filteredSavings = savings.filter(saving => {
     const lowerSearch = searchQuery.toLowerCase();
-    const matchesSearch =
-      searchQuery === '' ||
+    const amountText = [saving.amount.toString(), saving.amount.toLocaleString()];
+
+    const matchesStatus = activeTab === 'All' || saving.status === activeTab;
+    const matchesSearch = searchQuery === '' ||
       saving.memberName.toLowerCase().includes(lowerSearch) ||
       saving.shareName.toLowerCase().includes(lowerSearch) ||
-      saving.status.toLowerCase().includes(lowerSearch);
-    return matchesSearch;
+      saving.status.toLowerCase().includes(lowerSearch) ||
+      amountText.some((value) => value.toLowerCase().includes(lowerSearch));
+    return matchesStatus && matchesSearch;
   });
 
   const totalPages = Math.ceil(filteredSavings.length / itemsPerPage);
@@ -116,7 +119,7 @@ export default function AccountantSavings() {
             <table className="min-w-full">
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-200">
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Member</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Name</th>
                   <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Amount</th>
                   <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Status</th>
                   <th className="text-center py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Action</th>

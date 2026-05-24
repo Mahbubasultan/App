@@ -1,12 +1,15 @@
 'use client';
 
+import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { mockGroupStats, mockMonthlyData } from '@/lib/mockData';
 import { formatCurrency } from '@/lib/utils';
-import { Users, DollarSign, TrendingUp, AlertCircle, ArrowUpRight, ArrowDownRight, BarChart3, PieChart, Activity } from 'lucide-react';
+import { Users, DollarSign, TrendingUp, AlertCircle, ArrowUpRight, ArrowDownRight, BarChart3, PieChart, Activity, Eye } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line, PieChart as RechartsPieChart, Pie, Cell, Area, AreaChart } from 'recharts';
 
 export default function AdminAnalytics() {
+  const [monthlyStatusTab, setMonthlyStatusTab] = useState('All');
+  const monthlyStatusTabs = ['All', 'Positive', 'Negative'];
   const stats = [
     { label: 'Total Members', value: mockGroupStats.totalMembers, icon: Users, color: 'bg-primary-500', change: '+3' },
     { label: 'Total Savings', value: formatCurrency(mockGroupStats.totalValue), icon: DollarSign, color: 'bg-success-500', change: '+8.2%' },
@@ -53,6 +56,10 @@ export default function AdminAnalytics() {
     { name: 'Eric Habimana', actions: 38 },
     { name: 'Grace Umutoni', actions: 12 },
   ];
+  const filteredMonthlyData = mockMonthlyData.filter((data) => {
+    if (monthlyStatusTab === 'All') return true;
+    return monthlyStatusTab === 'Positive' ? data.netFlow >= 0 : data.netFlow < 0;
+  });
 
   return (
       <div className="space-y-4 sm:space-y-6 animate-in fade-in-0 duration-500">
@@ -208,36 +215,56 @@ export default function AdminAnalytics() {
             <CardTitle className="text-lg sm:text-xl">Monthly Overview</CardTitle>
           </CardHeader>
           <CardContent>
+            <div className="mb-4 flex flex-wrap gap-2">
+              {monthlyStatusTabs.map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setMonthlyStatusTab(tab)}
+                  className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                    monthlyStatusTab === tab
+                      ? 'bg-[#0B5D3B] text-white shadow-sm'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
             <div className="overflow-x-auto">
               <table className="w-full text-xs sm:text-sm">
                 <thead>
                   <tr className="border-b">
-                    <th className="text-left py-2 sm:py-3 px-2 sm:px-4 font-semibold text-gray-700">Month</th>
-                    <th className="text-right py-2 sm:py-3 px-2 sm:px-4 font-semibold text-gray-700">Contributions</th>
-                    <th className="text-right py-2 sm:py-3 px-2 sm:px-4 font-semibold text-gray-700">Loans</th>
-                    <th className="text-right py-2 sm:py-3 px-2 sm:px-4 font-semibold text-gray-700">Repayments</th>
-                    <th className="text-right py-2 sm:py-3 px-2 sm:px-4 font-semibold text-gray-700">Giveaway</th>
-                    <th className="text-right py-2 sm:py-3 px-2 sm:px-4 font-semibold text-gray-700">Net Flow</th>
+                    <th className="text-left py-2 sm:py-3 px-2 sm:px-4 font-semibold text-gray-700">Name</th>
+                    <th className="text-left py-2 sm:py-3 px-2 sm:px-4 font-semibold text-gray-700">Amount</th>
+                    <th className="text-left py-2 sm:py-3 px-2 sm:px-4 font-semibold text-gray-700">Status</th>
+                    <th className="text-center py-2 sm:py-3 px-2 sm:px-4 font-semibold text-gray-700">Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {mockMonthlyData.map((data) => (
+                  {filteredMonthlyData.map((data) => (
                     <tr key={`${data.month}-${data.year}`} className="border-b hover:bg-gray-50 transition-colors">
                       <td className="py-2 sm:py-4 px-2 sm:px-4 font-medium text-gray-900 whitespace-nowrap">{data.month} {data.year}</td>
-                      <td className="py-2 sm:py-4 px-2 sm:px-4 text-right text-success-600 font-semibold">
-                        +{formatCurrency(data.contributions)}
-                      </td>
-                      <td className="py-2 sm:py-4 px-2 sm:px-4 text-right text-danger-600 font-semibold">
-                        -{formatCurrency(data.loans)}
-                      </td>
-                      <td className="py-2 sm:py-4 px-2 sm:px-4 text-right text-success-600 font-semibold">
-                        +{formatCurrency(data.repayments)}
-                      </td>
-                      <td className="py-2 sm:py-4 px-2 sm:px-4 text-right text-warning-600 font-semibold">
-                        -{formatCurrency(data.giveaway)}
-                      </td>
-                      <td className={`py-2 sm:py-4 px-2 sm:px-4 text-right font-bold whitespace-nowrap ${data.netFlow >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
+                      <td className={`py-2 sm:py-4 px-2 sm:px-4 font-bold whitespace-nowrap ${data.netFlow >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
                         {data.netFlow >= 0 ? '+' : ''}{formatCurrency(data.netFlow)}
+                      </td>
+                      <td className="py-2 sm:py-4 px-2 sm:px-4">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium border ${
+                          data.netFlow >= 0
+                            ? 'bg-emerald-100 text-emerald-700 border-emerald-200'
+                            : 'bg-rose-100 text-rose-700 border-rose-200'
+                        }`}>
+                          {data.netFlow >= 0 ? 'Positive' : 'Negative'}
+                        </span>
+                      </td>
+                      <td className="py-2 sm:py-4 px-2 sm:px-4 text-center">
+                        <button
+                          type="button"
+                          onClick={() => alert(`${data.month} ${data.year}: ${formatCurrency(data.netFlow)} net flow`)}
+                          className="inline-flex items-center justify-center p-2 text-[#0B5D3B] hover:bg-[#0B5D3B]/10 rounded-lg transition"
+                          title="View monthly overview"
+                        >
+                          <Eye size={16} />
+                        </button>
                       </td>
                     </tr>
                   ))}

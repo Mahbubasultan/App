@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Eye, X, Filter, UserCheck, Activity, Clock, CheckCircle } from 'lucide-react';
+import { X, UserCheck, Activity, Clock, CheckCircle } from 'lucide-react';
 import ActionCell from '@/components/ui/ActionCell';
 import { SearchBar } from '@/components/ui/SearchBar';
 
@@ -30,15 +30,22 @@ const mockLogs: AccountantLog[] = [
 
 export default function AdminAccountants() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('All');
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [activeStatusTab, setActiveStatusTab] = useState('All');
   const [selectedAccountant, setSelectedAccountant] = useState<any>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'list' | 'logs'>('list');
+  const statusTabs = ['All', 'Active', 'Inactive'];
 
   const filteredAccountants = mockAccountants.filter(acc => {
-    const matchesSearch = acc.name.toLowerCase().includes(searchQuery.toLowerCase()) || acc.email.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === 'All' || acc.status === statusFilter;
+    const lowerSearch = searchQuery.toLowerCase();
+    const amountText = [acc.actionsToday.toString(), acc.totalActions.toString()];
+    const matchesSearch = searchQuery === '' || (
+        acc.name.toLowerCase().includes(lowerSearch) ||
+        acc.email.toLowerCase().includes(lowerSearch) ||
+        acc.status.toLowerCase().includes(lowerSearch) ||
+        amountText.some((value) => value.toLowerCase().includes(lowerSearch))
+      );
+    const matchesStatus = activeStatusTab === 'All' || acc.status === activeStatusTab;
     return matchesSearch && matchesStatus;
   });
 
@@ -91,66 +98,38 @@ export default function AdminAccountants() {
 
       {activeTab === 'list' && (
         <>
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 animate-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: '200ms' }}>
-            <div className="bg-white rounded-xl p-4 border border-gray-200">
-              <p className="text-sm text-gray-600">Total Accountants</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">{mockAccountants.length}</p>
-            </div>
-            <div className="bg-white rounded-xl p-4 border border-gray-200">
-              <p className="text-sm text-gray-600">Active Today</p>
-              <p className="text-2xl font-bold text-green-600 mt-1">{mockAccountants.filter(a => a.actionsToday > 0).length}</p>
-            </div>
-            <div className="bg-white rounded-xl p-4 border border-gray-200">
-              <p className="text-sm text-gray-600">Total Actions Today</p>
-              <p className="text-2xl font-bold text-blue-600 mt-1">{mockAccountants.reduce((sum, a) => sum + a.actionsToday, 0)}</p>
-            </div>
-          </div>
-
           {/* Content Card */}
-          <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 overflow-hidden animate-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: '300ms' }}>
+          <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 overflow-hidden animate-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: '200ms' }}>
             {/* Filter Section */}
             <div className="p-4 sm:p-6 border-b border-gray-100">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                <div className="flex-1 min-w-0">
+                <div className="w-full lg:max-w-[420px]">
                   <SearchBar
                     value={searchQuery}
                     onChange={setSearchQuery}
                     placeholder="Search accountants by name or email..."
+                    className="w-full"
                   />
                 </div>
 
                 <div className="relative">
-                  <button
-                    onClick={() => setIsFilterOpen(!isFilterOpen)}
-                    className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-xl bg-white hover:bg-gray-50 transition-all text-sm font-medium text-gray-700 active:scale-95"
-                  >
-                    <Filter size={18} />
-                    <span>{statusFilter}</span>
-                  </button>
-                  
-                  {isFilterOpen && (
-                    <>
-                      <div className="fixed inset-0 z-10" onClick={() => setIsFilterOpen(false)} />
-                      <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-20 animate-in fade-in-0 zoom-in-95 duration-200">
-                        {['All', 'Active', 'Inactive'].map((status) => (
-                          <button
-                            key={status}
-                            onClick={() => {
-                              setStatusFilter(status);
-                              setIsFilterOpen(false);
-                            }}
-                            className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 transition-colors ${
-                              statusFilter === status ? 'bg-[#0B5D3B]/10 text-[#0B5D3B] font-semibold' : 'text-gray-700'
-                            }`}
-                          >
-                            {status}
-                          </button>
-                        ))}
-                      </div>
-                    </>
-                  )}
+                  <div className="flex flex-wrap gap-2">
+                    {statusTabs.map((tab) => (
+                      <button
+                        key={tab}
+                        onClick={() => setActiveStatusTab(tab)}
+                        className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                          activeStatusTab === tab
+                            ? 'bg-[#0B5D3B] text-white shadow-sm'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        {tab}
+                      </button>
+                    ))}
+                  </div>
                 </div>
+
               </div>
             </div>
 
@@ -160,8 +139,7 @@ export default function AdminAccountants() {
                 <thead>
                   <tr className="bg-gray-50 border-b border-gray-200">
                     <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm">Name</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm">Email</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm">Actions Today</th>
+                    <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm">Amount</th>
                     <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm">Status</th>
                     <th className="text-center py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm">Action</th>
                   </tr>
@@ -169,8 +147,10 @@ export default function AdminAccountants() {
                 <tbody>
                   {filteredAccountants.map((accountant) => (
                     <tr key={accountant.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                      <td className="py-3 px-4 font-medium text-gray-900 text-xs sm:text-sm">{accountant.name}</td>
-                      <td className="py-3 px-4 text-gray-600 text-xs sm:text-sm">{accountant.email}</td>
+                      <td className="py-3 px-4">
+                        <p className="font-medium text-gray-900 text-xs sm:text-sm">{accountant.name}</p>
+                        <p className="text-xs text-gray-500">{accountant.email}</p>
+                      </td>
                       <td className="py-3 px-4 text-xs sm:text-sm">
                         <span className="font-semibold text-[#0B5D3B]">{accountant.actionsToday}</span>
                         <span className="text-gray-500"> / {accountant.totalActions}</span>

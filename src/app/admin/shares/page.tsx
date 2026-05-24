@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Eye, Edit, Trash2, X } from 'lucide-react';
+import { ImageIcon, X } from 'lucide-react';
 import { SearchBar } from '@/components/ui/SearchBar';
 import { StatusBadge } from '@/components/accountant/StatusBadge';
 import ActionCell from '@/components/ui/ActionCell';
@@ -33,8 +33,8 @@ export default function AdminSharesPage() {
   const [shares, setShares] = useState<Share[]>(mockShares);
   const [searchInput, setSearchInput] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState('Overview');
-  const tabs = ['Overview', 'Transactions', 'History', 'Analytics'];
+  const [activeTab, setActiveTab] = useState('All');
+  const tabs = ['All', 'Pending', 'Approved'];
   const [selectedShare, setSelectedShare] = useState<Share | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -45,12 +45,20 @@ export default function AdminSharesPage() {
   const itemsPerPage = 10;
 
   const filteredShares = shares.filter((share) => {
-    if (searchQuery.trim() === '') return true;
     const searchText = searchQuery.toLowerCase();
-    return (
+    const amountText = [
+      share.shares.toString(),
+      share.shares.toLocaleString(),
+      share.value.toString(),
+      share.value.toLocaleString(),
+    ];
+    const matchesStatus = activeTab === 'All' || share.status === activeTab.toLowerCase();
+    const matchesSearch = searchQuery.trim() === '' ||
       share.memberName.toLowerCase().includes(searchText) ||
-      share.memberEmail.toLowerCase().includes(searchText)
-    );
+      share.memberEmail.toLowerCase().includes(searchText) ||
+      share.status.toLowerCase().includes(searchText) ||
+      amountText.some((value) => value.toLowerCase().includes(searchText));
+    return matchesStatus && matchesSearch;
   });
 
   const totalPages = Math.ceil(filteredShares.length / itemsPerPage);
@@ -106,8 +114,8 @@ export default function AdminSharesPage() {
             <table className="min-w-full">
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-200">
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Member Name</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Share Amount</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Name</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Amount</th>
                   <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Status</th>
                   <th className="text-center py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Action</th>
                 </tr>
@@ -190,6 +198,14 @@ export default function AdminSharesPage() {
 
             <div className="p-6 space-y-6">
               <div className="grid grid-cols-2 gap-4">
+                <div className="col-span-2 rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-6 text-center">
+                  <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-white text-gray-400 shadow-sm">
+                    <ImageIcon size={28} />
+                  </div>
+                  <p className="text-sm font-semibold text-gray-700">Payment Proof</p>
+                  <p className="mt-1 text-xs text-gray-500">No image uploaded</p>
+                </div>
+
                 <div className="rounded-lg bg-gray-50 p-4 border border-gray-200">
                   <p className="text-xs uppercase tracking-wider text-gray-600 mb-1">Member Name</p>
                   <p className="text-lg font-semibold text-gray-900">{selectedShare.memberName}</p>

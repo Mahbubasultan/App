@@ -40,8 +40,8 @@ const monthlyGrowth = [
 
 export default function AdminDashboard() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState('overview');
-  const tabs = ['Overview', 'Recent Savings', 'Recent Loans', 'Recent Guarantors'];
+  const [activeTab, setActiveTab] = useState('All');
+  const tabs = ['All', 'Pending', 'Approved', 'Rejected', 'On Hold'];
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
@@ -51,29 +51,65 @@ export default function AdminDashboard() {
       case 'approved': return 'bg-emerald-100 text-emerald-700 border border-emerald-200';
       case 'pending': return 'bg-amber-100 text-amber-700 border border-amber-200';
       case 'rejected': return 'bg-rose-100 text-rose-700 border border-rose-200';
+      case 'on hold': return 'bg-blue-100 text-blue-700 border border-blue-200';
       default: return 'bg-gray-100 text-gray-700 border border-gray-200';
     }
   };
 
-  const filteredSavings = mockUsers
+  const recentSavings = mockUsers
     .map(u => ({
-      id: u.id,
+      id: `saving-${u.id}`,
       memberName: u.name,
       shareName: 'Monthly Share',
       amount: u.totalValue / 10,
       status: 'Approved',
       date: '2024-01-15',
     }))
-    .filter(s => s.memberName.toLowerCase().includes(searchQuery.toLowerCase()))
     .slice(0, 10);
 
-  const recentLoans = mockLoans
-    .filter(l => l.borrowerName.toLowerCase().includes(searchQuery.toLowerCase()))
-    .slice(0, 10);
-
-  const recentGuarantors = mockGuarantors
-    .filter(g => g.guarantorName.toLowerCase().includes(searchQuery.toLowerCase()))
-    .slice(0, 10);
+  const recentLoans = mockLoans.slice(0, 10);
+  const recentGuarantors = mockGuarantors.slice(0, 10);
+  const dashboardRows = [
+    ...recentSavings.map((saving) => ({
+      id: saving.id,
+      name: saving.memberName,
+      subtitle: 'Savings',
+      amount: saving.amount,
+      status: saving.status,
+      route: '/admin/savings',
+      original: saving,
+    })),
+    ...recentLoans.map((loan) => ({
+      id: `loan-${loan.id}`,
+      name: loan.borrowerName,
+      subtitle: `Loan - Guarantor: ${loan.guarantorName}`,
+      amount: loan.amount,
+      status: loan.status.charAt(0).toUpperCase() + loan.status.slice(1),
+      route: '/admin/loans',
+      original: loan,
+    })),
+    ...recentGuarantors.map((guarantor) => ({
+      id: `guarantor-${guarantor.id}`,
+      name: guarantor.guarantorName,
+      subtitle: `Guarantor - Borrower: ${guarantor.borrowerName}`,
+      amount: guarantor.loanAmount,
+      status: guarantor.status,
+      route: '/admin/guarantor',
+      original: guarantor,
+    })),
+  ];
+  const filteredDashboardRows = dashboardRows.filter((row) => {
+    const lowerSearch = searchQuery.toLowerCase();
+    const amountText = [row.amount.toString(), row.amount.toLocaleString()];
+    const matchesStatus = activeTab === 'All' || row.status === activeTab;
+    const matchesSearch =
+      searchQuery === '' ||
+      row.name.toLowerCase().includes(lowerSearch) ||
+      row.subtitle.toLowerCase().includes(lowerSearch) ||
+      row.status.toLowerCase().includes(lowerSearch) ||
+      amountText.some((value) => value.toLowerCase().includes(lowerSearch));
+    return matchesStatus && matchesSearch;
+  });
 
   const cards = [
     {
@@ -164,9 +200,9 @@ export default function AdminDashboard() {
                 {tabs.map((tab) => (
                   <button
                     key={tab}
-                    onClick={() => setActiveTab(tab.toLowerCase().replace(' ', ''))}
+                    onClick={() => setActiveTab(tab)}
                     className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-                      activeTab === tab.toLowerCase().replace(' ', '')
+                      activeTab === tab
                         ? 'bg-[#0B5D3B] text-white shadow-sm'
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
@@ -183,126 +219,29 @@ export default function AdminDashboard() {
             <table className="min-w-full">
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-200">
-                  {activeTab === 'overview' && (
-                    <>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm">Stat</th>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm">Value</th>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm">Trend</th>
-                    </>
-                  )}
-                  {activeTab === 'recentsavings' && (
-                    <>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm">Member</th>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm">Amount</th>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm">Status</th>
-                      <th className="text-center py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm">Action</th>
-                    </>
-                  )}
-                  {activeTab === 'recentloans' && (
-                    <>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm">Borrower</th>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm">Amount</th>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm">Guarantor</th>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm">Status</th>
-                      <th className="text-center py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm">Action</th>
-                    </>
-                  )}
-                  {activeTab === 'recentguarantors' && (
-                    <>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm">Guarantor</th>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm">Borrower</th>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm">Loan Amount</th>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm">Status</th>
-                      <th className="text-center py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm">Action</th>
-                    </>
-                  )}
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm">Name</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm">Amount</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm">Status</th>
+                  <th className="text-center py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm">Action</th>
                 </tr>
               </thead>
               <tbody>
-                {activeTab === 'overview' && (
-                  <>
-                    <tr className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="py-3 px-4 font-medium text-gray-900 text-sm">Active Members</td>
-                      <td className="py-3 px-4 text-[#0B5D3B] font-bold text-sm">{summaryData.totalMembers}</td>
-                      <td className="py-3 px-4 text-green-600 font-semibold text-sm">+4.3%</td>
-                    </tr>
-                    <tr className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="py-3 px-4 font-medium text-gray-900 text-sm">Accountants</td>
-                      <td className="py-3 px-4 text-[#0B5D3B] font-bold text-sm">{summaryData.totalAccountants}</td>
-                      <td className="py-3 px-4 text-green-600 font-semibold text-sm">Active</td>
-                    </tr>
-                    <tr className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="py-3 px-4 font-medium text-gray-900 text-sm">Active Loans</td>
-                      <td className="py-3 px-4 text-[#0B5D3B] font-bold text-sm">{mockLoans.filter(l => l.status === 'approved').length}</td>
-                      <td className="py-3 px-4 text-green-600 font-semibold text-sm">+2</td>
-                    </tr>
-                    <tr className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="py-3 px-4 font-medium text-gray-900 text-sm">Pending Verifications</td>
-                      <td className="py-3 px-4 text-orange-600 font-bold text-sm">{mockLoans.filter(l => l.status === 'pending').length}</td>
-                      <td className="py-3 px-4 text-orange-600 font-semibold text-sm">Review</td>
-                    </tr>
-                    <tr className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="py-3 px-4 font-medium text-gray-900 text-sm">Announcements</td>
-                      <td className="py-3 px-4 text-purple-600 font-bold text-sm">{summaryData.totalAnnouncements}</td>
-                      <td className="py-3 px-4 text-gray-600 font-semibold text-sm">Published</td>
-                    </tr>
-                  </>
-                )}
-                {activeTab === 'recentsavings' && filteredSavings.map((saving) => (
-                  <tr key={saving.id} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="py-3 px-4 font-medium text-gray-900 text-xs sm:text-sm">{saving.memberName}</td>
-                    <td className="py-3 px-4 text-[#0B5D3B] font-semibold text-xs sm:text-sm">{saving.amount.toLocaleString()} RWF</td>
+                {filteredDashboardRows.map((row) => (
+                  <tr key={row.id} className="border-b border-gray-100 hover:bg-gray-50">
                     <td className="py-3 px-4">
-                      <span className="px-2 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700 border border-emerald-200">
-                        {saving.status}
+                      <p className="font-medium text-gray-900 text-xs sm:text-sm">{row.name}</p>
+                      <p className="text-xs text-gray-500">{row.subtitle}</p>
+                    </td>
+                    <td className="py-3 px-4 text-[#0B5D3B] font-semibold text-xs sm:text-sm">{row.amount.toLocaleString()} RWF</td>
+                    <td className="py-3 px-4">
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(row.status.toLowerCase())}`}>
+                        {row.status}
                       </span>
                     </td>
                     <td className="py-3 px-4 text-center">
                       <ActionCell
-                        onView={() => { setSelectedItem(saving); setIsDetailOpen(true); }}
-                        onEdit={() => router.push('/admin/savings')}
-                        onDelete={() => {}}
-                      />
-                    </td>
-                  </tr>
-                ))}
-                {activeTab === 'recentloans' && recentLoans.map((loan) => (
-                  <tr key={loan.id} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="py-3 px-4 font-medium text-gray-900 text-xs sm:text-sm">{loan.borrowerName}</td>
-                    <td className="py-3 px-4 text-[#0B5D3B] font-semibold text-xs sm:text-sm">{(loan.amount / 1000).toFixed(0)}K RWF</td>
-                    <td className="py-3 px-4 text-gray-600 text-xs sm:text-sm">{loan.guarantorName}</td>
-                    <td className="py-3 px-4">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(loan.status)}`}>
-                        {loan.status.charAt(0).toUpperCase() + loan.status.slice(1)}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4 text-center">
-                      <ActionCell
-                        onView={() => { setSelectedItem(loan); setIsDetailOpen(true); }}
-                        onEdit={() => router.push('/admin/loans')}
-                        onDelete={() => {}}
-                      />
-                    </td>
-                  </tr>
-                ))}
-                {activeTab === 'recentguarantors' && recentGuarantors.map((g) => (
-                  <tr key={g.id} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="py-3 px-4 font-medium text-gray-900 text-xs sm:text-sm">{g.guarantorName}</td>
-                    <td className="py-3 px-4 text-gray-600 text-xs sm:text-sm">{g.borrowerName}</td>
-                    <td className="py-3 px-4 text-[#0B5D3B] font-semibold text-xs sm:text-sm">{g.loanAmount.toLocaleString()} RWF</td>
-                    <td className="py-3 px-4">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        g.status === 'Approved' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' :
-                        g.status === 'Pending' ? 'bg-amber-100 text-amber-700 border border-amber-200' :
-                        'bg-gray-100 text-gray-700 border border-gray-200'
-                      }`}>
-                        {g.status}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4 text-center">
-                      <ActionCell
-                        onView={() => { setSelectedItem(g); setIsDetailOpen(true); }}
-                        onEdit={() => router.push('/admin/guarantor')}
+                        onView={() => { setSelectedItem(row.original); setIsDetailOpen(true); }}
+                        onEdit={() => router.push(row.route)}
                         onDelete={() => {}}
                       />
                     </td>
