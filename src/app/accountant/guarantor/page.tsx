@@ -3,9 +3,7 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import ActionCell from '@/components/ui/ActionCell';
-import GenericEditModal from '@/components/ui/GenericEditModal';
 import { SearchBar } from '@/components/ui/SearchBar';
-import { ConfirmDialog } from '@/components/accountant/ConfirmDialog';
 import { mockGuarantors } from '@/lib/mockData';
 
 type Guarantor = typeof mockGuarantors[0];
@@ -14,13 +12,10 @@ export default function AccountantGuarantor() {
   const [searchInput, setSearchInput] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('All');
-  const [guarantors, setGuarantors] = useState<Guarantor[]>(mockGuarantors);
+  const [guarantors] = useState<Guarantor[]>(mockGuarantors);
   const tabs = ['All', 'Pending', 'Approved', 'Rejected', 'On Hold'];
   const [selectedGuarantor, setSelectedGuarantor] = useState<Guarantor | null>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [editFormData, setEditFormData] = useState<Partial<Guarantor> | null>(null);
-  const [deleteGuarantor, setDeleteGuarantor] = useState<Guarantor | null>(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
@@ -53,22 +48,6 @@ export default function AccountantGuarantor() {
     }
   };
 
-  const saveGuarantorChanges = () => {
-    if (selectedGuarantor && editFormData) {
-      setGuarantors((current) =>
-        current.map((item) =>
-          item.id === selectedGuarantor.id
-            ? ({ ...item, ...editFormData } as Guarantor)
-            : item
-        )
-      );
-      setSelectedGuarantor((prev) => (prev ? ({ ...prev, ...editFormData } as Guarantor) : prev));
-    }
-    setEditFormData(null);
-    setIsViewModalOpen(false);
-    setIsEditModalOpen(false);
-  };
-
   return (
     <div className="space-y-4 sm:space-y-6">
       <div>
@@ -93,15 +72,17 @@ export default function AccountantGuarantor() {
               placeholder="Search by guarantor or borrower..."
               className="w-full lg:max-w-[420px]"
             />
-            <div className="flex flex-wrap gap-2 justify-start lg:justify-end">
+            <div className="flex gap-2 overflow-x-auto pb-2 lg:pb-0 scrollbar-hide">
               {tabs.map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                  className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition ${
                     activeTab === tab
                       ? 'bg-[#0B5D3B] text-white shadow-sm'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  } ${
+                    tab === 'On Hold' ? 'hidden lg:inline-flex' : ''
                   }`}
                 >
                   {tab}
@@ -141,11 +122,6 @@ export default function AccountantGuarantor() {
                           setSelectedGuarantor(guarantor);
                           setIsViewModalOpen(true);
                         }}
-                        onEdit={() => {
-                          setEditFormData(guarantor);
-                          setIsEditModalOpen(true);
-                        }}
-                        onDelete={() => setDeleteGuarantor(guarantor)}
                       />
                     </td>
                   </tr>
@@ -252,7 +228,6 @@ export default function AccountantGuarantor() {
               <button
                 onClick={() => {
                   setIsViewModalOpen(false);
-                  setEditFormData(null);
                 }}
                 className="w-full px-4 py-3 bg-[#0B5D3B] text-white rounded-xl font-semibold hover:bg-[#094a2e] transition-all"
               >
@@ -263,102 +238,6 @@ export default function AccountantGuarantor() {
         </div>
       )}
 
-      {/* Edit Modal */}
-      <GenericEditModal
-        title="Edit Guarantor"
-        isOpen={isEditModalOpen}
-        onClose={() => { setIsEditModalOpen(false); setEditFormData(null); }}
-        onSave={saveGuarantorChanges}
-        saveLabel="Save Changes"
-        maxWidth="max-w-2xl"
-      >
-        {editFormData && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-              <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Guarantor Name</label>
-              <input
-                type="text"
-                value={editFormData.guarantorName || ''}
-                onChange={(e) => setEditFormData({ ...editFormData, guarantorName: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-              />
-            </div>
-            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-              <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Guarantor Phone</label>
-              <input
-                type="text"
-                value={editFormData.guarantorPhone || ''}
-                onChange={(e) => setEditFormData({ ...editFormData, guarantorPhone: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-              />
-            </div>
-            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-              <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Guarantor Email</label>
-              <input
-                type="email"
-                value={editFormData.guarantorEmail || ''}
-                onChange={(e) => setEditFormData({ ...editFormData, guarantorEmail: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-              />
-            </div>
-            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-              <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Borrower Name</label>
-              <input
-                type="text"
-                value={editFormData.borrowerName || ''}
-                onChange={(e) => setEditFormData({ ...editFormData, borrowerName: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-              />
-            </div>
-            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-              <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Borrower Phone</label>
-              <input
-                type="text"
-                value={editFormData.borrowerPhone || ''}
-                onChange={(e) => setEditFormData({ ...editFormData, borrowerPhone: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-              />
-            </div>
-            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-              <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Borrower Email</label>
-              <input
-                type="email"
-                value={editFormData.borrowerEmail || ''}
-                onChange={(e) => setEditFormData({ ...editFormData, borrowerEmail: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-              />
-            </div>
-            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200 md:col-span-2">
-              <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Status</label>
-              <select
-                value={editFormData.status || ''}
-                onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-              >
-                <option value="Approved">Approved</option>
-                <option value="Pending">Pending</option>
-                <option value="Rejected">Rejected</option>
-                <option value="On Hold">On Hold</option>
-              </select>
-            </div>
-          </div>
-        )}
-      </GenericEditModal>
-
-      <ConfirmDialog
-        isOpen={Boolean(deleteGuarantor)}
-        title="Delete Guarantor"
-        message={`Are you sure you want to delete the guarantor request for ${deleteGuarantor?.guarantorName}?`}
-        confirmText="Delete"
-        variant="danger"
-        onConfirm={() => {
-          if (deleteGuarantor) {
-            setGuarantors((current) => current.filter((item) => item.id !== deleteGuarantor.id));
-          }
-          setDeleteGuarantor(null);
-        }}
-        onCancel={() => setDeleteGuarantor(null)}
-      />
     </div>
   );
 }

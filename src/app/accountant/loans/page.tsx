@@ -3,24 +3,19 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import ActionCell from '@/components/ui/ActionCell';
-import GenericEditModal from '@/components/ui/GenericEditModal';
 import { mockLoans } from '@/lib/mockData';
-import { ConfirmDialog } from '@/components/accountant/ConfirmDialog';
 import { SearchBar } from '@/components/ui/SearchBar';
 
 type Loan = typeof mockLoans[0];
 
 export default function LoansPage() {
-  const [loans, setLoans] = useState<Loan[]>(mockLoans);
+  const [loans] = useState<Loan[]>(mockLoans);
   const [searchInput, setSearchInput] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('All');
   const tabs = ['All', 'Pending', 'Approved', 'Rejected'];
   const [selectedLoan, setSelectedLoan] = useState<Loan | null>(null);
-  const [loanForm, setLoanForm] = useState<Loan | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [deleteLoan, setDeleteLoan] = useState<Loan | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
@@ -57,15 +52,6 @@ export default function LoansPage() {
       default:
         return 'bg-gray-100 text-gray-700 border border-gray-200';
     }
-  };
-
-  const saveLoanChanges = () => {
-    if (!loanForm) return;
-    setLoans((current) => current.map((item) => (item.id === loanForm.id ? loanForm : item)));
-    setSelectedLoan(loanForm);
-    setLoanForm(null);
-    setIsDetailOpen(false);
-    setIsEditModalOpen(false);
   };
 
   return (
@@ -139,11 +125,6 @@ export default function LoansPage() {
                             setSelectedLoan(loan);
                             setIsDetailOpen(true);
                           }}
-                          onEdit={() => {
-                            setLoanForm(loan);
-                            setIsEditModalOpen(true);
-                          }}
-                          onDelete={() => setDeleteLoan(loan)}
                         />
                       </div>
                     </td>
@@ -243,7 +224,6 @@ export default function LoansPage() {
               <button
                 onClick={() => {
                   setIsDetailOpen(false);
-                  setLoanForm(null);
                 }}
                 className="w-full px-4 py-3 bg-[#0B5D3B] text-white rounded-xl font-semibold hover:bg-[#094a2e] transition-all"
               >
@@ -254,101 +234,6 @@ export default function LoansPage() {
         </div>
       )}
 
-      {/* Edit Modal */}
-      <GenericEditModal
-        title="Edit Loan"
-        isOpen={isEditModalOpen}
-        onClose={() => { setIsEditModalOpen(false); setLoanForm(null); }}
-        onSave={saveLoanChanges}
-        saveLabel="Save Changes"
-        maxWidth="max-w-2xl"
-      >
-        {loanForm && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-              <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Borrower Name</label>
-              <input
-                type="text"
-                value={loanForm.borrowerName}
-                onChange={(e) => setLoanForm({ ...loanForm, borrowerName: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-              />
-            </div>
-            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-              <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Guarantor Name</label>
-              <input
-                type="text"
-                value={loanForm.guarantorName}
-                onChange={(e) => setLoanForm({ ...loanForm, guarantorName: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-              />
-            </div>
-            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-              <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Loan Amount</label>
-              <input
-                type="number"
-                value={loanForm.amount}
-                onChange={(e) => setLoanForm({ ...loanForm, amount: Number(e.target.value) })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-              />
-            </div>
-            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-              <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Duration (months)</label>
-              <input
-                type="number"
-                value={loanForm.duration}
-                onChange={(e) => setLoanForm({ ...loanForm, duration: Number(e.target.value) })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-              />
-            </div>
-            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-              <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Monthly Payment</label>
-              <input
-                type="number"
-                value={loanForm.monthlyPayment}
-                onChange={(e) => setLoanForm({ ...loanForm, monthlyPayment: Number(e.target.value) })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-              />
-            </div>
-            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-              <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Total Repayment</label>
-              <input
-                type="number"
-                value={loanForm.totalRepayment}
-                onChange={(e) => setLoanForm({ ...loanForm, totalRepayment: Number(e.target.value) })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-              />
-            </div>
-            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200 md:col-span-2">
-              <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Status</label>
-              <select
-                value={loanForm.status}
-                onChange={(e) => setLoanForm({ ...loanForm, status: e.target.value as Loan['status'] })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-              >
-                <option value="pending">Pending</option>
-                <option value="approved">Approved</option>
-                <option value="rejected">Rejected</option>
-              </select>
-            </div>
-          </div>
-        )}
-      </GenericEditModal>
-
-      <ConfirmDialog
-        isOpen={Boolean(deleteLoan)}
-        title="Delete Loan"
-        message={deleteLoan ? `Are you sure you want to delete the loan for ${deleteLoan.borrowerName}?` : ''}
-        confirmText="Delete"
-        variant="danger"
-        onConfirm={() => {
-          if (deleteLoan) {
-            setLoans((current) => current.filter((item) => item.id !== deleteLoan.id));
-          }
-          setDeleteLoan(null);
-        }}
-        onCancel={() => setDeleteLoan(null)}
-      />
     </div>
   );
 }

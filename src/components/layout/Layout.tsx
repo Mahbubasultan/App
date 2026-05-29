@@ -25,19 +25,40 @@ export const Layout: React.FC<LayoutProps> = ({ children, role, userName, userIm
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50 text-slate-900 overflow-hidden">
-      <Sidebar role={role} isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} onLogout={handleLogout} />
+    <div className="flex h-screen bg-slate-50 text-slate-900">
+      {/* Fixed Sidebar */}
+      <div className="hidden lg:block fixed left-0 top-0 bottom-0 z-50">
+        <Sidebar role={role} isOpen={true} onClose={() => setSidebarOpen(false)} onLogout={handleLogout} />
+      </div>
+
+      {/* Mobile Sidebar */}
+      {sidebarOpen && (
+        <>
+          <div 
+            className="fixed inset-0 bg-black/20 z-40 lg:hidden" 
+            onClick={() => setSidebarOpen(false)} 
+          />
+          <div className="fixed left-0 top-0 bottom-0 z-50 lg:hidden">
+            <Sidebar role={role} isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} onLogout={handleLogout} />
+          </div>
+        </>
+      )}
       
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <Navbar 
-          role={role}
-          userName={userName} 
-          userImage={userImage}
-          onImageUpdate={onImageUpdate}
-          onMenuClick={() => setSidebarOpen(true)} 
-          onLogout={handleLogout}
-        />
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col lg:ml-64 h-screen overflow-hidden">
+        {/* Fixed Navbar */}
+        <div className="sticky top-0 z-30 bg-white">
+          <Navbar 
+            role={role}
+            userName={userName} 
+            userImage={userImage}
+            onImageUpdate={onImageUpdate}
+            onMenuClick={() => setSidebarOpen(true)} 
+            onLogout={handleLogout}
+          />
+        </div>
         
+        {/* Scrollable Main Content */}
         <main className="flex-1 overflow-y-auto">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 max-w-7xl">
             {children}

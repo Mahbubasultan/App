@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Wallet, User, Mail, Lock, Shield, ArrowRight, Phone } from 'lucide-react';
+import { User, Mail, Lock, Shield, ArrowRight, Phone } from 'lucide-react';
+import { Logo } from '@/components/ui/Logo';
 import { UserRole } from '@/types';
 import { saveUserData, saveRegisteredUser } from '@/lib/localStorageService';
 import { saveUserSession } from '@/lib/auth';
@@ -94,10 +95,10 @@ export default function RegisterPage() {
 
     const redirectUrl =
       formData.role === 'admin'
-        ? '/admin/analytics'
+        ? '/admin/dashboard'
         : formData.role === 'accountant'
         ? '/accountant/dashboard'
-        : '/member/savings';
+        : '/member/dashboard';
 
     saveUserSession({
       name: formData.name,
@@ -113,12 +114,9 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo */}
-        <Link href="/landing" className="flex items-center justify-center gap-2 mb-8">
-          <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center">
-            <Wallet className="text-white" size={28} />
-          </div>
-          <span className="text-2xl font-bold text-gray-900">Community Savings</span>
-        </Link>
+        <div className="flex items-center justify-center mb-8">
+          <Logo variant="full" size="lg" href="/landing" showLabel={true} />
+        </div>
 
         {/* Register Card */}
         <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
@@ -145,7 +143,7 @@ export default function RegisterPage() {
                   value={formData.name}
                   onChange={handleChange}
                   placeholder="John Doe"
-                  className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0B5D3B] focus:border-transparent"
                   required
                 />
               </div>
@@ -164,7 +162,7 @@ export default function RegisterPage() {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="you@example.com"
-                  className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0B5D3B] focus:border-transparent"
                   required
                 />
               </div>
@@ -183,7 +181,7 @@ export default function RegisterPage() {
                   value={formData.phone}
                   onChange={handleChange}
                   placeholder="+250 123 456 789"
-                  className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0B5D3B] focus:border-transparent"
                   required
                 />
               </div>
@@ -202,7 +200,7 @@ export default function RegisterPage() {
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="••••••••"
-                  className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0B5D3B] focus:border-transparent"
                   required
                 />
               </div>
@@ -219,7 +217,7 @@ export default function RegisterPage() {
                   name="role"
                   value={formData.role}
                   onChange={handleChange}
-                  className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent appearance-none bg-white"
+                  className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0B5D3B] focus:border-transparent appearance-none bg-white"
                 >
                   <option value="member">Member</option>
                   <option value="accountant">Accountant</option>
@@ -241,7 +239,7 @@ export default function RegisterPage() {
                     value={formData.adminCode}
                     onChange={handleChange}
                     placeholder="Enter admin access code"
-                    className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0B5D3B] focus:border-transparent"
                     required
                   />
                 </div>
@@ -251,7 +249,7 @@ export default function RegisterPage() {
             {/* Register Button */}
             <button
               type="submit"
-              className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors"
+              className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-[#0B5D3B] text-white rounded-lg font-semibold hover:bg-[#094a2e] transition-colors"
             >
               Create Account
               <ArrowRight size={20} />
@@ -262,7 +260,7 @@ export default function RegisterPage() {
           <div className="mt-6 text-center">
             <p className="text-gray-600">
               Already have an account?{' '}
-              <Link href="/login" className="text-green-600 font-semibold hover:text-green-700">
+              <Link href="/login" className="text-[#0B5D3B] font-semibold hover:text-[#094a2e]">
                 Login here
               </Link>
             </p>
@@ -271,7 +269,7 @@ export default function RegisterPage() {
 
         {/* Back to Home */}
         <div className="mt-6 text-center">
-          <Link href="/landing" className="text-gray-600 hover:text-green-600 text-sm">
+          <Link href="/landing" className="text-gray-600 hover:text-[#0B5D3B] text-sm">
             ← Back to Home
           </Link>
         </div>

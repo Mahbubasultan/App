@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Menu, Settings, Bell, ChevronDown } from 'lucide-react';
 import { Avatar } from '../ui/Avatar';
+import { Logo } from '../ui/Logo';
 import { ProfileDropdown } from './ProfileDropdown';
 import { ProfileModal } from '../ui/ProfileModal';
 import { SettingsModal } from './SettingsModal';
@@ -50,17 +51,22 @@ export const Navbar: React.FC<NavbarProps> = ({ role, userName, userImage, onMen
 
   return (
     <>
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-30 shadow-soft">
-        <div className="flex items-center justify-between px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
-          {/* Mobile Menu Button */}
-          <button
-            onClick={onMenuClick}
-            className="lg:hidden p-2 hover:bg-gray-100 rounded-xl transition-all duration-300 active:scale-90"
-          >
-            <Menu size={24} className="text-gray-700" />
-          </button>
-
-          <div className="flex-1" />
+      <header className="bg-white border-b border-gray-200 z-30 shadow-soft">
+        <div className="flex items-center justify-between px-3 sm:px-4 lg:px-6 py-2 sm:py-3">
+          {/* Left Side - Menu Button + Logo Mobile */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={onMenuClick}
+              className="lg:hidden p-2 hover:bg-gray-100 rounded-xl transition-all duration-300 active:scale-90"
+            >
+              <Menu size={24} className="text-gray-700" />
+            </button>
+            
+            {/* Logo - Mobile Only */}
+            <div className="lg:hidden">
+              <Logo variant="icon" size="sm" href="/" />
+            </div>
+          </div>
 
           {/* Right Side Icons */}
           <div className="flex items-center gap-2 sm:gap-3">

@@ -1,13 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, Eye, Edit2 } from 'lucide-react';
 import { AccountantTable, TableColumn } from '@/components/accountant/AccountantTable';
-import { ConfirmDialog } from '@/components/accountant/ConfirmDialog';
 import { SearchBar } from '@/components/ui/SearchBar';
 import { StatusBadge } from '@/components/accountant/StatusBadge';
-import ActionCell from '@/components/ui/ActionCell';
-import GenericEditModal from '@/components/ui/GenericEditModal';
 
 interface Share {
   id: string;
@@ -42,10 +39,16 @@ export default function SharesPage() {
   const tabs = ['All', 'Pending', 'Approved'];
   const [selectedShare, setSelectedShare] = useState<Share | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [deleteShare, setDeleteShare] = useState<Share | null>(null);
-  const [editFormData, setEditFormData] = useState<Share | null>(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedShareForStatus, setSelectedShareForStatus] = useState<Share | null>(null);
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
+
+  const handleStatusUpdate = (share: Share, newStatus: 'approved' | 'pending') => {
+    setShares((current) =>
+      current.map((item) => (item.id === share.id ? { ...item, status: newStatus } : item))
+    );
+    setIsStatusModalOpen(false);
+    setSelectedShareForStatus(null);
+  };
 
   const columns: TableColumn<Share>[] = [
     {
@@ -69,12 +72,21 @@ export default function SharesPage() {
       label: 'Action',
       align: 'center',
       render: (_, row) => (
-        <div className="flex justify-center">
-          <ActionCell
-            onView={() => { setSelectedShare(row); setIsDetailOpen(true); setIsEditMode(false); }}
-            onEdit={() => { setSelectedShare(row); setEditFormData(row); setIsDetailOpen(false); setIsEditModalOpen(true); }}
-            onDelete={() => setDeleteShare(row)}
-          />
+        <div className="flex items-center justify-center gap-2">
+          <button
+            onClick={() => { setSelectedShare(row); setIsDetailOpen(true); }}
+            className="p-1.5 hover:bg-emerald-50 text-emerald-700 rounded-lg transition-all active:scale-95"
+            title="View"
+          >
+            <Eye size={16} />
+          </button>
+          <button
+            onClick={() => { setSelectedShareForStatus(row); setIsStatusModalOpen(true); }}
+            className="p-1.5 hover:bg-blue-50 text-blue-600 rounded-lg transition-all active:scale-95"
+            title="Update"
+          >
+            <Edit2 size={16} />
+          </button>
         </div>
       ),
     },
@@ -98,15 +110,13 @@ export default function SharesPage() {
   });
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Shares Management</h1>
-        <p className="text-gray-600 mt-1">View and manage all member shares</p>
+    <div className="space-y-4 sm:space-y-6 animate-in fade-in-0 duration-500">
+      <div className="animate-in slide-in-from-top-4 duration-500">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Shares Management</h1>
+        <p className="text-sm sm:text-base text-gray-600 mt-1">View and manage all member shares</p>
       </div>
 
-      {/* Table */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+      <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 animate-in slide-in-from-bottom-4 duration-500">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between mb-5">
           <SearchBar
             value={searchInput}
@@ -118,12 +128,12 @@ export default function SharesPage() {
             placeholder="Search"
             className="w-full max-w-[280px]"
           />
-          <div className="flex flex-wrap gap-2">
+          <div className="flex gap-2 overflow-x-auto pb-2 lg:pb-0 scrollbar-hide">
             {tabs.map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition ${
                   activeTab === tab
                     ? 'bg-[#0B5D3B] text-white shadow-sm'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -144,147 +154,61 @@ export default function SharesPage() {
         />
       </div>
 
-      {/* Detail Modal */}
       {isDetailOpen && selectedShare && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in-0 duration-200">
+          <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-200">
             <div className="sticky top-0 bg-[#0B5D3B] px-6 py-4 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-white">{isEditMode ? 'Edit Share' : 'Share Details'}</h2>
+              <h2 className="text-xl font-bold text-white">Share Details</h2>
               <button
-                onClick={() => {
-                  setIsDetailOpen(false);
-                  setIsEditMode(false);
-                  setEditFormData(null);
-                }}
+                onClick={() => setIsDetailOpen(false)}
                 className="text-white hover:bg-white/20 p-2 rounded-lg transition-colors"
               >
                 <X size={20} />
               </button>
             </div>
 
-            <div className="p-6 space-y-6">
-              {isEditMode && editFormData ? (
-                <>
-                  {/* Edit form kept inside detail modal for quick edits; standard edit modal used below for full edits */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs uppercase tracking-wider text-gray-600 mb-2">Member Name</label>
-                      <input
-                        type="text"
-                        value={editFormData.memberName}
-                        onChange={(e) => setEditFormData({...editFormData, memberName: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs uppercase tracking-wider text-gray-600 mb-2">Email</label>
-                      <input
-                        type="email"
-                        value={editFormData.memberEmail}
-                        onChange={(e) => setEditFormData({...editFormData, memberEmail: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs uppercase tracking-wider text-gray-600 mb-2">Shares</label>
-                      <input
-                        type="number"
-                        value={editFormData.shares}
-                        onChange={(e) => setEditFormData({...editFormData, shares: parseInt(e.target.value) || 0})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs uppercase tracking-wider text-gray-600 mb-2">Value (RWF)</label>
-                      <input
-                        type="number"
-                        value={editFormData.value}
-                        onChange={(e) => setEditFormData({...editFormData, value: parseInt(e.target.value) || 0})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex gap-3">
-                    <button
-                      onClick={() => {
-                        if (editFormData) {
-                          setShares((current) => current.map((item) => item.id === editFormData.id ? editFormData : item));
-                        }
-                        setIsDetailOpen(false);
-                        setIsEditMode(false);
-                        setEditFormData(null);
-                      }}
-                      className="flex-1 bg-[#0B5D3B] text-white font-semibold py-3 rounded-lg hover:bg-[#094a2e] transition-colors"
-                    >
-                      Save Changes
-                    </button>
-                    <button
-                      onClick={() => {
-                        setIsEditMode(false);
-                        setEditFormData(selectedShare);
-                      }}
-                      className="flex-1 bg-gray-200 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-300 transition-colors"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <>
-                  {/* View Mode */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="rounded-lg bg-gray-50 p-4">
-                      <p className="text-xs uppercase tracking-wider text-gray-600 mb-1">Member Name</p>
-                      <p className="text-lg font-semibold text-gray-900">{selectedShare.memberName}</p>
-                    </div>
-                    <div className="rounded-lg bg-gray-50 p-4">
-                      <p className="text-xs uppercase tracking-wider text-gray-600 mb-1">Email</p>
-                      <p className="text-sm font-semibold text-gray-900 truncate">{selectedShare.memberEmail}</p>
-                    </div>
-                  </div>
+            <div className="p-6 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="col-span-2 rounded-lg bg-gray-50 p-4 border border-gray-200">
+                  <p className="text-xs uppercase tracking-wider text-gray-600 mb-1">Member Name</p>
+                  <p className="text-lg font-semibold text-gray-900">{selectedShare.memberName}</p>
+                </div>
+                <div className="col-span-2 rounded-lg bg-gray-50 p-4 border border-gray-200">
+                  <p className="text-xs uppercase tracking-wider text-gray-600 mb-1">Email</p>
+                  <p className="text-sm font-semibold text-gray-900">{selectedShare.memberEmail}</p>
+                </div>
+              </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="rounded-lg bg-gray-50 p-4 border border-gray-200">
-                      <p className="text-xs uppercase tracking-wider text-gray-600 mb-1">Total Shares</p>
-                      <p className="text-2xl font-bold text-[#0B5D3B]">{selectedShare.shares.toLocaleString()}</p>
-                    </div>
-                    <div className="rounded-lg bg-gray-50 p-4 border border-gray-200">
-                      <p className="text-xs uppercase tracking-wider text-gray-600 mb-1">Total Value</p>
-                      <p className="text-2xl font-bold text-gray-900">{(selectedShare.value / 1000000).toFixed(2)}M RWF</p>
-                    </div>
-                  </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="rounded-lg bg-emerald-50 p-4 border border-emerald-200">
+                  <p className="text-xs uppercase tracking-wider text-emerald-700 mb-1">Total Shares</p>
+                  <p className="text-2xl font-bold text-emerald-700">{selectedShare.shares.toLocaleString()}</p>
+                </div>
+                <div className="rounded-lg bg-blue-50 p-4 border border-blue-200">
+                  <p className="text-xs uppercase tracking-wider text-blue-700 mb-1">Total Value</p>
+                  <p className="text-2xl font-bold text-blue-700">{selectedShare.value.toLocaleString()} RWF</p>
+                </div>
+              </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="rounded-lg bg-gray-50 p-4 border border-gray-200">
-                      <p className="text-xs uppercase tracking-wider text-gray-600 mb-1">Date Created</p>
-                      <p className="text-sm font-semibold text-gray-900">{selectedShare.date}</p>
-                    </div>
-                    <div className="rounded-lg bg-gray-50 p-4 border border-gray-200">
-                      <p className="text-xs uppercase tracking-wider text-gray-600 mb-1">Status</p>
-                      <StatusBadge status={selectedShare.status} />
-                    </div>
-                  </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="rounded-lg bg-gray-50 p-4 border border-gray-200">
+                  <p className="text-xs uppercase tracking-wider text-gray-600 mb-1">Date Created</p>
+                  <p className="text-sm font-semibold text-gray-900">{selectedShare.date}</p>
+                </div>
+                <div className="rounded-lg bg-gray-50 p-4 border border-gray-200">
+                  <p className="text-xs uppercase tracking-wider text-gray-600 mb-1">Status</p>
+                  <StatusBadge status={selectedShare.status} />
+                </div>
+              </div>
 
-                  {/* Image Placeholder */}
-                  <div className="rounded-xl border-2 border-dashed border-gray-300 p-6 text-center">
-                    <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center">
-                      <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                    </div>
-                    <p className="text-sm font-medium text-gray-700">Payment Proof</p>
-                    <p className="text-xs text-gray-500 mt-1">No image uploaded</p>
-                  </div>
-                </>
-              )}
+              <div className="rounded-lg bg-purple-50 p-4 border border-purple-200">
+                <p className="text-xs uppercase tracking-wider text-purple-700 mb-1">Share Price</p>
+                <p className="text-lg font-bold text-purple-700">2,000 RWF per share</p>
+              </div>
 
               <button
-                onClick={() => {
-                  setIsDetailOpen(false);
-                  setIsEditMode(false);
-                  setEditFormData(null);
-                }}
-                className="w-full bg-[#0B5D3B] text-white font-semibold py-3 rounded-lg hover:bg-[#094a2e] transition-colors"
+                onClick={() => setIsDetailOpen(false)}
+                className="w-full bg-[#0B5D3B] text-white font-semibold py-3 rounded-xl hover:bg-[#094a2e] transition-all active:scale-95"
               >
                 Close
               </button>
@@ -293,96 +217,54 @@ export default function SharesPage() {
         </div>
       )}
 
-      {/* Standard Edit Modal for full edits */}
-      <GenericEditModal
-        title="Edit Share"
-        isOpen={isEditModalOpen}
-        onClose={() => { setIsEditModalOpen(false); setEditFormData(null); }}
-        onSave={() => {
-          if (editFormData) {
-            setShares((current) => current.map((item) => item.id === editFormData.id ? editFormData : item));
-          }
-          setIsEditModalOpen(false);
-          setEditFormData(null);
-        }}
-        saveLabel="Save Changes"
-        maxWidth="max-w-2xl"
-      >
-        {editFormData && (
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs uppercase tracking-wider text-gray-600 mb-2">Member Name</label>
-              <input
-                type="text"
-                value={editFormData.memberName}
-                onChange={(e) => setEditFormData({...editFormData, memberName: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-xs uppercase tracking-wider text-gray-600 mb-2">Email</label>
-              <input
-                type="email"
-                value={editFormData.memberEmail}
-                onChange={(e) => setEditFormData({...editFormData, memberEmail: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-xs uppercase tracking-wider text-gray-600 mb-2">Shares</label>
-              <input
-                type="number"
-                value={editFormData.shares}
-                onChange={(e) => setEditFormData({...editFormData, shares: parseInt(e.target.value) || 0})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-xs uppercase tracking-wider text-gray-600 mb-2">Value (RWF)</label>
-              <input
-                type="number"
-                value={editFormData.value}
-                onChange={(e) => setEditFormData({...editFormData, value: parseInt(e.target.value) || 0})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-xs uppercase tracking-wider text-gray-600 mb-2">Date</label>
-              <input
-                type="date"
-                value={editFormData.date}
-                onChange={(e) => setEditFormData({...editFormData, date: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-xs uppercase tracking-wider text-gray-600 mb-2">Status</label>
-              <select
-                value={editFormData.status}
-                onChange={(e) => setEditFormData({...editFormData, status: e.target.value as 'approved' | 'pending'})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+      {isStatusModalOpen && selectedShareForStatus && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in-0 duration-200">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="bg-[#0B5D3B] px-6 py-4 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-white">Update Share Status</h2>
+              <button
+                onClick={() => {
+                  setIsStatusModalOpen(false);
+                  setSelectedShareForStatus(null);
+                }}
+                className="text-white hover:bg-white/20 p-2 rounded-lg transition-colors"
               >
-                <option value="approved">Approved</option>
-                <option value="pending">Pending</option>
-              </select>
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <p className="text-sm text-gray-600 mb-1">Member</p>
+                <p className="font-semibold text-gray-900">{selectedShareForStatus.memberName}</p>
+              </div>
+
+              <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <p className="text-sm text-gray-600 mb-1">Current Status</p>
+                <StatusBadge status={selectedShareForStatus.status} />
+              </div>
+
+              <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <p className="text-sm text-gray-600 mb-3">Change Status To</p>
+                <div className="space-y-2">
+                  <button
+                    onClick={() => handleStatusUpdate(selectedShareForStatus, 'approved')}
+                    className="w-full px-4 py-2.5 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors font-medium text-sm"
+                  >
+                    Approved
+                  </button>
+                  <button
+                    onClick={() => handleStatusUpdate(selectedShareForStatus, 'pending')}
+                    className="w-full px-4 py-2.5 bg-amber-100 text-amber-700 rounded-lg hover:bg-amber-200 transition-colors font-medium text-sm"
+                  >
+                    Pending
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
-        )}
-      </GenericEditModal>
-      <ConfirmDialog
-        isOpen={Boolean(deleteShare)}
-        title="Delete Share"
-        message={`Are you sure you want to delete ${deleteShare?.memberName}'s share record?`}
-        confirmText="Delete"
-        variant="danger"
-        onConfirm={() => {
-          if (deleteShare) {
-            setShares((current) => current.filter((item) => item.id !== deleteShare.id));
-          }
-          setDeleteShare(null);
-        }}
-        onCancel={() => setDeleteShare(null)}
-      />
+        </div>
+      )}
     </div>
   );
 }

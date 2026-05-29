@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Wallet, Mail, Lock, ArrowRight, Loader2 } from 'lucide-react';
+import { Mail, Lock, ArrowRight, Loader2 } from 'lucide-react';
+import { Logo } from '@/components/ui/Logo';
 import { authenticateRegisteredUser, saveUserData } from '@/lib/localStorageService';
 import { saveUserSession } from '@/lib/auth';
 
@@ -27,10 +28,10 @@ export default function LoginPage() {
     if (user) {
       const redirectUrl =
         user.role === 'admin'
-          ? '/admin/analytics'
+          ? '/admin/dashboard'
           : user.role === 'accountant'
           ? '/accountant/dashboard'
-          : '/member/savings';
+          : '/member/dashboard';
 
       saveUserSession({
         name: user.name,
@@ -60,12 +61,9 @@ export default function LoginPage() {
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo */}
-        <Link href="/landing" className="flex items-center justify-center gap-2 mb-8">
-          <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center">
-            <Wallet className="text-white" size={28} />
-          </div>
-          <span className="text-2xl font-bold text-gray-900">Community Savings</span>
-        </Link>
+        <div className="flex items-center justify-center mb-8">
+          <Logo variant="full" size="lg" href="/landing" showLabel={true} />
+        </div>
 
         {/* Login Card */}
         <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
@@ -91,7 +89,7 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
-                  className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                  className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0B5D3B] focus:border-transparent transition-all"
                   required
                   disabled={loading}
                 />
@@ -110,7 +108,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                  className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0B5D3B] focus:border-transparent transition-all"
                   required
                   disabled={loading}
                 />
@@ -121,7 +119,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
+              className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-[#0B5D3B] text-white rounded-lg font-semibold hover:bg-[#094a2e] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
             >
               {loading ? (
                 <>
@@ -141,7 +139,7 @@ export default function LoginPage() {
           <div className="mt-6 text-center">
             <p className="text-gray-600">
               Don&apos;t have an account?{' '}
-              <Link href="/register" className="text-green-600 font-semibold hover:text-green-700">
+              <Link href="/register" className="text-[#0B5D3B] font-semibold hover:text-[#094a2e]">
                 Register here
               </Link>
             </p>

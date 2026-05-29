@@ -3,9 +3,7 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import { SearchBar } from '@/components/ui/SearchBar';
-import { ConfirmDialog } from '@/components/accountant/ConfirmDialog';
 import ActionCell from '@/components/ui/ActionCell';
-import GenericEditModal from '@/components/ui/GenericEditModal';
 
 const mockSavings = [
   { id: 1, memberName: 'Jean Baptiste', shareName: 'Emergency Fund', amount: 50000, date: '2024-01-15', status: 'Approved', phone: '+250788123456', email: 'jean@email.com', transactionId: 'TXN001', shares: 25 },
@@ -24,12 +22,9 @@ export default function AccountantSavings() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('All');
   const tabs = ['All', 'Pending', 'Approved', 'Rejected'];
-  const [savings, setSavings] = useState<Saving[]>(mockSavings);
+  const [savings] = useState<Saving[]>(mockSavings);
   const [selectedSaving, setSelectedSaving] = useState<Saving | null>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [editFormData, setEditFormData] = useState<Saving | null>(null);
-  const [deleteSaving, setDeleteSaving] = useState<Saving | null>(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
@@ -51,17 +46,6 @@ export default function AccountantSavings() {
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
-
-  const saveSavingChanges = () => {
-    if (!editFormData) return;
-    setSavings((current) =>
-      current.map((item) => (item.id === editFormData.id ? editFormData : item))
-    );
-    setSelectedSaving(editFormData);
-    setEditFormData(null);
-    setIsViewModalOpen(false);
-    setIsEditModalOpen(false);
-  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -141,11 +125,6 @@ export default function AccountantSavings() {
                           setSelectedSaving(saving);
                           setIsViewModalOpen(true);
                         }}
-                        onEdit={() => {
-                          setEditFormData(saving);
-                          setIsEditModalOpen(true);
-                        }}
-                        onDelete={() => setDeleteSaving(saving)}
                       />
                     </td>
                   </tr>
@@ -266,92 +245,6 @@ export default function AccountantSavings() {
         </div>
       )}
 
-      {/* Edit Modal */}
-      <GenericEditModal
-        title="Edit Saving"
-        isOpen={isEditModalOpen}
-        onClose={() => { setIsEditModalOpen(false); setEditFormData(null); }}
-        onSave={saveSavingChanges}
-        saveLabel="Save Changes"
-        maxWidth="max-w-2xl"
-      >
-        {editFormData && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-              <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Member Name</label>
-              <input
-                type="text"
-                value={editFormData.memberName}
-                onChange={(e) => setEditFormData({ ...editFormData, memberName: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-              />
-            </div>
-            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-              <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Share Name</label>
-              <input
-                type="text"
-                value={editFormData.shareName}
-                onChange={(e) => setEditFormData({ ...editFormData, shareName: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-              />
-            </div>
-            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-              <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Amount</label>
-              <input
-                type="number"
-                value={editFormData.amount}
-                onChange={(e) => setEditFormData({ ...editFormData, amount: Number(e.target.value) })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-              />
-            </div>
-            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-              <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Status</label>
-              <select
-                value={editFormData.status}
-                onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-              >
-                <option value="Approved">Approved</option>
-                <option value="Pending">Pending</option>
-                <option value="Rejected">Rejected</option>
-              </select>
-            </div>
-            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-              <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Date</label>
-              <input
-                type="date"
-                value={editFormData.date}
-                onChange={(e) => setEditFormData({ ...editFormData, date: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-              />
-            </div>
-            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-              <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Transaction ID</label>
-              <input
-                type="text"
-                value={editFormData.transactionId}
-                onChange={(e) => setEditFormData({ ...editFormData, transactionId: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-              />
-            </div>
-          </div>
-        )}
-      </GenericEditModal>
-
-      <ConfirmDialog
-        isOpen={Boolean(deleteSaving)}
-        title="Delete Saving"
-        message={`Are you sure you want to delete the savings entry for ${deleteSaving?.memberName}?`}
-        confirmText="Delete"
-        variant="danger"
-        onConfirm={() => {
-          if (deleteSaving) {
-            setSavings((current) => current.filter((item) => item.id !== deleteSaving.id));
-          }
-          setDeleteSaving(null);
-        }}
-        onCancel={() => setDeleteSaving(null)}
-      />
     </div>
   );
 }

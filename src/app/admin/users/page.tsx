@@ -39,6 +39,8 @@ export default function AdminUserManagement() {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isActionModalOpen, setIsActionModalOpen] = useState(false);
   const [actionType, setActionType] = useState<'restrict' | 'block' | 'unblock'>('restrict');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   const statusTabs = ['All', 'active', 'restricted', 'blocked'];
 
   const filteredUsers = users.filter(user => {
@@ -56,6 +58,12 @@ export default function AdminUserManagement() {
     const matchesRole = roleFilter === 'All' || user.role === roleFilter;
     return matchesSearch && matchesStatus && matchesRole;
   });
+
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+  const paginatedUsers = filteredUsers.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -113,12 +121,12 @@ export default function AdminUserManagement() {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-2 items-stretch">
-              <div className="flex flex-wrap gap-2">
+              <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0 scrollbar-hide">
                 {statusTabs.map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setActiveStatusTab(tab)}
-                    className={`rounded-full px-4 py-2 text-sm font-medium transition capitalize ${
+                    className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition capitalize ${
                       activeStatusTab === tab
                         ? 'bg-[#0B5D3B] text-white shadow-sm'
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -178,7 +186,7 @@ export default function AdminUserManagement() {
               </tr>
             </thead>
             <tbody>
-              {filteredUsers.map((user) => (
+              {paginatedUsers.map((user) => (
                 <tr key={user.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
                   <td className="py-3 px-4">
                     <div>
@@ -230,6 +238,42 @@ export default function AdminUserManagement() {
               ))}
             </tbody>
           </table>
+        </div>
+
+        {/* Pagination */}
+        <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <p className="text-xs sm:text-sm text-gray-600 text-center sm:text-left">
+            Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, filteredUsers.length)} of {filteredUsers.length}
+          </p>
+          <div className="flex gap-2 justify-center flex-wrap">
+            <button
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="px-3 sm:px-4 py-1.5 sm:py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Previous
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <button
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                className={`px-3 sm:px-4 py-1.5 sm:py-2 text-sm rounded-lg transition ${
+                  currentPage === page
+                    ? 'bg-[#0B5D3B] text-white font-semibold'
+                    : 'border border-gray-300 hover:bg-gray-50 text-gray-700'
+                }`}
+              >
+                {page}
+              </button>
+            ))}
+            <button
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="px-3 sm:px-4 py-1.5 sm:py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Next
+            </button>
+          </div>
         </div>
       </div>
 

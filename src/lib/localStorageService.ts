@@ -54,6 +54,44 @@ export interface RegisteredUser {
   lastUpdated: string;
 }
 
+const now = new Date().toISOString();
+
+const DEMO_USERS: RegisteredUser[] = [
+  {
+    id: 'demo_admin',
+    name: 'Admin User',
+    email: 'admin@gmail.com',
+    phone: '+250788000000',
+    password: '123456',
+    role: 'admin',
+    joinedDate: now,
+    totalSavings: 0,
+    lastUpdated: now,
+  },
+  {
+    id: 'demo_member',
+    name: 'Member User',
+    email: 'member@gmail.com',
+    phone: '+250788111111',
+    password: '123456',
+    role: 'member',
+    joinedDate: now,
+    totalSavings: 250000,
+    lastUpdated: now,
+  },
+  {
+    id: 'demo_accountant',
+    name: 'Accountant User',
+    email: 'accountant@gmail.com',
+    phone: '+250788222222',
+    password: '123456',
+    role: 'accountant',
+    joinedDate: now,
+    totalSavings: 0,
+    lastUpdated: now,
+  },
+];
+
 export interface AppSettings {
   language: 'en' | 'fr';
   theme: 'light' | 'dark';
@@ -273,15 +311,18 @@ export const saveUserData = (userData: UserData): void => {
 
 export const getRegisteredUsers = (): RegisteredUser[] => {
   if (!isLocalStorageAvailable()) {
-    return [];
+    return DEMO_USERS;
   }
 
   try {
     const stored = localStorage.getItem(STORAGE_KEYS.USERS);
-    return stored ? JSON.parse(stored) : [];
+    const savedUsers = stored ? (JSON.parse(stored) as RegisteredUser[]) : [];
+    const savedEmails = new Set(savedUsers.map((user) => user.email.toLowerCase()));
+    const missingDemoUsers = DEMO_USERS.filter((user) => !savedEmails.has(user.email.toLowerCase()));
+    return [...savedUsers, ...missingDemoUsers];
   } catch (error) {
     console.error('Error retrieving registered users:', error);
-    return [];
+    return DEMO_USERS;
   }
 };
 

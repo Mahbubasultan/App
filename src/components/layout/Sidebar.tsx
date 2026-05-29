@@ -10,12 +10,11 @@ import {
   DollarSign,
   UserCheck,
   Users,
-  BarChart3,
   Megaphone,
-  Sparkles,
   X,
   LogOut,
 } from 'lucide-react';
+import { Logo } from '@/components/ui/Logo';
 import { UserRole } from '@/types';
 
 interface SidebarProps {
@@ -52,7 +51,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, onClose, onLogou
     { href: '/admin/accountants', label: 'Accountants', icon: Users },
     { href: '/admin/users', label: 'User Management', icon: Users },
     { href: '/admin/announcements', label: 'Announcements', icon: Megaphone },
-    { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
   ];
 
   const roleLabel = role === 'member' ? 'Member Portal' : role === 'accountant' ? 'Accountant Portal' : 'Admin Portal';
@@ -71,20 +69,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, onClose, onLogou
       <aside
         className={`
           fixed lg:static inset-y-0 left-0 z-50 w-72 lg:w-64 bg-[#0B5D3B] text-white
-          transform transition-transform duration-300 ease-in-out flex flex-col shadow-2xl
+          transform transition-transform duration-300 ease-in-out flex flex-col shadow-2xl h-screen
           ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
       >
         {/* Logo */}
         <div className="p-4 sm:p-6 border-b border-white/10">
           <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <Sparkles className="text-white w-5 h-5 sm:w-6 sm:h-6" />
-              <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">ROSCA</h1>
-                <p className="text-xs sm:text-sm text-white/70 mt-1 uppercase tracking-[0.24em]">{roleLabel}</p>
-              </div>
-            </div>
+            <Logo variant="full" size="sm" showLabel={true} isDark={true} href="#" />
             <button
               onClick={onClose}
               className="lg:hidden p-2 hover:bg-white/10 rounded-2xl transition-colors text-white"
@@ -92,10 +84,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, onClose, onLogou
               <X size={20} />
             </button>
           </div>
+          <p className="text-xs sm:text-sm text-white/70 mt-2 uppercase tracking-[0.24em]">{roleLabel}</p>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 p-3 sm:p-4 space-y-2 overflow-y-auto">
+        <nav className="flex-1 p-3 sm:p-4 space-y-2 overflow-y-auto scrollbar-hide">
           {links.map((link) => {
             const Icon = link.icon;
             const isActive = pathname === link.href;

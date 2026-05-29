@@ -1,12 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ImageIcon, X } from 'lucide-react';
+import { Eye, Edit2 } from 'lucide-react';
 import { SearchBar } from '@/components/ui/SearchBar';
 import { StatusBadge } from '@/components/accountant/StatusBadge';
-import ActionCell from '@/components/ui/ActionCell';
-import GenericEditModal from '@/components/ui/GenericEditModal';
-import { ConfirmDialog } from '@/components/accountant/ConfirmDialog';
 
 interface Share {
   id: string;
@@ -37,10 +34,8 @@ export default function AdminSharesPage() {
   const tabs = ['All', 'Pending', 'Approved'];
   const [selectedShare, setSelectedShare] = useState<Share | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [deleteShare, setDeleteShare] = useState<Share | null>(null);
-  const [editFormData, setEditFormData] = useState<Share | null>(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
+  const [selectedShareForStatus, setSelectedShareForStatus] = useState<Share | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
@@ -67,11 +62,17 @@ export default function AdminSharesPage() {
     currentPage * itemsPerPage
   );
 
+  const handleStatusUpdate = (share: Share, newStatus: 'approved' | 'pending') => {
+    setShares(shares.map(s => s.id === share.id ? { ...s, status: newStatus } : s));
+    setIsStatusModalOpen(false);
+    setSelectedShareForStatus(null);
+  };
+
   return (
     <div className="space-y-4 sm:space-y-6">
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Shares Management</h1>
-        <p className="text-sm sm:text-base text-gray-600 mt-1">View and manage all member shares</p>
+        <p className="text-sm sm:text-base text-gray-600 mt-1">View and manage share status</p>
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
@@ -91,12 +92,12 @@ export default function AdminSharesPage() {
               placeholder="Search by name or email..."
               className="w-full lg:max-w-[320px]"
             />
-            <div className="flex flex-wrap gap-2">
+            <div className="flex gap-2 overflow-x-auto pb-2 lg:pb-0 scrollbar-hide">
               {tabs.map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                  className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition ${
                     activeTab === tab
                       ? 'bg-[#0B5D3B] text-white shadow-sm'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -109,37 +110,46 @@ export default function AdminSharesPage() {
           </div>
         </div>
 
-        <div className="overflow-x-auto -mx-4 sm:mx-0">
-          <div className="inline-block min-w-full align-middle">
-            <table className="min-w-full">
-              <thead>
-                <tr className="bg-gray-50 border-b border-gray-200">
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Name</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Amount</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Status</th>
-                  <th className="text-center py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Action</th>
+        <div className="overflow-x-auto">
+          <table className="min-w-full">
+            <thead>
+              <tr className="bg-gray-50 border-b border-gray-200">
+                <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Name</th>
+                <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Shares</th>
+                <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Status</th>
+                <th className="text-center py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paginatedShares.map((share) => (
+                <tr key={share.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                  <td className="py-3 px-4 font-medium text-gray-900 text-xs sm:text-sm">{share.memberName}</td>
+                  <td className="py-3 px-4 text-gray-900 font-semibold text-xs sm:text-sm">{share.shares.toLocaleString()}</td>
+                  <td className="py-3 px-4">
+                    <StatusBadge status={share.status} />
+                  </td>
+                  <td className="py-3 px-4 text-center">
+                    <div className="flex items-center justify-center gap-2">
+                      <button
+                        onClick={() => { setSelectedShare(share); setIsDetailOpen(true); }}
+                        className="p-1.5 hover:bg-emerald-50 text-emerald-700 rounded-lg transition-all active:scale-95"
+                        title="View"
+                      >
+                        <Eye size={16} />
+                      </button>
+                      <button
+                        onClick={() => { setSelectedShareForStatus(share); setIsStatusModalOpen(true); }}
+                        className="p-1.5 hover:bg-blue-50 text-blue-600 rounded-lg transition-all active:scale-95"
+                        title="Update"
+                      >
+                        <Edit2 size={16} />
+                      </button>
+                    </div>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {paginatedShares.map((share) => (
-                  <tr key={share.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                    <td className="py-3 px-4 font-medium text-gray-900 text-xs sm:text-sm">{share.memberName}</td>
-                    <td className="py-3 px-4 text-[#0B5D3B] font-semibold text-xs sm:text-sm">{share.shares.toLocaleString()} shares</td>
-                    <td className="py-3 px-4">
-                      <StatusBadge status={share.status} />
-                    </td>
-                    <td className="py-3 px-4 text-center">
-                      <ActionCell
-                        onView={() => { setSelectedShare(share); setIsDetailOpen(true); setIsEditMode(false); }}
-                        onEdit={() => { setSelectedShare(share); setEditFormData(share); setIsDetailOpen(false); setIsEditModalOpen(true); }}
-                        onDelete={() => setDeleteShare(share)}
-                      />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
         </div>
 
         <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -178,52 +188,39 @@ export default function AdminSharesPage() {
         </div>
       </div>
 
-      {/* Detail Modal */}
       {isDetailOpen && selectedShare && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-auto animate-in fade-in-0 duration-200">
+          <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto my-auto animate-in zoom-in-95 duration-200">
             <div className="sticky top-0 bg-[#0B5D3B] px-6 py-4 flex items-center justify-between">
               <h2 className="text-xl font-bold text-white">Share Details</h2>
               <button
-                onClick={() => {
-                  setIsDetailOpen(false);
-                  setIsEditMode(false);
-                  setEditFormData(null);
-                }}
+                onClick={() => setIsDetailOpen(false)}
                 className="text-white hover:bg-white/20 p-2 rounded-lg transition-colors"
               >
-                <X size={20} />
+                <Eye size={20} />
               </button>
             </div>
 
-            <div className="p-6 space-y-6">
+            <div className="p-6 space-y-4">
               <div className="grid grid-cols-2 gap-4">
-                <div className="col-span-2 rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-6 text-center">
-                  <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-white text-gray-400 shadow-sm">
-                    <ImageIcon size={28} />
-                  </div>
-                  <p className="text-sm font-semibold text-gray-700">Payment Proof</p>
-                  <p className="mt-1 text-xs text-gray-500">No image uploaded</p>
-                </div>
-
-                <div className="rounded-lg bg-gray-50 p-4 border border-gray-200">
+                <div className="col-span-2 rounded-lg bg-gray-50 p-4 border border-gray-200">
                   <p className="text-xs uppercase tracking-wider text-gray-600 mb-1">Member Name</p>
                   <p className="text-lg font-semibold text-gray-900">{selectedShare.memberName}</p>
                 </div>
-                <div className="rounded-lg bg-gray-50 p-4 border border-gray-200">
+                <div className="col-span-2 rounded-lg bg-gray-50 p-4 border border-gray-200">
                   <p className="text-xs uppercase tracking-wider text-gray-600 mb-1">Email</p>
-                  <p className="text-sm font-semibold text-gray-900 truncate">{selectedShare.memberEmail}</p>
+                  <p className="text-sm font-semibold text-gray-900">{selectedShare.memberEmail}</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="rounded-lg bg-gray-50 p-4 border border-gray-200">
-                  <p className="text-xs uppercase tracking-wider text-gray-600 mb-1">Total Shares</p>
-                  <p className="text-2xl font-bold text-[#0B5D3B]">{selectedShare.shares.toLocaleString()}</p>
+                <div className="rounded-lg bg-emerald-50 p-4 border border-emerald-200">
+                  <p className="text-xs uppercase tracking-wider text-emerald-700 mb-1">Total Shares</p>
+                  <p className="text-2xl font-bold text-emerald-700">{selectedShare.shares.toLocaleString()}</p>
                 </div>
-                <div className="rounded-lg bg-gray-50 p-4 border border-gray-200">
-                  <p className="text-xs uppercase tracking-wider text-gray-600 mb-1">Total Value</p>
-                  <p className="text-2xl font-bold text-gray-900">{(selectedShare.value / 1000000).toFixed(2)}M RWF</p>
+                <div className="rounded-lg bg-blue-50 p-4 border border-blue-200">
+                  <p className="text-xs uppercase tracking-wider text-blue-700 mb-1">Total Value</p>
+                  <p className="text-2xl font-bold text-blue-700">{selectedShare.value.toLocaleString()} RWF</p>
                 </div>
               </div>
 
@@ -238,13 +235,16 @@ export default function AdminSharesPage() {
                 </div>
               </div>
 
+              <div className="rounded-lg bg-purple-50 p-4 border border-purple-200">
+                <p className="text-xs uppercase tracking-wider text-purple-700 mb-1">Share Price</p>
+                <p className="text-lg font-bold text-purple-700">2,000 RWF per share</p>
+              </div>
+            </div>
+
+            <div className="p-6 border-t border-gray-200">
               <button
-                onClick={() => {
-                  setIsDetailOpen(false);
-                  setIsEditMode(false);
-                  setEditFormData(null);
-                }}
-                className="w-full bg-[#0B5D3B] text-white font-semibold py-3 rounded-lg hover:bg-[#094a2e] transition-colors"
+                onClick={() => setIsDetailOpen(false)}
+                className="w-full bg-[#0B5D3B] text-white font-semibold py-3 rounded-xl hover:bg-[#094a2e] transition-all active:scale-95"
               >
                 Close
               </button>
@@ -253,97 +253,51 @@ export default function AdminSharesPage() {
         </div>
       )}
 
-      {/* Edit Modal */}
-      <GenericEditModal
-        title="Edit Share"
-        isOpen={isEditModalOpen}
-        onClose={() => { setIsEditModalOpen(false); setEditFormData(null); }}
-        onSave={() => {
-          if (editFormData) {
-            setShares((current) => current.map((item) => item.id === editFormData.id ? editFormData : item));
-          }
-          setIsEditModalOpen(false);
-          setEditFormData(null);
-        }}
-        saveLabel="Save Changes"
-        maxWidth="max-w-2xl"
-      >
-        {editFormData && (
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs uppercase tracking-wider text-gray-600 mb-2">Member Name</label>
-              <input
-                type="text"
-                value={editFormData.memberName}
-                onChange={(e) => setEditFormData({...editFormData, memberName: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-xs uppercase tracking-wider text-gray-600 mb-2">Email</label>
-              <input
-                type="email"
-                value={editFormData.memberEmail}
-                onChange={(e) => setEditFormData({...editFormData, memberEmail: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-xs uppercase tracking-wider text-gray-600 mb-2">Shares</label>
-              <input
-                type="number"
-                value={editFormData.shares}
-                onChange={(e) => setEditFormData({...editFormData, shares: parseInt(e.target.value) || 0})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-xs uppercase tracking-wider text-gray-600 mb-2">Value (RWF)</label>
-              <input
-                type="number"
-                value={editFormData.value}
-                onChange={(e) => setEditFormData({...editFormData, value: parseInt(e.target.value) || 0})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-xs uppercase tracking-wider text-gray-600 mb-2">Date</label>
-              <input
-                type="date"
-                value={editFormData.date}
-                onChange={(e) => setEditFormData({...editFormData, date: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-xs uppercase tracking-wider text-gray-600 mb-2">Status</label>
-              <select
-                value={editFormData.status}
-                onChange={(e) => setEditFormData({...editFormData, status: e.target.value as 'approved' | 'pending'})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+      {isStatusModalOpen && selectedShareForStatus && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in-0 duration-200">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full animate-in zoom-in-95 duration-200">
+            <div className="bg-[#0B5D3B] px-6 py-4 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-white">Update Share Status</h2>
+              <button
+                onClick={() => { setIsStatusModalOpen(false); setSelectedShareForStatus(null); }}
+                className="text-white hover:bg-white/20 p-2 rounded-lg transition-colors"
               >
-                <option value="approved">Approved</option>
-                <option value="pending">Pending</option>
-              </select>
+                <Eye size={20} />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <p className="text-sm text-gray-600 mb-1">Member</p>
+                <p className="font-semibold text-gray-900">{selectedShareForStatus.memberName}</p>
+              </div>
+
+              <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <p className="text-sm text-gray-600 mb-1">Current Status</p>
+                <StatusBadge status={selectedShareForStatus.status} />
+              </div>
+
+              <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <p className="text-sm text-gray-600 mb-3">Change Status To</p>
+                <div className="space-y-2">
+                  <button
+                    onClick={() => handleStatusUpdate(selectedShareForStatus, 'approved')}
+                    className="w-full px-4 py-2.5 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors font-medium text-sm"
+                  >
+                    Approved
+                  </button>
+                  <button
+                    onClick={() => handleStatusUpdate(selectedShareForStatus, 'pending')}
+                    className="w-full px-4 py-2.5 bg-amber-100 text-amber-700 rounded-lg hover:bg-amber-200 transition-colors font-medium text-sm"
+                  >
+                    Pending
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
-        )}
-      </GenericEditModal>
-
-      <ConfirmDialog
-        isOpen={Boolean(deleteShare)}
-        title="Delete Share"
-        message={`Are you sure you want to delete ${deleteShare?.memberName}'s share record?`}
-        confirmText="Delete"
-        variant="danger"
-        onConfirm={() => {
-          if (deleteShare) {
-            setShares((current) => current.filter((item) => item.id !== deleteShare.id));
-          }
-          setDeleteShare(null);
-        }}
-        onCancel={() => setDeleteShare(null)}
-      />
+        </div>
+      )}
     </div>
   );
 }
