@@ -4,8 +4,8 @@ import { ToastProvider } from '@/components/ui/Toast';
 import { SettingsProvider } from '@/context/SettingsContext';
 
 export const metadata: Metadata = {
-  title: 'Community Savings App',
-  description: 'Digital ROSCA System',
+  title: 'TrustNet',
+  description: 'Community Savings Platform',
 };
 
 export default function RootLayout({

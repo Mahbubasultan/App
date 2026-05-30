@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Mail, Phone, Facebook, MessageCircle, Twitter } from 'lucide-react';
+import { TrustNetLogo } from '@/components/ui/TrustNetLogo';
 
 export default function Footer() {
   const [email, setEmail] = useState('');
@@ -24,9 +25,9 @@ export default function Footer() {
           {/* Left Side - Logo & Description */}
           <div className="text-center sm:text-left">
             <div className="mb-4 flex items-center gap-3">
-              <img src="/images/trust-nest-logo.png" alt="Trust Nest" style={{ width: 72, height: 72 }} className="object-contain" />
-              <span style={{ fontSize: 22, fontWeight: 700, lineHeight: 1, letterSpacing: '-0.3px' }}>
-                <span style={{ color: '#000000' }}>Trust</span><span style={{ color: '#16A34A' }}>Nest</span>
+              <TrustNetLogo size={56} />
+              <span style={{ fontSize: 20, fontWeight: 800, lineHeight: 1, letterSpacing: '-0.5px' }}>
+                <span style={{ color: '#ffffff' }}>Trust</span><span style={{ color: '#4ade80' }}>Net</span>
               </span>
             </div>
             <p className="text-sm text-gray-300 leading-relaxed">

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
+import { TrustNetLogo } from '@/components/ui/TrustNetLogo';
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -20,9 +21,9 @@ export default function Navbar() {
         <div className="flex justify-between items-center h-16 sm:h-20">
           {/* Logo */}
           <Link href="/landing" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
-            <img src="/images/trust-nest-logo.png" alt="Trust Nest" style={{ width: 80, height: 80 }} className="object-contain" />
-            <span style={{ fontSize: 28, fontWeight: 700, lineHeight: 1, letterSpacing: '-0.3px' }}>
-              <span style={{ color: '#000000' }}>Trust</span><span style={{ color: '#16A34A' }}>Nest</span>
+            <TrustNetLogo size={56} />
+            <span style={{ fontSize: 24, fontWeight: 800, lineHeight: 1, letterSpacing: '-0.5px' }}>
+              <span style={{ color: '#111827' }}>Trust</span><span style={{ color: '#16A34A' }}>Net</span>
             </span>
           </Link>
           

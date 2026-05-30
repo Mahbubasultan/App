@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { User, Mail, Lock, Shield, ArrowRight, Phone } from 'lucide-react';
+import { TrustNetLogo } from '@/components/ui/TrustNetLogo';
 import { UserRole } from '@/types';
 import { saveUserData, saveRegisteredUser } from '@/lib/localStorageService';
 import { saveUserSession } from '@/lib/auth';
@@ -113,14 +114,14 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo + Brand */}
-        <div className="flex flex-col items-center mb-10">
-          <Link href="/landing" className="hover:opacity-90 transition-opacity">
-            <img src="/images/trust-nest-logo.png" alt="Trust Nest" style={{ width: 220, height: 220 }} className="object-contain" />
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 24 }}>
+          <Link href="/landing" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textDecoration: 'none', gap: 0 }}>
+            <TrustNetLogo size={100} />
+            <h1 style={{ fontSize: 34, fontWeight: 800, lineHeight: 1, letterSpacing: '-1px', margin: '6px 0 0 0' }}>
+              <span style={{ color: '#111827' }}>Trust</span><span style={{ color: '#16A34A' }}>Net</span>
+            </h1>
           </Link>
-          <h1 style={{ fontSize: 42, fontWeight: 700, lineHeight: 1.1, marginTop: 4, letterSpacing: '-0.5px' }}>
-            <span style={{ color: '#000000' }}>Trust</span><span style={{ color: '#16A34A' }}>Nest</span>
-          </h1>
-          <p className="text-sm text-gray-500 mt-1">Community Savings Platform</p>
+          <p style={{ color: '#6b7280', fontSize: 13, marginTop: 4 }}>Community Savings Platform</p>
         </div>
 
         {/* Card */}

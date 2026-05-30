@@ -15,6 +15,7 @@ import {
   LogOut,
 } from 'lucide-react';
 import { UserRole } from '@/types';
+import { TrustNetLogo } from '@/components/ui/TrustNetLogo';
 
 interface SidebarProps {
   role: UserRole;
@@ -73,18 +74,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, onClose, onLogou
         `}
       >
         {/* Logo */}
-        <div className="px-5 py-5 border-b border-white/10">
+        <div className="px-5 py-6 border-b border-white/10">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <img src="/images/trust-nest-logo.png" alt="Trust Nest" style={{ width: 64, height: 64 }} className="object-contain flex-shrink-0" />
-              <div>
-                <p style={{ fontSize: 24, fontWeight: 700, lineHeight: 1.1, letterSpacing: '-0.3px' }}>
-                  <span style={{ color: '#000000' }}>Trust</span><span style={{ color: '#16A34A' }}>Nest</span>
+            <div className="flex flex-col items-center gap-2 w-full">
+              <TrustNetLogo size={56} />
+              <div className="text-center">
+                <p style={{ fontSize: 20, fontWeight: 800, lineHeight: 1.1, letterSpacing: '-0.5px', margin: 0 }}>
+                  <span style={{ color: '#ffffff' }}>Trust</span><span style={{ color: '#4ade80' }}>Net</span>
                 </p>
                 <p className="text-white/50 text-xs mt-0.5">{roleLabel}</p>
               </div>
             </div>
-            <button onClick={onClose} className="lg:hidden p-2 hover:bg-white/10 rounded-xl transition-colors text-white">
+            <button onClick={onClose} className="lg:hidden p-2 hover:bg-white/10 rounded-xl transition-colors text-white self-start">
               <X size={20} />
             </button>
           </div>
