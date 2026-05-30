@@ -18,7 +18,7 @@ export const Input: React.FC<InputProps> = ({
   return (
     <div className="w-full">
       {label && (
-        <label className="block text-sm font-medium text-text-black mb-2">
+        <label className="block text-sm font-semibold text-text-primary mb-2">
           {label}
         </label>
       )}
@@ -26,17 +26,17 @@ export const Input: React.FC<InputProps> = ({
       <input
         className={`
           w-full px-4 py-3 border rounded-2xl 
-          focus:ring-2 focus:ring-primary focus:border-transparent outline-none 
-          transition-all duration-200
-          disabled:bg-background-gray disabled:text-text-gray disabled:cursor-not-allowed
-          ${hasError ? 'border-danger' : 'border-gray-300'}
+          focus:ring-2 focus:ring-primary-600 focus:border-transparent outline-none 
+          transition-all duration-200 bg-white
+          disabled:bg-gray-50 disabled:text-text-secondary disabled:cursor-not-allowed
+          ${hasError ? 'border-danger-500' : 'border-gray-300 hover:border-gray-400'}
           ${className}
         `}
         {...props}
       />
       
       {(error || helperText) && (
-        <p className={`mt-2 text-sm ${hasError ? 'text-danger' : 'text-text-gray'}`}>
+        <p className={`mt-2 text-sm ${hasError ? 'text-danger-600' : 'text-text-secondary'}`}>
           {error || helperText}
         </p>
       )}
@@ -62,7 +62,7 @@ export const Select: React.FC<SelectProps> = ({
   return (
     <div className="w-full">
       {label && (
-        <label className="block text-sm font-medium text-text-black mb-2">
+        <label className="block text-sm font-semibold text-text-primary mb-2">
           {label}
         </label>
       )}
@@ -70,10 +70,10 @@ export const Select: React.FC<SelectProps> = ({
       <select
         className={`
           w-full px-4 py-3 border rounded-2xl 
-          focus:ring-2 focus:ring-primary focus:border-transparent outline-none 
-          transition-all duration-200
-          disabled:bg-background-gray disabled:text-text-gray disabled:cursor-not-allowed
-          ${hasError ? 'border-danger' : 'border-gray-300'}
+          focus:ring-2 focus:ring-primary-600 focus:border-transparent outline-none 
+          transition-all duration-200 bg-white
+          disabled:bg-gray-50 disabled:text-text-secondary disabled:cursor-not-allowed
+          ${hasError ? 'border-danger-500' : 'border-gray-300 hover:border-gray-400'}
           ${className}
         `}
         {...props}
@@ -86,7 +86,7 @@ export const Select: React.FC<SelectProps> = ({
       </select>
       
       {error && (
-        <p className="mt-2 text-sm text-danger">{error}</p>
+        <p className="mt-2 text-sm text-danger-600">{error}</p>
       )}
     </div>
   );

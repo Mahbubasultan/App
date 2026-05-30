@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { User, Mail, Lock, Shield, ArrowRight, Phone } from 'lucide-react';
-import { Logo } from '@/components/ui/Logo';
 import { UserRole } from '@/types';
 import { saveUserData, saveRegisteredUser } from '@/lib/localStorageService';
 import { saveUserSession } from '@/lib/auth';
@@ -111,114 +110,73 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Logo */}
-        <div className="flex items-center justify-center mb-8">
-          <Logo variant="full" size="lg" href="/landing" showLabel={true} />
+        {/* Logo + Brand */}
+        <div className="flex flex-col items-center mb-10">
+          <Link href="/landing" className="hover:opacity-90 transition-opacity">
+            <img src="/images/trust-nest-logo.png" alt="Trust Nest" style={{ width: 220, height: 220 }} className="object-contain" />
+          </Link>
+          <h1 style={{ fontSize: 42, fontWeight: 700, lineHeight: 1.1, marginTop: 4, letterSpacing: '-0.5px' }}>
+            <span style={{ color: '#000000' }}>Trust</span><span style={{ color: '#16A34A' }}>Nest</span>
+          </h1>
+          <p className="text-sm text-gray-500 mt-1">Community Savings Platform</p>
         </div>
 
-        {/* Register Card */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Account</h1>
-          <p className="text-gray-600 mb-8">Join our community savings platform</p>
+        {/* Card */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+          <h2 className="text-xl font-bold text-gray-900 mb-1">Create Account</h2>
+          <p className="text-gray-500 text-sm mb-6">Join our community savings platform</p>
 
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
               {error}
             </div>
           )}
 
-          <form onSubmit={handleRegister} className="space-y-6">
-            {/* Name Input */}
+          <form onSubmit={handleRegister} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Full Name
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Full Name</label>
               <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  placeholder="John Doe"
-                  className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0B5D3B] focus:border-transparent"
-                  required
-                />
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="John Doe"
+                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#14532D] focus:border-transparent" required />
               </div>
             </div>
 
-            {/* Email Input */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Email Address
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Email Address</label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="you@example.com"
-                  className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0B5D3B] focus:border-transparent"
-                  required
-                />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="you@example.com"
+                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#14532D] focus:border-transparent" required />
               </div>
             </div>
 
-            {/* Phone Input */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Phone Number
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Phone Number</label>
               <div className="relative">
-                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  placeholder="+250 123 456 789"
-                  className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0B5D3B] focus:border-transparent"
-                  required
-                />
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                <input type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="+250 123 456 789"
+                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#14532D] focus:border-transparent" required />
               </div>
             </div>
 
-            {/* Password Input */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Password
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Password</label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  placeholder="••••••••"
-                  className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0B5D3B] focus:border-transparent"
-                  required
-                />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="••••••••"
+                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#14532D] focus:border-transparent" required />
               </div>
             </div>
 
-            {/* Role Selector */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Select Role
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Select Role</label>
               <div className="relative">
-                <Shield className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                <select
-                  name="role"
-                  value={formData.role}
-                  onChange={handleChange}
-                  className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0B5D3B] focus:border-transparent appearance-none bg-white"
-                >
+                <Shield className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                <select name="role" value={formData.role} onChange={handleChange}
+                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#14532D] focus:border-transparent appearance-none bg-white">
                   <option value="member">Member</option>
                   <option value="accountant">Accountant</option>
                   <option value="admin">Admin</option>
@@ -228,51 +186,30 @@ export default function RegisterPage() {
 
             {formData.role === 'admin' && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Admin Access Code
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Admin Access Code</label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                  <input
-                    type="password"
-                    name="adminCode"
-                    value={formData.adminCode}
-                    onChange={handleChange}
-                    placeholder="Enter admin access code"
-                    className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0B5D3B] focus:border-transparent"
-                    required
-                  />
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                  <input type="password" name="adminCode" value={formData.adminCode} onChange={handleChange} placeholder="Enter admin access code"
+                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#14532D] focus:border-transparent" required />
                 </div>
               </div>
             )}
 
-            {/* Register Button */}
-            <button
-              type="submit"
-              className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-[#0B5D3B] text-white rounded-lg font-semibold hover:bg-[#094a2e] transition-colors"
-            >
-              Create Account
-              <ArrowRight size={20} />
+            <button type="submit"
+              className="w-full flex items-center justify-center gap-2 py-2.5 bg-[#14532D] text-white rounded-lg font-semibold hover:bg-[#0f3d21] transition-all active:scale-95">
+              Create Account <ArrowRight size={18} />
             </button>
           </form>
 
-          {/* Login Link */}
-          <div className="mt-6 text-center">
-            <p className="text-gray-600">
-              Already have an account?{' '}
-              <Link href="/login" className="text-[#0B5D3B] font-semibold hover:text-[#094a2e]">
-                Login here
-              </Link>
-            </p>
-          </div>
+          <p className="mt-5 text-center text-sm text-gray-500">
+            Already have an account?{' '}
+            <Link href="/login" className="text-[#14532D] font-semibold hover:underline">Login here</Link>
+          </p>
         </div>
 
-        {/* Back to Home */}
-        <div className="mt-6 text-center">
-          <Link href="/landing" className="text-gray-600 hover:text-[#0B5D3B] text-sm">
-            ← Back to Home
-          </Link>
-        </div>
+        <p className="mt-4 text-center">
+          <Link href="/landing" className="text-xs text-gray-400 hover:text-[#14532D] transition-colors">← Back to Home</Link>
+        </p>
       </div>
     </div>
   );

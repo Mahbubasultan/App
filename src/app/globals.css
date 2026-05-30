@@ -8,7 +8,7 @@
   }
   
   body {
-    @apply bg-white text-text-dark antialiased;
+    @apply bg-background-light text-text-primary antialiased;
   }
 
   html {
@@ -24,27 +24,42 @@
     color: #f8fafc;
   }
 
+  /* Dark mode - Keep light green background for dashboard pages */
+  html.dark main {
+    background-color: #1a2e1a !important;
+  }
+
   html.dark .bg-white,
   html.dark .bg-gray-50,
   html.dark .bg-background-gray,
   html.dark .bg-background-light,
   html.dark .bg-slate-100,
   html.dark .bg-slate-200 {
-    background-color: #111827 !important;
+    background-color: #1e293b !important;
+    border-color: #334155 !important;
   }
 
   html.dark .bg-gray-100,
   html.dark .bg-slate-50 {
-    background-color: #1f2937 !important;
+    background-color: #1e293b !important;
+  }
+
+  /* Dark mode cards with better contrast */
+  html.dark .rounded-3xl.bg-white,
+  html.dark .rounded-2xl.bg-white {
+    background-color: #1e293b !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3) !important;
   }
 
   html.dark .text-gray-900,
-  html.dark .text-text-dark {
+  html.dark .text-text-dark,
+  html.dark .text-text-primary {
     color: #f8fafc !important;
   }
 
   html.dark .text-gray-700,
-  html.dark .text-text-gray {
+  html.dark .text-text-gray,
+  html.dark .text-text-secondary {
     color: #cbd5e1 !important;
   }
 
@@ -64,7 +79,7 @@
   }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply font-semibold tracking-tight;
+    @apply font-semibold tracking-tight text-text-primary;
   }
   
   html {
@@ -82,7 +97,7 @@
   }
   
   .input-focus {
-    @apply focus:ring-2 focus:ring-primary focus:border-transparent;
+    @apply focus:ring-2 focus:ring-primary-600 focus:border-transparent;
   }
   
   .scrollbar-hide {

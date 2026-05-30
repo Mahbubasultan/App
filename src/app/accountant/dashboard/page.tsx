@@ -71,7 +71,7 @@ export default function AccountantDashboard() {
             <div
               key={card.title}
               onClick={() => router.push(card.route)}
-              className="group bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-105 animate-in slide-in-from-bottom-4"
+              className="group bg-white rounded-3xl shadow-lg border border-gray-100 p-4 sm:p-6 cursor-pointer hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 animate-in slide-in-from-bottom-4"
               style={{ animationDelay: `${index * 100}ms` }}
             >
               <div className="flex items-start justify-between">
@@ -84,7 +84,7 @@ export default function AccountantDashboard() {
                     <span className="text-gray-500 hidden sm:inline">vs last month</span>
                   </div>
                 </div>
-                <div className={`${card.iconColor} p-2 sm:p-3 rounded-lg sm:rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                <div className={`${card.iconColor} p-2 sm:p-3 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                   <Icon size={20} className="text-white sm:w-6 sm:h-6" />
                 </div>
               </div>
@@ -94,7 +94,7 @@ export default function AccountantDashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-        <div className="lg:col-span-2 bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 animate-in slide-in-from-left-4 duration-500">
+        <div className="lg:col-span-2 bg-white rounded-3xl shadow-lg border border-gray-100 p-4 sm:p-6 animate-in slide-in-from-left-4 duration-500">
           <div className="mb-4 sm:mb-5">
             <h3 className="text-base sm:text-lg font-bold text-gray-900">Savings & Loans Trend</h3>
             <p className="text-xs sm:text-sm text-gray-600 mt-1">Monthly performance overview</p>
@@ -171,7 +171,7 @@ export default function AccountantDashboard() {
           </ResponsiveContainer>
         </div>
 
-        <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 animate-in slide-in-from-right-4 duration-500">
+        <div className="bg-white rounded-3xl shadow-lg border border-gray-100 p-4 sm:p-6 animate-in slide-in-from-right-4 duration-500">
           <div className="mb-4">
             <h3 className="text-base sm:text-lg font-bold text-gray-900">Loan Status</h3>
             <p className="text-xs sm:text-sm text-gray-600 mt-1">Distribution overview</p>

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowRight, ChevronDown } from 'lucide-react';
+import { ArrowRight, CheckCircle, TrendingUp, Users, Wallet, Shield } from 'lucide-react';
 
 export default function Hero() {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -12,148 +12,123 @@ export default function Hero() {
   }, []);
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
-      {/* Background Video */}
-      <div className="absolute inset-0 w-full h-full z-0">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover"
-          poster="https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=2070&auto=format&fit=crop"
-        >
-          <source 
-            src="https://cdn.coverr.co/videos/coverr-a-group-of-people-working-in-an-office-9165/1080p.mp4" 
-            type="video/mp4" 
-          />
-        </video>
-        
-        {/* Fallback Background Image */}
-        <div 
-          className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: "url('https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=2070&auto=format&fit=crop')"
-          }}
-        />
-        
-        {/* Dark Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/60 to-black/70" />
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-[#f0fdf4] to-white pt-20 pb-16">
+      {/* Simple Background Decoration */}
+      <div className="absolute inset-0 overflow-hidden opacity-30">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-green-300 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-10 w-72 h-72 bg-emerald-300 rounded-full blur-3xl"></div>
       </div>
 
-      {/* Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-12 sm:py-16">
-        <div className="max-w-4xl mx-auto text-center">
-          {/* Glass Morphism Container */}
-          <div 
-            className={`backdrop-blur-xl bg-white/10 rounded-2xl sm:rounded-3xl p-6 sm:p-10 md:p-16 border border-white/20 shadow-2xl transition-all duration-1000 ${
-              isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-            }`}
-          >
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          {/* Left Content */}
+          <div className={`transition-all duration-1000 ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}>
             {/* Badge */}
-            <div 
-              className={`inline-flex items-center gap-2 px-4 py-2 sm:px-5 sm:py-2.5 bg-green-500/20 backdrop-blur-sm border border-green-400/30 text-green-300 rounded-full text-xs sm:text-sm font-semibold mb-6 sm:mb-8 transition-all duration-700 delay-200 ${
-                isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-              }`}
-            >
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-              </span>
-              <span>Digital ROSCA Platform</span>
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm font-semibold mb-6">
+              <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+              Trusted Community Savings Platform
             </div>
 
             {/* Main Heading */}
-            <h1 
-              className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-4 sm:mb-6 leading-tight transition-all duration-700 delay-300 ${
-                isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-              }`}
-            >
-              Save Together.
-              <br />
-              <span className="bg-gradient-to-r from-green-400 via-green-300 to-emerald-400 bg-clip-text text-transparent">
-                Grow Together.
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-900 mb-6 leading-tight">
+              Welcome to
+              <span className="block mt-2">
+                <span className="text-gray-900">Trust</span>
+                <span className="bg-gradient-to-r from-[#14532D] to-green-600 bg-clip-text text-transparent"> Nest</span>
               </span>
             </h1>
 
             {/* Subheading */}
-            <p 
-              className={`text-sm sm:text-base md:text-lg lg:text-xl text-gray-200 mb-8 sm:mb-10 max-w-2xl mx-auto leading-relaxed px-2 transition-all duration-700 delay-500 ${
-                isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-              }`}
-            >
-              A smart and transparent community savings platform for{' '}
-              <span className="text-green-300 font-semibold">secure group savings</span> and{' '}
-              <span className="text-green-300 font-semibold">financial growth</span>.
+            <p className="text-xl text-gray-600 mb-8 leading-relaxed">
+              Build your financial future together. Save smart, grow wealth, and achieve your dreams with our secure community savings platform.
             </p>
 
+            {/* Simple Features */}
+            <div className="space-y-4 mb-10">
+              {[
+                { icon: Wallet, text: 'Share-based savings - 2,000 RWF per share' },
+                { icon: Shield, text: '100% secure with loan coverage guarantee' },
+                { icon: TrendingUp, text: 'Monthly giveaways with 95% winner payout' },
+              ].map((feature, index) => (
+                <div key={index} className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <feature.icon className="w-5 h-5 text-green-600" />
+                  </div>
+                  <span className="text-gray-700">{feature.text}</span>
+                </div>
+              ))}
+            </div>
+
             {/* CTA Buttons */}
-            <div 
-              className={`flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 transition-all duration-700 delay-700 ${
-                isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-              }`}
-            >
+            <div className="flex flex-col sm:flex-row gap-4 mb-8">
+              <Link
+                href="/register"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#14532D] text-white rounded-xl font-semibold text-lg hover:bg-[#0f3d21] transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+              >
+                Get Started
+                <ArrowRight className="w-5 h-5" />
+              </Link>
               <Link
                 href="/login"
-                className="group relative inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-green-600 to-green-500 text-white rounded-xl font-semibold text-base sm:text-lg overflow-hidden transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-green-500/50 w-full sm:w-auto min-h-[44px]"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white border-2 border-gray-300 text-gray-900 rounded-xl font-semibold text-lg hover:border-[#14532D] hover:text-[#14532D] transition-all duration-300"
               >
-                <span className="relative z-10 flex items-center gap-2">
-                  Get Started
-                  <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform duration-300" />
-                </span>
-                <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-green-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                Sign In
               </Link>
-
-              <a
-                href="#features"
-                className="group inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-white/10 backdrop-blur-sm border-2 border-white/30 text-white rounded-xl font-semibold text-base sm:text-lg transition-all duration-300 hover:bg-white/20 hover:border-white/50 hover:scale-105 active:scale-95 w-full sm:w-auto min-h-[44px]"
-              >
-                Learn More
-                <ChevronDown size={20} className="group-hover:translate-y-1 transition-transform duration-300" />
-              </a>
             </div>
 
-            {/* Stats */}
-            <div 
-              className={`grid grid-cols-3 gap-3 sm:gap-4 md:gap-8 max-w-2xl mx-auto mt-8 sm:mt-12 pt-6 sm:pt-8 border-t border-white/20 transition-all duration-700 delay-1000 ${
-                isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-              }`}
-            >
-              <div className="text-center group cursor-default">
-                <div className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-green-400 to-emerald-300 bg-clip-text text-transparent mb-1 sm:mb-2 group-hover:scale-110 transition-transform duration-300">
-                  2,000
-                </div>
-                <div className="text-xs sm:text-sm text-gray-300 font-medium">RWF Per Share</div>
+            {/* Trust Badges */}
+            <div className="flex flex-wrap items-center gap-6 text-sm text-gray-600">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-5 h-5 text-green-600" />
+                <span>No credit card required</span>
               </div>
-              <div className="text-center group cursor-default">
-                <div className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-green-400 to-emerald-300 bg-clip-text text-transparent mb-1 sm:mb-2 group-hover:scale-110 transition-transform duration-300">
-                  100%
-                </div>
-                <div className="text-xs sm:text-sm text-gray-300 font-medium">Loan Coverage</div>
-              </div>
-              <div className="text-center group cursor-default">
-                <div className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-green-400 to-emerald-300 bg-clip-text text-transparent mb-1 sm:mb-2 group-hover:scale-110 transition-transform duration-300">
-                  95%
-                </div>
-                <div className="text-xs sm:text-sm text-gray-300 font-medium">Winner Payout</div>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-5 h-5 text-green-600" />
+                <span>Free to join</span>
               </div>
             </div>
+          </div>
+
+          {/* Right Image */}
+          <div className={`relative transition-all duration-1000 delay-300 ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'}`}>
+            <div className="relative">
+              {/* Glow Effect */}
+              <div className="absolute -inset-4 bg-gradient-to-r from-green-400 to-emerald-500 rounded-3xl blur-2xl opacity-20"></div>
+              
+              {/* Main Image */}
+              <div className="relative rounded-3xl overflow-hidden shadow-2xl">
+                <img
+                  src="https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?q=80&w=2071&auto=format&fit=crop"
+                  alt="Trust Nest - Community Savings and Money Management"
+                  className="w-full h-[500px] lg:h-[600px] object-cover"
+                />
+                {/* Subtle Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Simple Stats Section */}
+        <div className={`mt-20 transition-all duration-1000 delay-500 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            {[
+              { value: '10K+', label: 'Active Members', icon: Users },
+              { value: '50M+', label: 'RWF Saved', icon: Wallet },
+              { value: '98%', label: 'Satisfaction', icon: CheckCircle },
+              { value: '24/7', label: 'Support', icon: Shield },
+            ].map((stat, index) => (
+              <div key={index} className="group">
+                <div className="inline-flex items-center justify-center w-12 h-12 bg-green-100 rounded-xl mb-3 group-hover:bg-green-200 transition-colors">
+                  <stat.icon className="w-6 h-6 text-green-600" />
+                </div>
+                <div className="text-3xl font-bold text-[#14532D] mb-1">{stat.value}</div>
+                <div className="text-sm text-gray-600">{stat.label}</div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
-
-      {/* Scroll Down Indicator */}
-      <a
-        href="#features"
-        className="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 z-10 animate-bounce cursor-pointer group hidden sm:flex"
-      >
-        <div className="flex flex-col items-center gap-2">
-          <div className="w-6 h-10 border-2 border-white/40 rounded-full flex items-start justify-center p-2 group-hover:border-green-400 transition-colors duration-300">
-            <div className="w-1.5 h-3 bg-white/60 rounded-full animate-scroll group-hover:bg-green-400 transition-colors duration-300" />
-          </div>
-          <span className="text-white/60 text-xs font-medium group-hover:text-green-400 transition-colors duration-300">Scroll</span>
-        </div>
-      </a>
     </section>
   );
 }

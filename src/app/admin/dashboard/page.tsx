@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { DollarSign, Edit, Eye, Layers, Trash2, TrendingUp, Users, Wallet } from 'lucide-react';
+import { DollarSign, Eye, Layers, Trash2, TrendingUp, Users, Wallet } from 'lucide-react';
 import {
   CartesianGrid,
   Cell,
@@ -46,12 +46,18 @@ const fallbackSavings = [
   { month: 'Apr', savings: 2250000, members: 23 },
   { month: 'May', savings: 2400000, members: 24 },
   { month: 'Jun', savings: 2450000, members: 24 },
+  { month: 'Jul', savings: 2600000, members: 25 },
+  { month: 'Aug', savings: 2750000, members: 26 },
+  { month: 'Sep', savings: 2900000, members: 27 },
+  { month: 'Oct', savings: 3050000, members: 28 },
+  { month: 'Nov', savings: 3200000, members: 29 },
+  { month: 'Dec', savings: 3350000, members: 30 },
 ];
 
 const loanStats = [
-  { name: 'Active', value: 8, color: '#0B5D3B' },
+  { name: 'Active', value: 8, color: '#16A34A' },
   { name: 'Pending', value: 4, color: '#F59E0B' },
-  { name: 'Repaid', value: 12, color: '#2563EB' },
+  { name: 'Repaid', value: 12, color: '#3B82F6' },
   { name: 'Overdue', value: 2, color: '#EF4444' },
 ];
 
@@ -82,7 +88,7 @@ export default function AdminDashboard() {
       return fallbackSavings;
     }
 
-    const monthOrder = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+    const monthOrder = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     return monthOrder.map((month, index) => {
       const savings = savingRecords
         .filter((record) => new Date(record.date).getMonth() === index)
@@ -172,15 +178,15 @@ export default function AdminDashboard() {
     switch (status.toLowerCase()) {
       case 'approved':
       case 'active':
-        return 'bg-emerald-100 text-emerald-700 border border-emerald-200';
+        return 'bg-green-100 text-green-700';
       case 'pending':
-        return 'bg-amber-100 text-amber-700 border border-amber-200';
+        return 'bg-yellow-100 text-yellow-700';
       case 'rejected':
-        return 'bg-rose-100 text-rose-700 border border-rose-200';
+        return 'bg-red-100 text-red-700';
       case 'on hold':
-        return 'bg-blue-100 text-blue-700 border border-blue-200';
+        return 'bg-orange-100 text-orange-700';
       default:
-        return 'bg-gray-100 text-gray-700 border border-gray-200';
+        return 'bg-gray-100 text-gray-700';
     }
   };
 
@@ -195,7 +201,6 @@ export default function AdminDashboard() {
 
   const confirmDelete = () => {
     if (!deleteModal.item) return;
-    // Handle deletion logic here
     console.log('Deleting:', deleteModal.item);
     setDeleteModal({ isOpen: false, item: null });
   };
@@ -203,158 +208,268 @@ export default function AdminDashboard() {
   const summaryCards = [
     {
       title: 'Total Savings',
-      value: `${totalSavings.toLocaleString()} RWF`,
+      value: `${(totalSavings / 1000000).toFixed(1)}M RWF`,
       icon: Wallet,
-      color: 'bg-blue-500',
-      route: '/admin/savings',
-      trend: '+12.5%',
+      path: '/admin/savings',
+      iconBg: 'bg-green-100',
+      iconColor: 'text-green-600',
     },
     {
       title: 'Total Shares',
       value: totalShares.toLocaleString(),
       icon: Layers,
-      color: 'bg-purple-500',
-      route: '/admin/shares',
-      trend: '+8.3%',
+      path: '/admin/shares',
+      iconBg: 'bg-blue-100',
+      iconColor: 'text-blue-600',
     },
     {
       title: 'Total Loans',
-      value: `${totalLoans.toLocaleString()} RWF`,
+      value: `${(totalLoans / 1000000).toFixed(1)}M RWF`,
       icon: DollarSign,
-      color: 'bg-orange-500',
-      route: '/admin/loans',
-      trend: '+15.7%',
+      path: '/admin/loans',
+      iconBg: 'bg-orange-100',
+      iconColor: 'text-orange-600',
     },
     {
       title: 'Total Members',
       value: totalMembers.toLocaleString(),
       icon: Users,
-      color: 'bg-green-500',
-      route: '/admin/users',
-      trend: '+4.3%',
+      path: '/admin/users',
+      iconBg: 'bg-purple-100',
+      iconColor: 'text-purple-600',
     },
   ];
 
   return (
-    <div className="space-y-4 sm:space-y-6 animate-in fade-in-0 duration-500">
-      <div className="animate-in slide-in-from-top-4 duration-500">
+    <div className="space-y-6 sm:space-y-8">
+      <div className="animate-in fade-in-0 duration-500">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-        <p className="text-sm sm:text-base text-gray-600 mt-1">Complete platform overview and recent activity</p>
+        <p className="text-sm sm:text-base text-gray-600 mt-2">Complete platform overview and recent activity</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {summaryCards.map((card, index) => {
           const Icon = card.icon;
           return (
             <button
               key={card.title}
-              onClick={() => router.push(card.route)}
-              className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 text-left hover:shadow-lg transition-all duration-300 hover:scale-105 animate-in slide-in-from-bottom-4"
+              onClick={() => router.push(card.path)}
+              className="bg-white rounded-3xl shadow-lg border border-gray-100 p-4 sm:p-6 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 text-left group animate-in slide-in-from-bottom-4"
               style={{ animationDelay: `${index * 100}ms` }}
             >
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <p className="text-xs sm:text-sm font-medium text-gray-600 mb-1 sm:mb-2">{card.title}</p>
-                  <p className="text-xl sm:text-2xl font-bold text-gray-900 mb-1 sm:mb-2">{card.value}</p>
-                  <div className="flex items-center gap-1 text-xs sm:text-sm">
-                    <TrendingUp size={14} className="text-green-600" />
-                    <span className="text-green-600 font-semibold">{card.trend}</span>
-                    <span className="text-gray-500 hidden sm:inline">vs last month</span>
-                  </div>
+              <div className="flex items-start justify-between mb-3 sm:mb-4">
+                <div className={`p-3 sm:p-4 rounded-2xl ${card.iconBg} group-hover:scale-110 transition-transform duration-300 shadow-md`}>
+                  <Icon size={24} className={`${card.iconColor} sm:w-7 sm:h-7`} />
                 </div>
-                <div className={`${card.color} p-2 sm:p-3 rounded-lg sm:rounded-xl`}>
-                  <Icon size={20} className="text-white sm:w-6 sm:h-6" />
-                </div>
+                <TrendingUp size={18} className="text-green-500 opacity-70 sm:w-5 sm:h-5" />
               </div>
+              <p className="text-xs sm:text-sm font-medium text-gray-600 mb-1 sm:mb-2">{card.title}</p>
+              <p className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">{card.value}</p>
             </button>
           );
         })}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-        {/* Line Chart - Takes 2 columns */}
-        <div className="lg:col-span-2 bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 animate-in slide-in-from-left-4 duration-500">
-          <div className="mb-5">
-            <h3 className="text-lg sm:text-xl font-bold text-gray-900">Platform Growth Trend</h3>
-            <p className="text-xs sm:text-sm text-gray-600 mt-1">Monthly savings and member growth</p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3 mb-5">
-            <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-3 sm:p-4">
-              <div className="flex items-center justify-between gap-2">
-                <div>
-                  <p className="text-xs font-semibold text-emerald-700">Total Members</p>
-                  <p className="mt-1 text-xl sm:text-2xl font-bold text-gray-900">{totalMembers.toLocaleString()}</p>
-                </div>
-                <div className="rounded-lg bg-white p-2 text-emerald-700 shadow-sm">
-                  <Users size={18} />
-                </div>
-              </div>
+        <div className="lg:col-span-2 bg-white rounded-3xl shadow-lg border border-gray-100 p-4 sm:p-6 animate-in fade-in-0 duration-700">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6">
+            <div>
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900">Platform Growth Trend</h3>
+              <p className="text-xs sm:text-sm text-gray-600 mt-1">Monthly savings and member growth analytics</p>
             </div>
-            <div className="rounded-xl border border-blue-100 bg-blue-50 p-3 sm:p-4">
-              <div className="flex items-center justify-between gap-2">
-                <div>
-                  <p className="text-xs font-semibold text-blue-700">Total Savings</p>
-                  <p className="mt-1 text-xl sm:text-2xl font-bold text-gray-900">{totalSavings.toLocaleString()} RWF</p>
-                </div>
-                <div className="rounded-lg bg-white p-2 text-blue-700 shadow-sm">
-                  <Wallet size={18} />
-                </div>
+            <div className="flex gap-3 sm:gap-4 mt-3 sm:mt-0">
+              <div className="flex items-center gap-2">
+                <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#16A34A]"></div>
+                <span className="text-xs sm:text-sm font-medium text-gray-700">Savings</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#3B82F6]"></div>
+                <span className="text-xs sm:text-sm font-medium text-gray-700">Members</span>
               </div>
             </div>
           </div>
 
-          <ResponsiveContainer width="100%" height={320}>
-            <LineChart data={monthlyGrowth} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis dataKey="month" stroke="#6b7280" tick={{ fontSize: 11 }} />
-              <YAxis yAxisId="left" stroke="#0B5D3B" tick={{ fontSize: 11 }} tickFormatter={(value) => `${(value / 1000).toFixed(0)}K`} />
-              <YAxis yAxisId="right" orientation="right" stroke="#2563EB" tick={{ fontSize: 11 }} />
-              <Tooltip
-                contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '12px' }}
-                formatter={(value: number, name: string) => {
-                  if (name === 'Savings (RWF)') {
-                    return [`${value.toLocaleString()} RWF`, name];
-                  }
-                  return [value, name];
-                }}
-              />
-              <Legend wrapperStyle={{ paddingTop: '15px', fontSize: '11px' }} />
-              <Line yAxisId="left" type="monotone" dataKey="savings" stroke="#0B5D3B" strokeWidth={2.5} name="Savings (RWF)" dot={{ r: 4, fill: '#0B5D3B' }} activeDot={{ r: 6 }} />
-              <Line yAxisId="right" type="monotone" dataKey="members" stroke="#2563EB" strokeWidth={2.5} name="Members" dot={{ r: 4, fill: '#2563EB' }} activeDot={{ r: 6 }} />
-            </LineChart>
-          </ResponsiveContainer>
+          {/* Summary Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
+            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-3 sm:p-4 border border-green-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs sm:text-sm font-medium text-green-700 mb-1">Total Savings</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-green-900">{(totalSavings / 1000000).toFixed(1)}M</p>
+                  <p className="text-xs text-green-600 mt-1">RWF</p>
+                </div>
+                <div className="p-2 sm:p-3 bg-green-200 rounded-xl">
+                  <Wallet size={24} className="text-green-700 sm:w-7 sm:h-7" />
+                </div>
+              </div>
+            </div>
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-3 sm:p-4 border border-blue-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs sm:text-sm font-medium text-blue-700 mb-1">Total Members</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-blue-900">{totalMembers}</p>
+                  <p className="text-xs text-blue-600 mt-1">Active Users</p>
+                </div>
+                <div className="p-2 sm:p-3 bg-blue-200 rounded-xl">
+                  <Users size={24} className="text-blue-700 sm:w-7 sm:h-7" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Line Chart */}
+          <div className="w-full overflow-x-auto">
+            <div className="min-w-[300px]">
+              <ResponsiveContainer width="100%" height={350}>
+                <LineChart data={monthlyGrowth} margin={{ top: 10, right: 10, left: -10, bottom: 10 }}>
+                  <defs>
+                    <linearGradient id="colorSavings" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#16A34A" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#16A34A" stopOpacity={0.05}/>
+                    </linearGradient>
+                    <linearGradient id="colorMembers" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#3B82F6" stopOpacity={0.05}/>
+                    </linearGradient>
+                    <filter id="glow">
+                      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                      <feMerge>
+                        <feMergeNode in="coloredBlur"/>
+                        <feMergeNode in="SourceGraphic"/>
+                      </feMerge>
+                    </filter>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
+                  <XAxis 
+                    dataKey="month" 
+                    stroke="#6B7280" 
+                    tick={{ fontSize: 11 }}
+                    axisLine={{ stroke: '#E5E7EB' }}
+                    tickLine={false}
+                  />
+                  <YAxis 
+                    yAxisId="left"
+                    stroke="#16A34A" 
+                    tick={{ fontSize: 11 }}
+                    tickFormatter={(value) => `${(value / 1000000).toFixed(1)}M`}
+                    axisLine={{ stroke: '#E5E7EB' }}
+                    tickLine={false}
+                    width={45}
+                  />
+                  <YAxis 
+                    yAxisId="right"
+                    orientation="right"
+                    stroke="#3B82F6" 
+                    tick={{ fontSize: 11 }}
+                    axisLine={{ stroke: '#E5E7EB' }}
+                    tickLine={false}
+                    width={35}
+                  />
+                  <Tooltip
+                    contentStyle={{ 
+                      backgroundColor: '#FFFFFF', 
+                      border: '1px solid #E5E7EB', 
+                      borderRadius: '12px',
+                      boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)',
+                      fontSize: '12px',
+                      padding: '10px 12px'
+                    }}
+                    labelStyle={{ fontWeight: 'bold', marginBottom: '6px', color: '#111827', fontSize: '11px' }}
+                    itemStyle={{ padding: '2px 0', fontSize: '11px' }}
+                  />
+                  <Legend 
+                    wrapperStyle={{ paddingTop: '15px', fontSize: '11px' }}
+                    iconType="circle"
+                    iconSize={8}
+                  />
+                  <Line 
+                    yAxisId="left"
+                    type="monotone" 
+                    dataKey="savings" 
+                    stroke="#16A34A" 
+                    strokeWidth={3}
+                    name="Total Savings (RWF)" 
+                    dot={{ r: 5, fill: '#16A34A', strokeWidth: 2, stroke: '#FFFFFF' }} 
+                    activeDot={{ r: 7, fill: '#16A34A', strokeWidth: 3, stroke: '#FFFFFF', filter: 'url(#glow)' }}
+                    fill="url(#colorSavings)"
+                    animationDuration={1500}
+                    animationEasing="ease-in-out"
+                  />
+                  <Line 
+                    yAxisId="right"
+                    type="monotone" 
+                    dataKey="members" 
+                    stroke="#3B82F6" 
+                    strokeWidth={3}
+                    name="Total Members" 
+                    dot={{ r: 5, fill: '#3B82F6', strokeWidth: 2, stroke: '#FFFFFF' }} 
+                    activeDot={{ r: 7, fill: '#3B82F6', strokeWidth: 3, stroke: '#FFFFFF', filter: 'url(#glow)' }}
+                    fill="url(#colorMembers)"
+                    animationDuration={1500}
+                    animationEasing="ease-in-out"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
         </div>
 
-        {/* Donut Chart - Takes 1 column */}
-        <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 animate-in slide-in-from-right-4 duration-500">
-          <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4">Loan Status</h3>
-          <ResponsiveContainer width="100%" height={280}>
+        {/* Donut Chart - Loan Status */}
+        <div className="bg-white rounded-3xl shadow-lg border border-gray-100 p-4 sm:p-6 animate-in fade-in-0 duration-700">
+          <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1 sm:mb-2">Loan Status</h3>
+          <p className="text-xs sm:text-sm text-gray-600 mb-4 sm:mb-6">Distribution overview</p>
+          <ResponsiveContainer width="100%" height={240}>
             <PieChart>
+              <defs>
+                {loanStats.map((entry, index) => (
+                  <linearGradient key={`gradient-${index}`} id={`gradient-${entry.name}`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={entry.color} stopOpacity={1}/>
+                    <stop offset="100%" stopColor={entry.color} stopOpacity={0.8}/>
+                  </linearGradient>
+                ))}
+              </defs>
               <Pie
                 data={loanStats}
                 cx="50%"
                 cy="50%"
-                labelLine={false}
-                label={({ value }) => `${value}`}
-                outerRadius={80}
-                innerRadius={50}
-                fill="#8884d8"
+                innerRadius={60}
+                outerRadius={85}
+                paddingAngle={3}
                 dataKey="value"
+                label={(props) => {
+                  const { value, percent } = props;
+                  return `${value} (${(percent * 100).toFixed(0)}%)`;
+                }}
+                labelLine={false}
               >
                 {loanStats.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
+                  <Cell 
+                    key={`cell-${index}`} 
+                    fill={`url(#gradient-${entry.name})`}
+                    stroke="#FFFFFF"
+                    strokeWidth={3}
+                  />
                 ))}
               </Pie>
-              <Tooltip formatter={(value: number) => `${value} loans`} />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: '#FFFFFF', 
+                  border: '1px solid #E5E7EB', 
+                  borderRadius: '12px',
+                  boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)',
+                  fontSize: '12px',
+                  padding: '10px'
+                }}
+                formatter={(value: number) => [`${value} loans`, '']}
+              />
             </PieChart>
           </ResponsiveContainer>
-          <div className="mt-3 sm:mt-4 grid grid-cols-2 gap-2">
+          <div className="mt-4 sm:mt-6 grid grid-cols-2 gap-2 sm:gap-3">
             {loanStats.map((item) => (
-              <div key={item.name} className="flex items-center gap-2 text-xs p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }} />
+              <div key={item.name} className="flex items-center gap-2 p-2 sm:p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+                <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }} />
                 <div className="flex-1 min-w-0">
-                  <p className="text-gray-700 truncate text-xs">{item.name}</p>
+                  <p className="text-xs font-medium text-gray-600">{item.name}</p>
                   <p className="font-bold text-gray-900 text-sm">{item.value}</p>
                 </div>
               </div>
@@ -363,29 +478,22 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 overflow-hidden animate-in slide-in-from-bottom-4 duration-500">
+      <div className="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
         <div className="p-4 sm:p-6 border-b border-gray-100">
-          <div className="mb-4 flex items-center gap-2">
-            <TrendingUp size={18} className="text-[#0B5D3B]" />
-            <h3 className="text-lg font-bold text-gray-900">Recent Activity</h3>
-          </div>
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <SearchBar
-              value={searchQuery}
-              onChange={setSearchQuery}
-              placeholder="Search activity..."
-              showButton={false}
-              className="w-full lg:max-w-[320px]"
-            />
+            <div>
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Recent Activity</h2>
+              <p className="text-sm sm:text-base text-gray-600 mt-1">Latest transactions and updates</p>
+            </div>
             <div className="flex gap-2 overflow-x-auto pb-2 lg:pb-0 scrollbar-hide">
               {tabs.map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition ${
+                  className={`whitespace-nowrap rounded-full px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium transition ${
                     activeTab === tab
-                      ? 'bg-[#0B5D3B] text-white shadow-sm'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'bg-[#14532D] text-white shadow-lg'
+                      : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
                   }`}
                 >
                   {tab}
@@ -393,115 +501,174 @@ export default function AdminDashboard() {
               ))}
             </div>
           </div>
+          <div className="mt-4 max-w-md">
+            <SearchBar
+              value={searchQuery}
+              onChange={setSearchQuery}
+              placeholder="Search by user, activity, amount..."
+              showButton={false}
+              className="w-full"
+            />
+          </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="min-w-full">
-            <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm">User</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm">Activity</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm">Amount</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm">Status</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm">Date</th>
-                <th className="text-center py-3 px-4 font-semibold text-gray-700 text-xs sm:text-sm">Action</th>
+        {/* Desktop Table View */}
+        <div className="hidden md:block overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Activity</th>
+                <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                <th className="px-4 lg:px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
-            <tbody>
-              {paginatedActivityRows.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="px-4 py-12 text-center text-sm text-gray-500">
-                    No recent activity found.
+            <tbody className="bg-white divide-y divide-gray-200">
+              {paginatedActivityRows.map((row) => (
+                <tr key={`${row.route}-${row.id}`} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm font-medium text-gray-900">{row.userName}</div>
+                    <div className="text-xs sm:text-sm text-gray-500">{row.detail}</div>
+                  </td>
+                  <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">{row.activity}</td>
+                  <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-xs sm:text-sm font-semibold text-gray-900">
+                    {row.amount ? `${row.amount.toLocaleString()} RWF` : '-'}
+                  </td>
+                  <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
+                    <span className={`px-2 sm:px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(row.status)}`}>
+                      {row.status}
+                    </span>
+                  </td>
+                  <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">{formatDate(row.date)}</td>
+                  <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                    <div className="flex items-center justify-center gap-2">
+                      <button
+                        onClick={() => router.push(row.route)}
+                        className="p-2 hover:bg-green-50 text-green-600 rounded-lg transition-all"
+                        title="View"
+                      >
+                        <Eye size={16} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(row)}
+                        className="p-2 hover:bg-red-50 text-red-600 rounded-lg transition-all"
+                        title="Delete"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
                   </td>
                 </tr>
-              ) : (
-                paginatedActivityRows.map((row) => (
-                  <tr key={`${row.route}-${row.id}`} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="py-3 px-4">
-                      <p className="font-medium text-gray-900 text-xs sm:text-sm">{row.userName}</p>
-                      <p className="text-xs text-gray-500">{row.detail}</p>
-                    </td>
-                    <td className="py-3 px-4 text-xs sm:text-sm text-gray-700">{row.activity}</td>
-                    <td className="py-3 px-4 text-[#0B5D3B] font-semibold text-xs sm:text-sm">
-                      {row.amount ? `${row.amount.toLocaleString()} RWF` : '-'}
-                    </td>
-                    <td className="py-3 px-4">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(row.status)}`}>
-                        {row.status}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4 text-xs sm:text-sm text-gray-600">{formatDate(row.date)}</td>
-                    <td className="py-3 px-4">
-                      <div className="flex items-center justify-center gap-2">
-                        <button
-                          onClick={() => router.push(row.route)}
-                          className="p-1.5 hover:bg-emerald-50 text-emerald-700 rounded-lg transition-all active:scale-95"
-                          title="View"
-                        >
-                          <Eye size={16} />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(row)}
-                          className="p-1.5 hover:bg-red-50 text-red-600 rounded-lg transition-all active:scale-95"
-                          title="Delete"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
+              ))}
             </tbody>
           </table>
         </div>
 
-        <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <p className="text-xs sm:text-sm text-gray-600 text-center sm:text-left">
-            Showing {paginatedActivityRows.length > 0 ? ((currentPage - 1) * itemsPerPage) + 1 : 0} to {Math.min(currentPage * itemsPerPage, filteredActivityRows.length)} of {filteredActivityRows.length}
-          </p>
-          <div className="flex gap-2 justify-center flex-wrap">
-            <button
-              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
-              className="px-3 sm:px-4 py-1.5 sm:py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        {/* Mobile Card View */}
+        <div className="md:hidden p-4 space-y-3">
+          {paginatedActivityRows.map((row) => (
+            <div
+              key={`${row.route}-${row.id}`}
+              className="bg-gray-50 rounded-2xl p-4 space-y-3"
             >
-              Previous
-            </button>
-            {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-              let page;
-              if (totalPages <= 5) {
-                page = i + 1;
-              } else if (currentPage <= 3) {
-                page = i + 1;
-              } else if (currentPage >= totalPages - 2) {
-                page = totalPages - 4 + i;
-              } else {
-                page = currentPage - 2 + i;
-              }
-              return (
-                <button
-                  key={page}
-                  onClick={() => setCurrentPage(page)}
-                  className={`px-3 sm:px-4 py-1.5 sm:py-2 text-sm rounded-lg transition ${
-                    currentPage === page
-                      ? 'bg-[#0B5D3B] text-white font-semibold'
-                      : 'border border-gray-300 hover:bg-gray-50 text-gray-700'
-                  }`}
-                >
-                  {page}
-                </button>
-              );
-            })}
-            <button
-              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-              disabled={currentPage === totalPages}
-              className="px-3 sm:px-4 py-1.5 sm:py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Next
-            </button>
-          </div>
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <p className="font-semibold text-gray-900 text-sm">{row.userName}</p>
+                  <p className="text-xs text-gray-600 mt-1">{row.detail}</p>
+                </div>
+                <span className={`px-2.5 py-1 inline-flex text-xs font-semibold rounded-full ${getStatusColor(row.status)}`}>
+                  {row.status}
+                </span>
+              </div>
+              <div className="flex items-center justify-between pt-3 border-t border-gray-200">
+                <div>
+                  <p className="text-xs text-gray-600">{row.activity}</p>
+                  <p className="text-sm font-semibold text-gray-900 mt-1">
+                    {row.amount ? `${row.amount.toLocaleString()} RWF` : '-'}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">{formatDate(row.date)}</p>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => router.push(row.route)}
+                    className="p-2 hover:bg-green-50 text-green-600 rounded-lg transition-all"
+                  >
+                    <Eye size={16} />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(row)}
+                    className="p-2 hover:bg-red-50 text-red-600 rounded-lg transition-all"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
+
+        {totalPages > 1 && (
+          <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p className="text-xs sm:text-sm text-gray-600">
+              Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filteredActivityRows.length)} of {filteredActivityRows.length} results
+            </p>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                disabled={currentPage === 1}
+                className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-xs sm:text-sm font-medium text-gray-900 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Previous
+              </button>
+              
+              {/* Page Numbers */}
+              <div className="flex items-center gap-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                  // Show first page, last page, current page, and pages around current
+                  if (
+                    page === 1 ||
+                    page === totalPages ||
+                    (page >= currentPage - 1 && page <= currentPage + 1)
+                  ) {
+                    return (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        className={`min-w-[32px] sm:min-w-[36px] px-2 sm:px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors ${
+                          currentPage === page
+                            ? 'bg-[#14532D] text-white shadow-md'
+                            : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    );
+                  } else if (
+                    page === currentPage - 2 ||
+                    page === currentPage + 2
+                  ) {
+                    return (
+                      <span key={page} className="px-2 text-gray-500">
+                        ...
+                      </span>
+                    );
+                  }
+                  return null;
+                })}
+              </div>
+
+              <button
+                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                disabled={currentPage === totalPages}
+                className="px-3 sm:px-4 py-2 bg-[#14532D] text-white rounded-lg text-xs sm:text-sm font-medium hover:bg-[#0f3d21] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg transition-all"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       <DeleteConfirmModal

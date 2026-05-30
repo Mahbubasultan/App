@@ -22,11 +22,11 @@ export const Logo: React.FC<LogoProps> = ({
   isDark = false,
 }) => {
   const sizeMap = {
-    xs: { icon: 24, full: 32, label: 'text-xs' },
-    sm: { icon: 28, full: 36, label: 'text-sm' },
-    md: { icon: 32, full: 40, label: 'text-base' },
-    lg: { icon: 40, full: 48, label: 'text-lg' },
-    xl: { icon: 48, full: 56, label: 'text-xl' },
+    xs: { icon: 32, full: 40, label: 'text-xs' },
+    sm: { icon: 40, full: 52, label: 'text-sm' },
+    md: { icon: 48, full: 60, label: 'text-base' },
+    lg: { icon: 60, full: 72, label: 'text-lg' },
+    xl: { icon: 72, full: 88, label: 'text-xl' },
   };
 
   const dimensions = sizeMap[size];
@@ -39,10 +39,10 @@ export const Logo: React.FC<LogoProps> = ({
         style={{ width: iconSize, height: iconSize }}
       >
         <Image
-          src="/images/logo-mark-transparent.png"
-          alt="TrustNest Logo"
-          width={375}
-          height={400}
+          src="/images/trust-nest-logo.png"
+          alt="Trust Nest Logo"
+          width={iconSize}
+          height={iconSize}
           priority={size === 'lg' || size === 'xl'}
           className="h-full w-full object-contain"
         />
@@ -51,10 +51,10 @@ export const Logo: React.FC<LogoProps> = ({
       {variant === 'full' && showLabel && (
         <div className="hidden sm:block">
           <h1 className={`font-bold ${dimensions.label} ${isDark ? 'text-white' : 'text-[#0B5D3B]'}`}>
-            TrustNest
+            Trust Nest
           </h1>
           <p className={`text-xs hidden md:block ${isDark ? 'text-white/70' : 'text-gray-600'}`}>
-            Trusted Today, Secured Tomorrow
+            Community Savings Platform
           </p>
         </div>
       )}

@@ -25,7 +25,7 @@ export const Card: React.FC<CardProps> = ({
   const hoverClass = hover ? 'card-hover cursor-pointer' : '';
 
   return (
-    <div className={`bg-white rounded-lg sm:rounded-2xl shadow-soft border border-gray-100 ${paddings[padding]} ${hoverClass} ${className}`} style={style}>
+    <div className={`bg-white rounded-2xl sm:rounded-3xl shadow-card border border-gray-100 ${paddings[padding]} ${hoverClass} ${className}`} style={style}>
       {children}
     </div>
   );
@@ -44,7 +44,7 @@ export const CardTitle: React.FC<{ children: React.ReactNode; className?: string
   children, 
   className = '' 
 }) => (
-  <h3 className={`text-lg sm:text-xl font-semibold text-text-black ${className}`}>
+  <h3 className={`text-lg sm:text-xl font-semibold text-text-primary ${className}`}>
     {children}
   </h3>
 );
@@ -53,7 +53,7 @@ export const CardDescription: React.FC<{ children: React.ReactNode; className?: 
   children, 
   className = '' 
 }) => (
-  <p className={`text-sm text-text-gray mt-1 ${className}`}>
+  <p className={`text-sm text-text-secondary mt-1 ${className}`}>
     {children}
   </p>
 );

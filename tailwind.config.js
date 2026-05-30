@@ -9,20 +9,22 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        // Fintech color palette
+        sidebar: '#14532D',
         primary: {
-          50: '#ECFDF5',
-          100: '#D1FAE5',
-          200: '#A7F3D0',
-          300: '#6EE7B7',
-          400: '#34D399',
-          500: '#10B981',
-          600: '#059669',
-          700: '#047857',
-          800: '#065F46',
-          900: '#064E3B',
-          DEFAULT: '#065F46',
-          dark: '#064E3B',
-          light: '#047857',
+          50: '#F0FDF4',
+          100: '#DCFCE7',
+          200: '#BBF7D0',
+          300: '#86EFAC',
+          400: '#4ADE80',
+          500: '#22C55E',
+          600: '#16A34A', // Primary Action Color
+          700: '#15803D',
+          800: '#166534',
+          900: '#145231',
+          DEFAULT: '#16A34A',
+          dark: '#15803D',
+          light: '#4ADE80',
         },
         secondary: {
           DEFAULT: '#0D9488',
@@ -36,16 +38,16 @@ module.exports = {
           yellow: '#F59E0B',
         },
         success: {
-          50: '#ECFDF5',
-          100: '#D1FAE5',
-          200: '#A7F3D0',
-          300: '#6EE7B7',
-          400: '#34D399',
-          500: '#10B981',
-          600: '#059669',
-          700: '#047857',
-          800: '#065F46',
-          900: '#064E3B',
+          50: '#F0FDF4',
+          100: '#DCFCE7',
+          200: '#BBF7D0',
+          300: '#86EFAC',
+          400: '#4ADE80',
+          500: '#22C55E',
+          600: '#16A34A',
+          700: '#15803D',
+          800: '#166534',
+          900: '#145231',
         },
         warning: {
           50: '#FFFBEB',
@@ -85,17 +87,20 @@ module.exports = {
         },
         background: {
           white: '#FFFFFF',
+          light: '#F0FDF4', // Very light green
           gray: '#F9FAFB',
-          light: '#F3F4F6',
         },
         text: {
+          primary: '#1F2937',   // Primary text
+          secondary: '#6B7280', // Secondary text
           dark: '#111827',
           gray: '#6B7280',
           light: '#9CA3AF',
         },
       },
       backgroundImage: {
-        'gradient-primary': 'linear-gradient(135deg, #065F46 0%, #0D9488 100%)',
+        'gradient-primary': 'linear-gradient(135deg, #16A34A 0%, #15803D 100%)',
+        'gradient-green': 'linear-gradient(135deg, #16A34A 0%, #22C55E 100%)',
         'gradient-orange': 'linear-gradient(135deg, #F97316 0%, #FB923C 100%)',
         'gradient-blue': 'linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%)',
         'gradient-red': 'linear-gradient(135deg, #EF4444 0%, #F87171 100%)',
@@ -105,7 +110,8 @@ module.exports = {
         'soft': '0 1px 3px rgba(0, 0, 0, 0.05)',
         'medium': '0 4px 12px rgba(0, 0, 0, 0.08)',
         'large': '0 8px 24px rgba(0, 0, 0, 0.12)',
-        'green': '0 4px 12px rgba(6, 95, 70, 0.2)',
+        'card': '0 2px 8px rgba(0, 0, 0, 0.06)',
+        'green': '0 4px 12px rgba(22, 163, 74, 0.15)',
         'orange': '0 4px 12px rgba(249, 115, 22, 0.2)',
         'blue': '0 4px 12px rgba(59, 130, 246, 0.2)',
         'red': '0 4px 12px rgba(239, 68, 68, 0.2)',

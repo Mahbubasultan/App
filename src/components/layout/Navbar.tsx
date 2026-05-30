@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { Menu, Settings, Bell, ChevronDown } from 'lucide-react';
 import { Avatar } from '../ui/Avatar';
-import { Logo } from '../ui/Logo';
 import { ProfileDropdown } from './ProfileDropdown';
 import { ProfileModal } from '../ui/ProfileModal';
 import { SettingsModal } from './SettingsModal';
@@ -62,10 +61,7 @@ export const Navbar: React.FC<NavbarProps> = ({ role, userName, userImage, onMen
               <Menu size={24} className="text-gray-700" />
             </button>
             
-            {/* Logo - Mobile Only */}
-            <div className="lg:hidden">
-              <Logo variant="icon" size="sm" href="/" />
-            </div>
+
           </div>
 
           {/* Right Side Icons */}

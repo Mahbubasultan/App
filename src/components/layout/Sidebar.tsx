@@ -14,7 +14,6 @@ import {
   X,
   LogOut,
 } from 'lucide-react';
-import { Logo } from '@/components/ui/Logo';
 import { UserRole } from '@/types';
 
 interface SidebarProps {
@@ -68,27 +67,31 @@ export const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, onClose, onLogou
       
       <aside
         className={`
-          fixed lg:static inset-y-0 left-0 z-50 w-72 lg:w-64 bg-[#0B5D3B] text-white
+          fixed lg:static inset-y-0 left-0 z-50 w-72 lg:w-64 bg-[#14532D] text-white
           transform transition-transform duration-300 ease-in-out flex flex-col shadow-2xl h-screen
           ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
       >
         {/* Logo */}
-        <div className="p-4 sm:p-6 border-b border-white/10">
-          <div className="flex items-center justify-between gap-3">
-            <Logo variant="full" size="sm" showLabel={true} isDark={true} href="#" />
-            <button
-              onClick={onClose}
-              className="lg:hidden p-2 hover:bg-white/10 rounded-2xl transition-colors text-white"
-            >
+        <div className="px-5 py-5 border-b border-white/10">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <img src="/images/trust-nest-logo.png" alt="Trust Nest" style={{ width: 64, height: 64 }} className="object-contain flex-shrink-0" />
+              <div>
+                <p style={{ fontSize: 24, fontWeight: 700, lineHeight: 1.1, letterSpacing: '-0.3px' }}>
+                  <span style={{ color: '#000000' }}>Trust</span><span style={{ color: '#16A34A' }}>Nest</span>
+                </p>
+                <p className="text-white/50 text-xs mt-0.5">{roleLabel}</p>
+              </div>
+            </div>
+            <button onClick={onClose} className="lg:hidden p-2 hover:bg-white/10 rounded-xl transition-colors text-white">
               <X size={20} />
             </button>
           </div>
-          <p className="text-xs sm:text-sm text-white/70 mt-2 uppercase tracking-[0.24em]">{roleLabel}</p>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 p-3 sm:p-4 space-y-2 overflow-y-auto scrollbar-hide">
+        <nav className="flex-1 p-3 sm:p-4 space-y-1 overflow-y-auto scrollbar-hide">
           {links.map((link) => {
             const Icon = link.icon;
             const isActive = pathname === link.href;
@@ -98,14 +101,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, onClose, onLogou
                 href={link.href}
                 onClick={onClose}
                 className={`
-                  group flex items-center gap-3 px-3 sm:px-4 py-3 rounded-2xl transition-all duration-200
+                  group flex items-center gap-3 px-3 sm:px-4 py-3 rounded-xl transition-all duration-200
                   ${isActive
-                    ? 'bg-white/15 text-white shadow-[0_10px_30px_rgba(255,255,255,0.12)]'
-                    : 'text-white/70 hover:bg-white/10 hover:text-white'
+                    ? 'bg-white/15 text-white shadow-[0_8px_20px_rgba(255,255,255,0.1)]'
+                    : 'text-white/80 hover:bg-white/10 hover:text-white'
                   }
                 `}
               >
-                <Icon size={18} className="flex-shrink-0 sm:w-5 sm:h-5" />
+                <Icon size={20} className="flex-shrink-0" />
                 <span className="font-medium text-sm sm:text-base">{link.label}</span>
                 {isActive && (
                   <div className="ml-auto w-2 h-2 rounded-full bg-white animate-pulse" />
@@ -116,9 +119,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, onClose, onLogou
         </nav>
 
         {/* Logout */}
-        <div className="p-3 sm:p-4 border-t border-primary-light/20">
-          <button onClick={onLogout} className="w-full flex items-center gap-3 px-3 sm:px-4 py-2 sm:py-3 text-white/70 hover:bg-white/10 hover:text-white rounded-xl sm:rounded-2xl transition-all duration-200">
-            <LogOut size={18} className="flex-shrink-0 sm:w-5 sm:h-5" />
+        <div className="p-3 sm:p-4 border-t border-white/10">
+          <button onClick={onLogout} className="w-full flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-white/80 hover:bg-white/10 hover:text-white rounded-xl transition-all duration-200">
+            <LogOut size={20} className="flex-shrink-0" />
             <span className="font-medium text-sm sm:text-base">Logout</span>
           </button>
         </div>

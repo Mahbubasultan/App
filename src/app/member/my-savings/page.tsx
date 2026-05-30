@@ -291,14 +291,14 @@ export default function MySavings() {
         </div>
         <button
           onClick={openAddModal}
-          className="inline-flex items-center gap-2 rounded-2xl bg-[#0B5D3B] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#094a2e]"
+          className="inline-flex items-center gap-2 rounded-2xl bg-[#0B5D3B] px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-[#094a2e] hover:shadow-xl hover:-translate-y-0.5"
         >
           <Plus size={18} />
           Add Saving
         </button>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
         <div className="p-4 sm:p-6 border-b border-gray-100">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="w-full max-w-[420px]">
@@ -489,11 +489,11 @@ export default function MySavings() {
             <div className="flex flex-col gap-3 border-t border-gray-200 px-6 py-4 md:flex-row md:justify-end">
               <button
                 onClick={closeFormModal}
-                className="rounded-2xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+                className="rounded-2xl border border-gray-300 bg-white px-6 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 hover:shadow-md"
               >
                 Cancel
               </button>
-              <button onClick={handleSubmit} className="rounded-2xl bg-[#0B5D3B] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#094a2e]">
+              <button onClick={handleSubmit} className="rounded-2xl bg-[#0B5D3B] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#094a2e] shadow-lg hover:shadow-xl">
                 {editingSaving ? 'Update Saving' : 'Save Saving'}
               </button>
             </div>
@@ -551,7 +551,7 @@ export default function MySavings() {
                 )}
               </div>
               <div className="flex border-t border-gray-200 px-6 py-4">
-                <button onClick={closeViewModal} className="w-full px-5 py-3 bg-[#0B5D3B] text-white rounded-2xl font-semibold hover:bg-[#094a2e] transition-colors text-sm">
+                <button onClick={closeViewModal} className="w-full px-5 py-3 bg-[#0B5D3B] text-white rounded-2xl font-semibold hover:bg-[#094a2e] transition-colors text-sm shadow-lg hover:shadow-xl">
                   Close
                 </button>
               </div>

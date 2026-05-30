@@ -25,7 +25,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, role, userName, userIm
   };
 
   return (
-    <div className="flex h-screen bg-slate-50 text-slate-900">
+    <div className="flex h-screen bg-background-light text-slate-900">
       {/* Fixed Sidebar */}
       <div className="hidden lg:block fixed left-0 top-0 bottom-0 z-50">
         <Sidebar role={role} isOpen={true} onClose={() => setSidebarOpen(false)} onLogout={handleLogout} />
@@ -59,7 +59,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, role, userName, userIm
         </div>
         
         {/* Scrollable Main Content */}
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto bg-[#f0fdf4]">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 max-w-7xl">
             {children}
           </div>
