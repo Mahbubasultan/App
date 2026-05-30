@@ -46,7 +46,7 @@ export default function LoginPage() {
           <Link href="/landing" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textDecoration: 'none', gap: 0 }}>
             <TrustNetLogo size={100} />
             <h1 style={{ fontSize: 38, fontWeight: 800, lineHeight: 1, letterSpacing: '-1px', margin: '6px 0 0 0' }}>
-              <span style={{ color: '#111827' }}>Trust</span><span style={{ color: '#16A34A' }}>Net</span>
+              <span style={{ color: '#111827' }}>Trust </span><span style={{ color: '#16A34A' }}>Nest</span>
             </h1>
           </Link>
           <p style={{ color: '#6b7280', fontSize: 14, marginTop: 4 }}>Community Savings Platform</p>
@@ -110,20 +110,10 @@ export default function LoginPage() {
 
             {/* Submit */}
             <button type="submit" disabled={loading}
-              style={{ width: '100%', padding: '13px', background: loading ? '#86efac' : 'linear-gradient(135deg, #16A34A, #15803d)', color: 'white', border: 'none', borderRadius: 10, fontSize: 15, fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, boxShadow: '0 4px 14px rgba(22,163,74,0.4)', transition: 'all 0.2s', marginTop: 4 }}>
+              style={{ width: '100%', padding: '13px', background: loading ? '#166534' : '#14532D', color: 'white', border: 'none', borderRadius: 10, fontSize: 15, fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, boxShadow: '0 4px 14px rgba(20,83,45,0.5)', transition: 'all 0.2s', marginTop: 4 }}>
               {loading ? <><Loader2 size={18} className="animate-spin" /> Signing in...</> : 'Sign In'}
             </button>
           </form>
-
-          {/* Demo credentials */}
-          <div style={{ marginTop: 20, padding: '12px 14px', background: '#f9fafb', borderRadius: 10, border: '1px solid #e5e7eb' }}>
-            <p style={{ fontSize: 11, fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 6 }}>Demo Credentials</p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 3, fontSize: 12, color: '#6b7280' }}>
-              <span><strong style={{ color: '#374151' }}>Admin:</strong> admin@gmail.com / 123456</span>
-              <span><strong style={{ color: '#374151' }}>Member:</strong> member@gmail.com / 123456</span>
-              <span><strong style={{ color: '#374151' }}>Accountant:</strong> accountant@gmail.com / 123456</span>
-            </div>
-          </div>
 
           <p style={{ textAlign: 'center', fontSize: 13, color: '#6b7280', marginTop: 20 }}>
             Don&apos;t have an account?{' '}

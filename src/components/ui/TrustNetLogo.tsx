@@ -19,7 +19,7 @@ export const TrustNetLogo: React.FC<TrustNetLogoProps> = ({ size = 56 }) => (
   >
     <img
       src="/images/trust-nest-logo.png"
-      alt="TrustNet"
+      alt="Trust Nest"
       style={{
         position: 'absolute',
         width: '220%',

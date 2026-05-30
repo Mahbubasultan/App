@@ -12,7 +12,7 @@ export default function Hero() {
   }, []);
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-[#f0fdf4] to-white pt-20 pb-16">
+    <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-[#f0fdf4] to-white pt-20 pb-16">
       {/* Simple Background Decoration */}
       <div className="absolute inset-0 overflow-hidden opacity-30">
         <div className="absolute top-20 left-10 w-72 h-72 bg-green-300 rounded-full blur-3xl"></div>

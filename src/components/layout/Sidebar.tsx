@@ -80,7 +80,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, onClose, onLogou
               <TrustNetLogo size={56} />
               <div className="text-center">
                 <p style={{ fontSize: 20, fontWeight: 800, lineHeight: 1.1, letterSpacing: '-0.5px', margin: 0 }}>
-                  <span style={{ color: '#ffffff' }}>Trust</span><span style={{ color: '#4ade80' }}>Net</span>
+                  <span style={{ color: '#ffffff' }}>Trust </span><span style={{ color: '#4ade80' }}>Nest</span>
                 </p>
                 <p className="text-white/50 text-xs mt-0.5">{roleLabel}</p>
               </div>

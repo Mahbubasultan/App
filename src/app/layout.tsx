@@ -4,8 +4,12 @@ import { ToastProvider } from '@/components/ui/Toast';
 import { SettingsProvider } from '@/context/SettingsContext';
 
 export const metadata: Metadata = {
-  title: 'TrustNet',
+  title: 'Trust Nest',
   description: 'Community Savings Platform',
+  icons: {
+    icon: '/images/trust-nest-logo.png',
+    apple: '/images/trust-nest-logo.png',
+  },
 };
 
 export default function RootLayout({

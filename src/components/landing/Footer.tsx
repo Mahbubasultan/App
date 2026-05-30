@@ -19,7 +19,7 @@ export default function Footer() {
   };
 
   return (
-    <footer className="bg-[#14532D] text-gray-200">
+    <footer id="contact" className="bg-[#14532D] text-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 mb-8">
           {/* Left Side - Logo & Description */}
@@ -27,7 +27,7 @@ export default function Footer() {
             <div className="mb-4 flex items-center gap-3">
               <TrustNetLogo size={56} />
               <span style={{ fontSize: 20, fontWeight: 800, lineHeight: 1, letterSpacing: '-0.5px' }}>
-                <span style={{ color: '#ffffff' }}>Trust</span><span style={{ color: '#4ade80' }}>Net</span>
+                <span style={{ color: '#ffffff' }}>Trust </span><span style={{ color: '#4ade80' }}>Nest</span>
               </span>
             </div>
             <p className="text-sm text-gray-300 leading-relaxed">

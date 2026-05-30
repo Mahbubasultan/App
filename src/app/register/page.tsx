@@ -111,14 +111,14 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
-      <div className="w-full max-w-md">
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #f0fdf4 100%)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+      <div style={{ width: '100%', maxWidth: 440 }}>
         {/* Logo + Brand */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 24 }}>
           <Link href="/landing" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textDecoration: 'none', gap: 0 }}>
             <TrustNetLogo size={100} />
             <h1 style={{ fontSize: 34, fontWeight: 800, lineHeight: 1, letterSpacing: '-1px', margin: '6px 0 0 0' }}>
-              <span style={{ color: '#111827' }}>Trust</span><span style={{ color: '#16A34A' }}>Net</span>
+              <span style={{ color: '#111827' }}>Trust </span><span style={{ color: '#16A34A' }}>Nest</span>
             </h1>
           </Link>
           <p style={{ color: '#6b7280', fontSize: 13, marginTop: 4 }}>Community Savings Platform</p>
