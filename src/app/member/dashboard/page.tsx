@@ -29,7 +29,6 @@ export default function MemberDashboard() {
       value: '125',
       subValue: '250,000 RWF',
       icon: Layers,
-      gradient: 'from-green-500 to-green-600',
       path: '/member/shares',
       iconBg: 'bg-green-100',
       iconColor: 'text-green-600'
@@ -39,7 +38,6 @@ export default function MemberDashboard() {
       value: '250,000 RWF',
       subValue: '125 shares',
       icon: Wallet,
-      gradient: 'from-blue-500 to-blue-600',
       path: '/member/my-savings',
       iconBg: 'bg-blue-100',
       iconColor: 'text-blue-600'
@@ -49,7 +47,6 @@ export default function MemberDashboard() {
       value: '2',
       subValue: '400,000 RWF',
       icon: DollarSign,
-      gradient: 'from-orange-500 to-orange-600',
       path: '/member/loans',
       iconBg: 'bg-orange-100',
       iconColor: 'text-orange-600'

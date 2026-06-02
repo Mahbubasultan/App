@@ -12,14 +12,8 @@ export default function Hero() {
   }, []);
 
   return (
-    <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-[#f0fdf4] to-white pt-32 pb-20">
-      {/* Simple Background Decoration */}
-      <div className="absolute inset-0 overflow-hidden opacity-30">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-green-300 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-10 w-72 h-72 bg-emerald-300 rounded-full blur-3xl"></div>
-      </div>
-
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+    <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#f0fdf4] pt-32 pb-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left Content */}
           <div className={`transition-all duration-1000 ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}>
@@ -34,7 +28,7 @@ export default function Hero() {
               Welcome to
               <span className="block mt-2">
                 <span className="text-gray-900">Trust</span>
-                <span className="bg-gradient-to-r from-[#14532D] to-green-600 bg-clip-text text-transparent"> Nest</span>
+                <span className="text-[#16A34A]"> Nest</span>
               </span>
             </h1>
 
@@ -92,8 +86,7 @@ export default function Hero() {
           {/* Right Image */}
           <div className={`relative transition-all duration-1000 delay-300 ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'}`}>
             <div className="relative">
-              {/* Glow Effect */}
-              <div className="absolute -inset-4 bg-gradient-to-r from-green-400 to-emerald-500 rounded-3xl blur-2xl opacity-20"></div>
+
               
               {/* Main Image */}
               <div className="relative rounded-3xl overflow-hidden shadow-2xl">
@@ -102,8 +95,7 @@ export default function Hero() {
                   alt="Trust Nest - Community Savings and Money Management"
                   className="w-full h-[500px] lg:h-[600px] object-cover"
                 />
-                {/* Subtle Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+
               </div>
             </div>
           </div>

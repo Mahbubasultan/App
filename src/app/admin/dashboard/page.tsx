@@ -291,7 +291,7 @@ export default function AdminDashboard() {
 
           {/* Summary Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
-            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-3 sm:p-4 border border-green-200">
+            <div className="bg-[#f0fdf4] rounded-2xl p-3 sm:p-4 border border-green-200">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs sm:text-sm font-medium text-green-700 mb-1">Total Savings</p>
@@ -303,7 +303,7 @@ export default function AdminDashboard() {
                 </div>
               </div>
             </div>
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-3 sm:p-4 border border-blue-200">
+            <div className="bg-[#eff6ff] rounded-2xl p-3 sm:p-4 border border-blue-200">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs sm:text-sm font-medium text-blue-700 mb-1">Total Members</p>
@@ -331,13 +331,6 @@ export default function AdminDashboard() {
                       <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3}/>
                       <stop offset="95%" stopColor="#3B82F6" stopOpacity={0.05}/>
                     </linearGradient>
-                    <filter id="glow">
-                      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-                      <feMerge>
-                        <feMergeNode in="coloredBlur"/>
-                        <feMergeNode in="SourceGraphic"/>
-                      </feMerge>
-                    </filter>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
                   <XAxis 
@@ -390,7 +383,7 @@ export default function AdminDashboard() {
                     strokeWidth={3}
                     name="Total Savings (RWF)" 
                     dot={{ r: 5, fill: '#16A34A', strokeWidth: 2, stroke: '#FFFFFF' }} 
-                    activeDot={{ r: 7, fill: '#16A34A', strokeWidth: 3, stroke: '#FFFFFF', filter: 'url(#glow)' }}
+                    activeDot={{ r: 7, fill: '#16A34A', strokeWidth: 3, stroke: '#FFFFFF' }}
                     fill="url(#colorSavings)"
                     animationDuration={1500}
                     animationEasing="ease-in-out"
@@ -403,7 +396,7 @@ export default function AdminDashboard() {
                     strokeWidth={3}
                     name="Total Members" 
                     dot={{ r: 5, fill: '#3B82F6', strokeWidth: 2, stroke: '#FFFFFF' }} 
-                    activeDot={{ r: 7, fill: '#3B82F6', strokeWidth: 3, stroke: '#FFFFFF', filter: 'url(#glow)' }}
+                    activeDot={{ r: 7, fill: '#3B82F6', strokeWidth: 3, stroke: '#FFFFFF' }}
                     fill="url(#colorMembers)"
                     animationDuration={1500}
                     animationEasing="ease-in-out"
@@ -420,14 +413,6 @@ export default function AdminDashboard() {
           <p className="text-xs sm:text-sm text-gray-600 mb-4 sm:mb-6">Distribution overview</p>
           <ResponsiveContainer width="100%" height={240}>
             <PieChart>
-              <defs>
-                {loanStats.map((entry, index) => (
-                  <linearGradient key={`gradient-${index}`} id={`gradient-${entry.name}`} x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={entry.color} stopOpacity={1}/>
-                    <stop offset="100%" stopColor={entry.color} stopOpacity={0.8}/>
-                  </linearGradient>
-                ))}
-              </defs>
               <Pie
                 data={loanStats}
                 cx="50%"
@@ -445,7 +430,7 @@ export default function AdminDashboard() {
                 {loanStats.map((entry, index) => (
                   <Cell 
                     key={`cell-${index}`} 
-                    fill={`url(#gradient-${entry.name})`}
+                    fill={entry.color}
                     stroke="#FFFFFF"
                     strokeWidth={3}
                   />

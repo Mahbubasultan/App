@@ -1,30 +1,21 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { SearchBar } from '@/components/ui/SearchBar';
 import { ConfirmDialog } from '@/components/accountant/ConfirmDialog';
 import ActionCell from '@/components/ui/ActionCell';
 import GenericEditModal from '@/components/ui/GenericEditModal';
+import { getSavingRecords, updateSavingRecord, deleteSavingRecord, SavingRecord } from '@/lib/localStorageService';
 
-const mockSavings = [
-  { id: 1, memberName: 'Jean Baptiste', shareName: 'Emergency Fund', amount: 50000, date: '2024-01-15', status: 'Approved', phone: '+250788123456', email: 'jean@email.com', transactionId: 'TXN001', shares: 25 },
-  { id: 2, memberName: 'Marie Claire', shareName: 'Education Share', amount: 75000, date: '2024-01-10', status: 'Pending', phone: '+250788234567', email: 'marie@email.com', transactionId: 'TXN002', shares: 37 },
-  { id: 3, memberName: 'Eric Habimana', shareName: 'Business Capital', amount: 100000, date: '2024-01-05', status: 'Approved', phone: '+250788345678', email: 'eric@email.com', transactionId: 'TXN003', shares: 50 },
-  { id: 4, memberName: 'Patrick Nkunda', shareName: 'Emergency Fund', amount: 50000, date: '2023-12-20', status: 'Rejected', phone: '+250788456789', email: 'patrick@email.com', transactionId: 'TXN004', shares: 25 },
-  { id: 5, memberName: 'Grace Uwera', shareName: 'Health Share', amount: 60000, date: '2023-12-15', status: 'Approved', phone: '+250788567890', email: 'grace@email.com', transactionId: 'TXN005', shares: 30 },
-  { id: 6, memberName: 'David Mugisha', shareName: 'Investment Fund', amount: 80000, date: '2024-01-18', status: 'Approved', phone: '+250788678901', email: 'david@email.com', transactionId: 'TXN006', shares: 40 },
-  { id: 7, memberName: 'Jean Baptiste', shareName: 'Business Capital', amount: 90000, date: '2024-01-20', status: 'Pending', phone: '+250788123456', email: 'jean@email.com', transactionId: 'TXN007', shares: 45 },
-];
-
-type Saving = typeof mockSavings[0];
+type Saving = SavingRecord;
 
 export default function AdminSavings() {
   const [searchInput, setSearchInput] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('All');
   const tabs = ['All', 'Pending', 'Approved', 'Rejected'];
-  const [savings, setSavings] = useState<Saving[]>(mockSavings);
+  const [savings, setSavings] = useState<Saving[]>([]);
   const [selectedSaving, setSelectedSaving] = useState<Saving | null>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [editFormData, setEditFormData] = useState<Saving | null>(null);
@@ -33,13 +24,22 @@ export default function AdminSavings() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
+  useEffect(() => {
+    loadSavings();
+  }, []);
+
+  const loadSavings = () => {
+    const records = getSavingRecords();
+    setSavings(records);
+  };
+
   const filteredSavings = savings.filter(saving => {
     const lowerSearch = searchQuery.toLowerCase();
     const amountText = [saving.amount.toString(), saving.amount.toLocaleString()];
 
     const matchesStatus = activeTab === 'All' || saving.status === activeTab;
     const matchesSearch = searchQuery === '' ||
-      saving.memberName.toLowerCase().includes(lowerSearch) ||
+      (saving.userName && saving.userName.toLowerCase().includes(lowerSearch)) ||
       saving.shareName.toLowerCase().includes(lowerSearch) ||
       saving.status.toLowerCase().includes(lowerSearch) ||
       amountText.some((value) => value.toLowerCase().includes(lowerSearch));
@@ -54,9 +54,8 @@ export default function AdminSavings() {
 
   const saveSavingChanges = () => {
     if (!editFormData) return;
-    setSavings((current) =>
-      current.map((item) => (item.id === editFormData.id ? editFormData : item))
-    );
+    updateSavingRecord(editFormData.id, editFormData);
+    loadSavings();
     setSelectedSaving(editFormData);
     setEditFormData(null);
     setIsViewModalOpen(false);
@@ -128,7 +127,7 @@ export default function AdminSavings() {
               <tbody>
                 {paginatedSavings.map((saving) => (
                   <tr key={saving.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                    <td className="py-3 px-4 font-medium text-gray-900 text-xs sm:text-sm">{saving.memberName}</td>
+                    <td className="py-3 px-4 font-medium text-gray-900 text-xs sm:text-sm">{saving.userName || 'N/A'}</td>
                     <td className="py-3 px-4 text-[#0B5D3B] font-semibold text-xs sm:text-sm whitespace-nowrap">{saving.amount.toLocaleString()} RWF</td>
                     <td className="py-3 px-4">
                       <span className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(saving.status)}`}>
@@ -212,15 +211,15 @@ export default function AdminSavings() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <p className="text-xs text-gray-600 mb-1">Full Name</p>
-                      <p className="text-sm font-bold text-gray-900">{selectedSaving.memberName}</p>
+                      <p className="text-sm font-bold text-gray-900">{selectedSaving.userName || 'N/A'}</p>
                     </div>
                     <div>
                       <p className="text-xs text-gray-600 mb-1">Phone Number</p>
-                      <p className="text-sm font-semibold text-gray-900">{selectedSaving.phone}</p>
+                      <p className="text-sm font-semibold text-gray-900">{selectedSaving.userPhone || 'N/A'}</p>
                     </div>
                     <div className="sm:col-span-2">
                       <p className="text-xs text-gray-600 mb-1">Email Address</p>
-                      <p className="text-sm font-semibold text-gray-900">{selectedSaving.email}</p>
+                      <p className="text-sm font-semibold text-gray-900">{selectedSaving.userEmail || 'N/A'}</p>
                     </div>
                   </div>
                 </div>
@@ -235,11 +234,11 @@ export default function AdminSavings() {
                 </div>
                 <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
                   <p className="text-xs font-semibold text-gray-600 mb-1">Shares Earned</p>
-                  <p className="text-base font-bold text-gray-900">{selectedSaving.shares}</p>
+                  <p className="text-base font-bold text-gray-900">{Math.floor(selectedSaving.amount / 2000)}</p>
                 </div>
                 <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
                   <p className="text-xs font-semibold text-gray-600 mb-1">Transaction ID</p>
-                  <p className="text-base font-bold text-gray-900">{selectedSaving.transactionId}</p>
+                  <p className="text-base font-bold text-gray-900">{selectedSaving.transactionId || 'N/A'}</p>
                 </div>
                 <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
                   <p className="text-xs font-semibold text-gray-600 mb-1">Date</p>
@@ -252,6 +251,18 @@ export default function AdminSavings() {
                   </span>
                 </div>
               </div>
+
+              {/* Payment Screenshot */}
+              {selectedSaving.screenshot && (
+                <div className="mt-6">
+                  <p className="text-xs font-semibold text-gray-600 mb-2">Payment Screenshot</p>
+                  <img
+                    src={`data:image/png;base64,${selectedSaving.screenshot}`}
+                    alt="Payment Screenshot"
+                    className="w-full h-64 object-contain rounded-xl border border-gray-200 bg-gray-50"
+                  />
+                </div>
+              )}
             </div>
 
             <div className="p-6 border-t border-gray-200 flex-shrink-0">
@@ -281,8 +292,8 @@ export default function AdminSavings() {
               <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Member Name</label>
               <input
                 type="text"
-                value={editFormData.memberName}
-                onChange={(e) => setEditFormData({ ...editFormData, memberName: e.target.value })}
+                value={editFormData.userName || ''}
+                onChange={(e) => setEditFormData({ ...editFormData, userName: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
               />
             </div>
@@ -329,7 +340,7 @@ export default function AdminSavings() {
               <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Transaction ID</label>
               <input
                 type="text"
-                value={editFormData.transactionId}
+                value={editFormData.transactionId || ''}
                 onChange={(e) => setEditFormData({ ...editFormData, transactionId: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
               />
@@ -346,7 +357,8 @@ export default function AdminSavings() {
         variant="danger"
         onConfirm={() => {
           if (deleteSaving) {
-            setSavings((current) => current.filter((item) => item.id !== deleteSaving.id));
+            deleteSavingRecord(deleteSaving.id);
+            loadSavings();
           }
           setDeleteSaving(null);
         }}

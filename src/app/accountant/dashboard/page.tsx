@@ -110,13 +110,6 @@ export default function AccountantDashboard() {
                   <stop offset="5%" stopColor="#F59E0B" stopOpacity={0.3}/>
                   <stop offset="95%" stopColor="#F59E0B" stopOpacity={0.05}/>
                 </linearGradient>
-                <filter id="glow">
-                  <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-                  <feMerge>
-                    <feMergeNode in="coloredBlur"/>
-                    <feMergeNode in="SourceGraphic"/>
-                  </feMerge>
-                </filter>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
               <XAxis 
@@ -154,7 +147,7 @@ export default function AccountantDashboard() {
                 strokeWidth={3}
                 name="Savings (RWF)" 
                 dot={{ r: 5, fill: '#0B5D3B', strokeWidth: 2, stroke: '#fff' }} 
-                activeDot={{ r: 7, fill: '#0B5D3B', strokeWidth: 3, stroke: '#fff', filter: 'url(#glow)' }}
+                activeDot={{ r: 7, fill: '#0B5D3B', strokeWidth: 3, stroke: '#fff' }}
                 fill="url(#colorSavings)"
               />
               <Line 
@@ -164,7 +157,7 @@ export default function AccountantDashboard() {
                 strokeWidth={3}
                 name="Loans (RWF)" 
                 dot={{ r: 5, fill: '#F59E0B', strokeWidth: 2, stroke: '#fff' }} 
-                activeDot={{ r: 7, fill: '#F59E0B', strokeWidth: 3, stroke: '#fff', filter: 'url(#glow)' }}
+                activeDot={{ r: 7, fill: '#F59E0B', strokeWidth: 3, stroke: '#fff' }}
                 fill="url(#colorLoans)"
               />
             </LineChart>
