@@ -12,7 +12,6 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-  TooltipProps,
 } from 'recharts';
 
 interface FinchartProps {
@@ -39,11 +38,7 @@ interface FinchartBarProps extends FinchartProps {
 }
 
 // Custom Tooltip
-const CustomTooltip: React.FC<TooltipProps<number, string>> = ({
-  active,
-  payload,
-  label,
-}) => {
+const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-white p-3 rounded-xl shadow-lg border border-gray-200">
