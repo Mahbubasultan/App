@@ -319,7 +319,7 @@ export default function AdminSavings() {
               <label className="text-xs uppercase tracking-wider text-gray-600 mb-2 block">Status</label>
               <select
                 value={editFormData.status}
-                onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value })}
+                onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value as 'Pending' | 'Approved' | 'Rejected' })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
               >
                 <option value="Approved">Approved</option>
@@ -352,7 +352,7 @@ export default function AdminSavings() {
       <ConfirmDialog
         isOpen={Boolean(deleteSaving)}
         title="Delete Saving"
-        message={`Are you sure you want to delete the savings entry for ${deleteSaving?.memberName}?`}
+        message={`Are you sure you want to delete the savings entry for ${deleteSaving?.userName}?`}
         confirmText="Delete"
         variant="danger"
         onConfirm={() => {
