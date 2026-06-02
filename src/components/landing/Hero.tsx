@@ -12,7 +12,7 @@ export default function Hero() {
   }, []);
 
   return (
-    <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-[#f0fdf4] to-white pt-20 pb-16">
+    <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-[#f0fdf4] to-white pt-32 pb-20">
       {/* Simple Background Decoration */}
       <div className="absolute inset-0 overflow-hidden opacity-30">
         <div className="absolute top-20 left-10 w-72 h-72 bg-green-300 rounded-full blur-3xl"></div>
@@ -30,7 +30,7 @@ export default function Hero() {
             </div>
 
             {/* Main Heading */}
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-900 mb-6 leading-tight">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
               Welcome to
               <span className="block mt-2">
                 <span className="text-gray-900">Trust</span>
@@ -39,12 +39,12 @@ export default function Hero() {
             </h1>
 
             {/* Subheading */}
-            <p className="text-xl text-gray-600 mb-8 leading-relaxed">
+            <p className="text-lg sm:text-xl text-gray-600 mb-10 leading-relaxed max-w-2xl">
               Build your financial future together. Save smart, grow wealth, and achieve your dreams with our secure community savings platform.
             </p>
 
             {/* Simple Features */}
-            <div className="space-y-4 mb-10">
+            <div className="space-y-5 mb-12">
               {[
                 { icon: Wallet, text: 'Share-based savings - 2,000 RWF per share' },
                 { icon: Shield, text: '100% secure with loan coverage guarantee' },
@@ -60,7 +60,7 @@ export default function Hero() {
             </div>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 mb-8">
+            <div className="flex flex-col sm:flex-row gap-4 mb-10">
               <Link
                 href="/register"
                 className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#14532D] text-white rounded-xl font-semibold text-lg hover:bg-[#0f3d21] transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
@@ -110,8 +110,8 @@ export default function Hero() {
         </div>
 
         {/* Simple Stats Section */}
-        <div className={`mt-20 transition-all duration-1000 delay-500 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+        <div className={`mt-24 transition-all duration-1000 delay-500 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12 text-center">
             {[
               { value: '10K+', label: 'Active Members', icon: Users },
               { value: '50M+', label: 'RWF Saved', icon: Wallet },
